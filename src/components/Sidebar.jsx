@@ -15,7 +15,7 @@ function Sidebar({ tabs, currentTab, onTabClick }) {
     <div className="relative w-70 h-screen bg-transparent flex items-center justify-start">
 
     {/* Bottom rectangle */}
-    <div className="w-50 h-[85vh] bg-[#dbb9a0] border-8 border-[#524136] border-l-0 rounded-sm -ml-4"></div>
+    <div className="w-50 h-[85vh] bg-[#dbb9a0] border-8 border-[#524136] border-l-0 rounded-sm -ml-4 z-5"></div>
 
     {/* Buttons container */}
     <div className="absolute left-0 transform z-10 flex flex-col space-y-6 ml-4">

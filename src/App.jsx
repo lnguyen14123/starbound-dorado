@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import Sidebar from "./components/Sidebar";
+import Floor from "./components/Floor"
+
 
 function App() {
   const tabs = ["Tasks", "Store", "Friends", "Settings"];
@@ -15,6 +17,8 @@ function App() {
         onTabClick={setCurrentTab}
         className="bg-white text-black"
       />
+
+      <Floor></Floor>
 
     </div>
   );
