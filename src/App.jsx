@@ -39,7 +39,7 @@ function App() {
   const [currentTab, setCurrentTab] = useState("Tasks");
 
   return (
-    <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-white">
+    <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0]">
       <Sidebar
         tabs={tabs}
         currentTab={currentTab}
