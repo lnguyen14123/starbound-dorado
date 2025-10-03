@@ -7,9 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
+    "server": "node server/index.js",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@stackframe/react": "^2.8.41",
     "@tailwindcss/vite": "^4.1.14",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
