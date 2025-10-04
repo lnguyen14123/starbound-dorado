@@ -31,7 +31,7 @@ app.get("/api/hello", (req, res) => {
 });
 
 // Catch-all: serve index.html for all other routes
-app.get("/", (req, res) => {
+app.use((req, res) => {
   console.log("Serving React app...");
   res.sendFile(path.join(reactDist, "index.html"));
 });

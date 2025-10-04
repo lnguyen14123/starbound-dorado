@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+
 import { auth } from "../firebase";
 import Notebook from "./Notebook";
 import { useNavigate } from "react-router-dom";
@@ -8,16 +9,41 @@ import { useNavigate } from "react-router-dom";
 
 export default function Register() {
   const [email, setEmail] = useState("");
+  const [userName, setUser] = useState("");  
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();  // ✅ define navigate here
 
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
+    console.log(email);
+    console.log(password);
+
+    console.log("HELLO");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+    
+
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+
+      console.log(email);
+      console.log(password);
+
+
+      await createUserWithEmailAndPassword(auth, email, password);
+      alert("Registration successful!");
+      // redirect to login or dashboard
     } catch (err) {
+      console.log(email);
+      console.log(password);
+  
+      console.log("HELLO");
+  
       setError(err.message);
     }
   };
@@ -36,21 +62,27 @@ export default function Register() {
         </div>
 
         {/* Input fields */}
-        <div className="flex flex-col gap-4 w-90 mt-13">
+        <form className="flex flex-col gap-4 w-90 mt-13" onSubmit={handleRegister}>
           <input
             type="text"
             placeholder="Username"
+            value={userName}
+            onChange={(e) => setUser(e.target.value)}
             className="bg-[#ebd3c3] text-[#8F674D] font-dongle font-bold text-4xl pl-5 py-2 rounded-3xl border-3 border-[#e2cec0] focus:outline-none focus:ring-2 focus:ring-[#c7a68e]"
           />
 
           <input
             type="text"
             placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="bg-[#ebd3c3] text-[#8F674D] font-bold font-dongle text-4xl pl-5 py-2 rounded-3xl border-3 border-[#e2cec0] focus:outline-none focus:ring-2 focus:ring-[#c7a68e]"
           />
 
         <input
             type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="Create a Password"
             className="bg-[#ebd3c3] text-[#8F674D] font-bold font-dongle text-4xl pl-5 py-2 rounded-3xl border-3 border-[#e2cec0] focus:outline-none focus:ring-2 focus:ring-[#c7a68e]"
           />
@@ -59,10 +91,17 @@ export default function Register() {
           <input
             type="password"
             placeholder="Confirm Your Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             className="bg-[#ebd3c3] text-[#8F674D] font-bold font-dongle text-4xl pl-5 py-2 rounded-3xl border-3 border-[#e2cec0] focus:outline-none focus:ring-2 focus:ring-[#c7a68e]"
           />
 
-          <button className="mt-7 bg-[#AD7B5C] shadow-[0_5px_10px_rgba(0,0,0,0.7)] cursor-pointer text-white p-1 text-5xl font-dongle rounded-3xl font-bold hover:bg-[#b6917d] transition">
+          <button 
+          // type="submit" 
+          className="mt-7 bg-[#AD7B5C] shadow-[0_5px_10px_rgba(0,0,0,0.7)] cursor-pointer text-white 
+          p-1 pt-2 text-5xl font-dongle rounded-3xl font-bold hover:bg-[#b6917d] transition"
+          onClick={handleRegister}
+          >
             Create New Account
           </button>
 
@@ -71,8 +110,12 @@ export default function Register() {
             <button className="cursor-pointer underline" onClick={() => navigate("/login")}>Log in</button>
           </p>
 
+          <div>
+            <button onClick={() => console.log("CLICK")}>Test Click</button>
+          </div>
 
-        </div>
+
+        </form>
       </div>
     </Notebook>
 
