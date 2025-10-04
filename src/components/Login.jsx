@@ -39,16 +39,21 @@ export default function Login() {
         </h1>
 
         {/* Input fields */}
-        <div className="flex flex-col gap-4 w-90 mt-13">
+        <form className="flex flex-col gap-4 w-90 mt-13" onSubmit={handleLogin}>
           <input
             type="text"
-            placeholder="Username"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="bg-[#ebd3c3] text-[#8F674D] font-dongle font-bold text-4xl pl-5 py-2 rounded-3xl border-3 border-[#e2cec0] focus:outline-none focus:ring-2 focus:ring-[#c7a68e]"
           />
 
           <input
             type="password"
             placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+
             className="bg-[#ebd3c3] text-[#8F674D] font-bold font-dongle text-4xl pl-5 py-2 rounded-3xl border-3 border-[#e2cec0] focus:outline-none focus:ring-2 focus:ring-[#c7a68e]"
           />
 
@@ -61,7 +66,9 @@ export default function Login() {
           <button className="mt-20 bg-[#AD7B5C] shadow-[0_5px_10px_rgba(0,0,0,0.7)] cursor-pointer text-white p-1 text-5xl font-dongle rounded-3xl font-bold hover:bg-[#b6917d] transition">
             Login
           </button>
-        </div>
+        </form>
+
+
       </div>
     </Notebook>
 

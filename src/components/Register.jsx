@@ -110,11 +110,6 @@ export default function Register() {
             <button className="cursor-pointer underline" onClick={() => navigate("/login")}>Log in</button>
           </p>
 
-          <div>
-            <button onClick={() => console.log("CLICK")}>Test Click</button>
-          </div>
-
-
         </form>
       </div>
     </Notebook>

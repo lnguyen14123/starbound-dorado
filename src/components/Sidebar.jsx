@@ -1,6 +1,22 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase"; // make sure this points to your Firebase config
 
 function Sidebar({ tabs, currentTab, onTabClick }) {
+
+    const navigate = useNavigate();
+
+    const handleSignOut = async () => {
+      try {
+        await signOut(auth);
+        navigate("/login"); // redirect to login page
+      } catch (error) {
+        console.error("Error signing out:", error);
+      }
+    };
+  
+  
   return (
 
     // <div className="relative w-70 my-0 h-screen bg-transparent flex items-center justify-start">
@@ -48,7 +64,14 @@ function Sidebar({ tabs, currentTab, onTabClick }) {
             </h1>
         </button>
 
-
+        <button className="w-62 h-25 bg-[#d1ee80] border-7 border-[#a2c93b] 
+        rounded-sm cursor-pointer"
+        onClick={handleSignOut}
+>
+            <h1 className="font-dynapuff text-4xl text-white drop-shadow-[-3px_3px_0px_rgba(0,0,0)]">
+            Sign Out
+            </h1>
+        </button>
     </div>
 
     {/* Top rectangle (overlapping) */}
