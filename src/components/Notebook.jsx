@@ -1,12 +1,13 @@
 import React from "react";
 import Taskbook from '../assets/taskbook.png';
+import TaskbookL from '../assets/L_TaskBook.png';
 
 function Notebook({ children }) {
   return (
     <div className="relative bg-transparent min-h-[100vh] min-w-[100vw] flex items-center justify-center">
       {/* Notebook image */}
       <img
-        src={Taskbook}
+        src={TaskbookL}
         alt="Notebook"
         className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1/2 h-auto z-20 scale-80"
       />
