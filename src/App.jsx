@@ -5,6 +5,7 @@ import Sidebar from "./components/Sidebar";
 import Floor from "./components/Floor";
 import Notebook from "./components/Notebook";
 import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import Login from "./components/Login";
 import Register from "./components/Register";
@@ -73,33 +74,24 @@ function App() {
         <Route
           path="/"
           element={
-            user ? (
+            <ProtectedRoute user={user} loading={loading}>
               <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0]">
-                <Sidebar
-                  tabs={tabs}
-                  currentTab={currentTab}
-                  onTabClick={setCurrentTab}
-                  className="bg-white text-black"
-                />
+                <Sidebar />
                 <Floor />
               </div>
-            ) : (
-              <Navigate to="/login" />
-            )
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/ChoosePet"
           element={
-            user ? (
+            <ProtectedRoute user={user} loading={loading}>
               <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0]">
-                <ChoosePet/>
-                <Floor/>
+                <ChoosePet />
+                <Floor />
               </div>
-            ) : (
-              <Navigate to="/login" />
-            )
+            </ProtectedRoute>
           }
         />
 

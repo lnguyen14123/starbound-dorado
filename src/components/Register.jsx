@@ -18,32 +18,32 @@ export default function Register() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    console.log(email);
-    console.log(password);
-
-    console.log("HELLO");
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
     
-
     try {
 
-      console.log(email);
-      console.log(password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-
-      await createUserWithEmailAndPassword(auth, email, password);
-      alert("Registration successful!");
+      await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          username: userName,
+        }),
+      });
+      navigate('/ChoosePet')
       // redirect to login or dashboard
     } catch (err) {
       console.log(email);
       console.log(password);
-  
-      console.log("HELLO");
-  
+    
       setError(err.message);
     }
   };
