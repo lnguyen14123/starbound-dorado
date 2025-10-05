@@ -9,7 +9,7 @@ function Notebook({ children }) {
       <img
         src={TaskbookL}
         alt="Notebook"
-        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1/2 h-auto z-20 scale-80"
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1/2 h-auto z-20 scale-80 bg-transparent"
       />
 
       {/* Children container matching the image size */}
