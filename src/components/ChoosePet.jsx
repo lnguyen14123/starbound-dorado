@@ -5,6 +5,9 @@ import { auth } from "../firebase"; // make sure this points to your Firebase co
 
 import GrayCat1 from "../assets/gray_cat1.png"
 import YellowDog1 from "../assets/yellow_dog1.png"
+import Dresser1 from "../assets/items/dresser_1.png"
+import Window1 from "../assets/items/window_1.png"
+import PottedPlant1 from "../assets/items/pottedplant_1.png"
 
 function ChoosePet({ tabs, currentTab, onTabClick }) {
 
@@ -15,16 +18,33 @@ function ChoosePet({ tabs, currentTab, onTabClick }) {
 <div className="relative w-screen h-screen bg-transparent flex flex-col items-center justify-center z-30">
 
 {/* Title */}
-<div className="bg-[#c49b80] px-20 h-15 w-auto border-[#b59179] border-3 rounded-3xl flex items-center justify-center">
-  <h1 className="mt-2 text-6xl text-center font-bold font-dongle">
-    Choose Your Starting Pet!
-  </h1>
-</div>
+    <div className="bg-[#c49b80] z-10 px-20 h-15 w-auto border-[#b59179] border-3 rounded-3xl flex items-center justify-center">
+      <h1 className="mt-2 text-6xl text-center font-bold font-dongle">
+        Choose Your Starting Pet!
+      </h1>
+    </div>
+
+        <img
+          src={Dresser1} // e.g., rug, couch, or table
+          alt="Platform"
+          className="absolute left-2/3 bottom-2/10 w-[300px] h-auto z-5"
+        />
+
+        <img
+          src={Window1} // e.g., rug, couch, or table
+          alt="Platform"
+          className="absolute left-5/7 bottom-5/10 w-[400px] h-auto z-0"
+        />
+
+        <img
+          src={PottedPlant1} // e.g., rug, couch, or table
+          alt="Platform"
+          className="absolute left-6/7 bottom-96 w-[120px] h-auto z-0"
+        />
 
 
 
-
-{/* Pet images container */}
+    {/* Pet images container */}
     <div className="pl-40 flex justify-center items-center gap-30 bg-transparent pt-30 z-30">
 
         {/* Dog */}
