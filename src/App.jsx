@@ -13,6 +13,7 @@ import Register from "./components/Register";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import ChoosePet from "./components/ChoosePet";
+import TasksPage from "./components/TasksPage";
 
 function App() {
   const tabs = ["Tasks", "Store", "Friends", "Settings"];
@@ -90,6 +91,17 @@ function App() {
               <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0]">
                 <ChoosePet />
                 <Floor />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tasks"
+          element={
+            <ProtectedRoute user={user} loading={loading}>
+              <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0]">
+                <Sidebar />
+                <TasksPage />
               </div>
             </ProtectedRoute>
           }
