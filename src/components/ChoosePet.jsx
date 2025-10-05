@@ -3,19 +3,58 @@ import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase"; // make sure this points to your Firebase config
 
+import GrayCat1 from "../assets/gray_cat1.png"
+import YellowDog1 from "../assets/yellow_dog1.png"
+
 function ChoosePet({ tabs, currentTab, onTabClick }) {
 
     const navigate = useNavigate();
   
   return (
 
-    <div className="relative w-70 h-screen bg-transparent flex items-center justify-start">
+<div className="relative w-screen h-screen bg-transparent flex flex-col items-center justify-center z-30">
 
-        HELLO
+{/* Title */}
+<div className="bg-[#c49b80] px-20 h-15 w-auto border-[#b59179] border-3 rounded-3xl flex items-center justify-center">
+  <h1 className="mt-2 text-6xl text-center font-bold font-dongle">
+    Choose Your Starting Pet!
+  </h1>
+</div>
 
+
+
+
+{/* Pet images container */}
+    <div className="pl-40 flex justify-center items-center gap-30 bg-transparent pt-30 z-30">
+
+        {/* Dog */}
+        <div
+        className="cursor-pointer transition-transform duration-300 hover:scale-105  rounded-3xl"
+        onClick={() => handleChoosePet("Dog")}
+        >
+        <img
+            src={YellowDog1}
+            alt="Dog"
+            className="w-100 h-auto hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.9)]"
+        />
+        </div>
+
+        {/* Cat */}
+        <div
+        className="cursor-pointer transition-transform duration-300 hover:scale-105 rounded-3xl"
+        onClick={() => handleChoosePet("Cat")}
+        >
+        <img
+            src={GrayCat1}
+            alt="Cat"
+            className="w-130 h-auto  hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.9)]"
+        />
+        </div>
 
     </div>
-  );
+
+</div>
+);
 }
 
 export default ChoosePet;

@@ -9,7 +9,8 @@ function Notebook({ children }) {
       <img
         src={TaskbookL}
         alt="Notebook"
-        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1/2 h-auto z-20 scale-80 bg-transparent"
+        className="absolute top-1/2 left-1/2 transform 
+        -translate-x-1/2 -translate-y-1/2 w-1/2 h-auto z-20 scale-80 bg-transparent drop-shadow-[-10px_10px_10px_rgba(0,0,0,0.5)]"
       />
 
       {/* Children container matching the image size */}
