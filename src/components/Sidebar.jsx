@@ -6,7 +6,12 @@ import { auth } from "../firebase"; // make sure this points to your Firebase co
 function Sidebar({ tabs, currentTab, onTabClick }) {
 
     const navigate = useNavigate();
-
+    <button
+      onClick={() => navigate("/tasks")}
+      className="bg-[#c49b80] px-4 py-2 rounded-xl hover:bg-[#b88f76] transition"
+    >
+    Tasks
+    </button>
     const handleSignOut = async () => {
       try {
         await signOut(auth);
@@ -36,29 +41,28 @@ function Sidebar({ tabs, currentTab, onTabClick }) {
     {/* Buttons container */}
     <div className="absolute left-0 transform z-10 flex flex-col space-y-6 ml-4">
 
-        <button className="w-62 h-25 bg-[#fcd68d] border-7 border-[#daa94a] 
-        rounded-sm cursor-pointer">
+
+        <button className="w-62 h-25 bg-[#fcd68d] border-7 border-[#daa94a] rounded-sm cursor-pointer"
+          onClick={() => navigate("/tasks")}
+        >
             <h1 className="font-dynapuff text-4xl text-white drop-shadow-[-3px_3px_0px_rgba(0,0,0)]">
             Tasks
             </h1>
         </button>
 
-        <button className="w-62 h-25 bg-[#b6dcff] border-7 border-[#7fb0fd] 
-        rounded-sm cursor-pointer">
+        <button className="w-62 h-25 bg-[#b6dcff] border-7 border-[#7fb0fd] rounded-sm cursor-pointer">
             <h1 className="font-dynapuff text-4xl text-white drop-shadow-[-3px_3px_0px_rgba(0,0,0)]">
             Store
             </h1>
         </button>
 
-        <button className="w-62 h-25 bg-[#ffbac5] border-7 border-[#ff8395] 
-        rounded-sm cursor-pointer">
+        <button className="w-62 h-25 bg-[#ffbac5] border-7 border-[#ff8395] rounded-sm cursor-pointer">
             <h1 className="font-dynapuff text-4xl text-white drop-shadow-[-3px_3px_0px_rgba(0,0,0)]">
             Friends
             </h1>
         </button>
 
-        <button className="w-62 h-25 bg-[#d1ee80] border-7 border-[#a2c93b] 
-        rounded-sm cursor-pointer">
+        <button className="w-62 h-25 bg-[#d1ee80] border-7 border-[#a2c93b] rounded-sm cursor-pointer">
             <h1 className="font-dynapuff text-4xl text-white drop-shadow-[-3px_3px_0px_rgba(0,0,0)]">
             Settings
             </h1>
