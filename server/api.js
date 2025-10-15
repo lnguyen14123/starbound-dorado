@@ -27,7 +27,7 @@ router.post("/choosePet", async (req, res) => {
       "UPDATE users SET pet_type = $1 WHERE uid = $2",
       [petType, uid]
     );
-
+    console.log(petType);
     res.status(200).json({ message: "Pet choice saved successfully" });
 
   } catch (err) {

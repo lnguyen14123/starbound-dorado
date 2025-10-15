@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase"; // make sure this points to your Firebase config
@@ -9,13 +10,15 @@ import Dresser1 from "../assets/items/dresser_1.png"
 import Window1 from "../assets/items/window_1.png"
 import PottedPlant1 from "../assets/items/pottedplant_1.png"
 
-function ChoosePet({ tabs, currentTab, onTabClick }) {
+function ChoosePet({ tabs, currentTab, onTabClick, setIsNewUser}) {
 
     const navigate = useNavigate();
+    const [saving, setSaving] = useState(false);
 
     const handleChoosePet = async (petType) => {
-      try {
+      setSaving(true); // start loading
 
+      try {
         const uid = localStorage.getItem("uid");
 
         if (!uid) {
@@ -23,7 +26,7 @@ function ChoosePet({ tabs, currentTab, onTabClick }) {
           return;
         }
     
-        await fetch("/api/choosePet", {
+        const res = await fetch("/api/choosePet", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -32,13 +35,17 @@ function ChoosePet({ tabs, currentTab, onTabClick }) {
           }),
         });
 
+        localStorage.setItem("isNewUser", "false");
+        setIsNewUser(false);
         navigate('/')
 
       } catch (err) {      
-        setError(err.message);
+        console.log(err.message);
+      }finally {
+        setSaving(false); // stop loading
       }
+    
     };
-  
   
   return (
 

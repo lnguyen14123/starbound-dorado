@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import Sidebar from "./components/Sidebar";
+import MainPage from "./components/MainPage";
 import Floor from "./components/Floor";
 import Notebook from "./components/Notebook";
 import Layout from "./components/Layout";
@@ -19,19 +20,16 @@ function App() {
   const [currentTab, setCurrentTab] = useState("Tasks");
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // new
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return unsubscribe;
-  }, []);
+  const [isNewUser, setIsNewUser] = useState(localStorage.getItem("isNewUser") === "true");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false); // auth state is now known
     });
+    const stored = localStorage.getItem("isNewUser");
+    setIsNewUser(stored === "true");
+  
     return unsubscribe;
   }, []);
 
@@ -76,13 +74,10 @@ function App() {
           element={
             <ProtectedRoute user={user} loading={loading}>
               
-              {localStorage.getItem("isNewUser") === "true" ? (
+              {isNewUser ? (
                 <Navigate to="/ChoosePet" replace />
               ) : (
-                <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0]">
-                  <Sidebar />
-                  <Floor />
-                </div>
+                <MainPage />
               )}
             </ProtectedRoute>
           }
@@ -93,7 +88,7 @@ function App() {
           element={
             <ProtectedRoute user={user} loading={loading}>
               <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0]">
-                <ChoosePet />
+                <ChoosePet setIsNewUser={setIsNewUser}/>
                 <Floor />
               </div>
             </ProtectedRoute>
