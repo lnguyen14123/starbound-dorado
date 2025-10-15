@@ -13,6 +13,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();  // ✅ define navigate here
+  const [justRegistered, setJustRegistered] = useState(false);
 
 
   const handleRegister = async (e) => {
@@ -40,8 +41,8 @@ export default function Register() {
       
       localStorage.setItem("isNewUser", "true");
       localStorage.setItem("uid", user.uid);
-
-      navigate('/ChoosePet')
+      setJustRegistered(true); // tell App that we just registered
+      navigate("/ChoosePet", { replace: true });
 
     } catch (err) {
       console.log(email);
@@ -100,10 +101,9 @@ export default function Register() {
           />
 
           <button 
-          // type="submit" 
+          type="submit" 
           className="mt-7 bg-[#AD7B5C] shadow-[0_5px_10px_rgba(0,0,0,0.7)] cursor-pointer text-white 
           p-1 pt-2 text-5xl font-dongle rounded-3xl font-bold hover:bg-[#b6917d] transition"
-          onClick={handleRegister}
           >
             Create New Account
           </button>

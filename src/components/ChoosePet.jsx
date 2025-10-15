@@ -35,6 +35,7 @@ function ChoosePet({ tabs, currentTab, onTabClick, setIsNewUser}) {
           }),
         });
 
+        localStorage.setItem("petType", petType);
         localStorage.setItem("isNewUser", "false");
         setIsNewUser(false);
         navigate('/')

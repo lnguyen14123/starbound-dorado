@@ -35,43 +35,43 @@ function Sidebar({ tabs, currentTab, onTabClick }) {
     </div>
 
     {/* Buttons container */}
-    <div className="absolute left-0 transform z-10 flex flex-col space-y-6 ml-4">
+    <div className="absolute -left-20 transform z-10 flex flex-col space-y-8 ml-4">
 
-        <button className="w-62 h-25 bg-[#fcd68d] border-3 border-[#daa94a] 
+        <button className="w-90 h-21 bg-[#fcd68d] border-3 border-[#daa94a] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
         rounded-sm cursor-pointer">
-            <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)]">
+            <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)] text-right pr-15">
             Tasks
             </h1>
         </button>
 
-        <button className="w-62 h-25 bg-[#b6dcff] border-3 border-[#7fb0fd] 
+        <button className="w-90 h-21 bg-[#b6dcff] border-3 border-[#7fb0fd] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
         rounded-sm cursor-pointer">
-            <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)]">
+            <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)] text-right pr-15">
             Store
             </h1>
         </button>
 
-        <button className="w-62 h-25 bg-[#ffbac5] border-3 border-[#ff8395] 
+        <button className="w-90 h-21 bg-[#ffbac5] border-3 border-[#ff8395] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
         rounded-sm cursor-pointer">
-            <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)]">
+            <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)] text-right pr-15">
             Friends
             </h1>
         </button>
 
-        <button className="w-62 h-25 bg-[#d1ee80] border-3 border-[#a2c93b] 
+        <button className="w-90 h-21 bg-[#fff49e] border-3 border-[#fde957]  drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
         rounded-sm cursor-pointer">
-            <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)]">
+            <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)] text-right pr-15">
             Settings
             </h1>
         </button>
 
-        <button className="w-62 h-25 bg-[#d1ee80] border-3 border-[#a2c93b] 
+        <button className="w-90 h-21 bg-[#d1ee80] border-3 border-[#a2c93b] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
         rounded-sm cursor-pointer"
         onClick={handleSignOut}
->
-            <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)]">
-              Sign Out
-            </h1>
+          >
+          <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)] text-right pr-15">
+          Sign Out
+                      </h1>
         </button>
     </div>
 
