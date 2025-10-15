@@ -19,6 +19,22 @@ router.post("/users", async (req, res) => {
   }
 });
   
+router.post("/choosePet", async (req, res) => {
+  const { uid, petType } = req.body;
+  
+  try {
+    await pool.query(
+      "UPDATE users SET pet_type = $1 WHERE uid = $2",
+      [petType, uid]
+    );
+
+    res.status(200).json({ message: "Pet choice saved successfully" });
+
+  } catch (err) {
+    console.error("Error updating pet type:", err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
 
 
 export default router;

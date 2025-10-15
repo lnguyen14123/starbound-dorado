@@ -12,6 +12,33 @@ import PottedPlant1 from "../assets/items/pottedplant_1.png"
 function ChoosePet({ tabs, currentTab, onTabClick }) {
 
     const navigate = useNavigate();
+
+    const handleChoosePet = async (petType) => {
+      try {
+
+        const uid = localStorage.getItem("uid");
+
+        if (!uid) {
+          console.error("No UID found in localStorage");
+          return;
+        }
+    
+        await fetch("/api/choosePet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            uid: uid,
+            petType: petType
+          }),
+        });
+
+        navigate('/')
+
+      } catch (err) {      
+        setError(err.message);
+      }
+    };
+  
   
   return (
 
@@ -42,15 +69,13 @@ function ChoosePet({ tabs, currentTab, onTabClick }) {
           className="absolute left-6/7 bottom-96 w-[120px] h-auto z-0"
         />
 
-
-
     {/* Pet images container */}
     <div className="pl-40 flex justify-center items-center gap-30 bg-transparent pt-30 z-30">
 
         {/* Dog */}
         <div
         className="cursor-pointer transition-transform duration-300 hover:scale-105  rounded-3xl"
-        onClick={() => handleChoosePet("Dog")}
+        onClick={() => handleChoosePet("dog")}
         >
         <img
             src={YellowDog1}
@@ -62,7 +87,7 @@ function ChoosePet({ tabs, currentTab, onTabClick }) {
         {/* Cat */}
         <div
         className="cursor-pointer transition-transform duration-300 hover:scale-105 rounded-3xl"
-        onClick={() => handleChoosePet("Cat")}
+        onClick={() => handleChoosePet("cat")}
         >
         <img
             src={GrayCat1}
