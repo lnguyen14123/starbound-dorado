@@ -2,6 +2,9 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase"; // make sure this points to your Firebase config
+import TaskbookL from '../assets/L_TaskBook.png';
+import BookCover from '../assets/book_cover.png';
+
 
 function Sidebar({ tabs, currentTab, onTabClick }) {
 
@@ -19,64 +22,70 @@ function Sidebar({ tabs, currentTab, onTabClick }) {
   
   return (
 
-    // <div className="relative w-70 my-0 h-screen bg-transparent flex items-center justify-start">
-    // {/* Bottom rectangle */}
-    //     <div className="w-50 h-[85vh] bg-[#d6ae92] border-8 border-[#524136] border-l-0 rounded-sm -ml-4"></div>
-
-    // {/* Top rectangle (overlapping) */}
-    //     <div className="absolute -ml-4 w-15 h-[85vh] bg-[#d6ae92] border-8 border-[#524136] rounded-sm"></div>
-
-    // </div>
-
-    <div className="relative w-70 h-screen bg-transparent flex items-center justify-start">
+    <div className="relative w-150 h-screen bg-transparent flex items-center justify-start">
 
     {/* Bottom rectangle */}
-    <div className="w-50 h-[85vh] bg-[#dbb9a0] border-8 border-[#524136] border-l-0 rounded-sm -ml-4 z-5"></div>
+    {/* <div className="w-50 h-[85vh] bg-[#dbb9a0] border-8 border-[#524136] border-l-0 rounded-sm -ml-4 z-5"></div> */}
+    <div className="absolute -ml-120 w-auto h-[95vh] z-5 flex items-center justify-center drop-shadow-[5px_5px_5px_rgba(0,0,0,.5)]">
+      <img
+          src={TaskbookL}
+          alt="Bottom Rectangle"
+          className="w-full h-full"
+        />
+    </div>
 
     {/* Buttons container */}
     <div className="absolute left-0 transform z-10 flex flex-col space-y-6 ml-4">
 
-        <button className="w-62 h-25 bg-[#fcd68d] border-7 border-[#daa94a] 
+        <button className="w-62 h-25 bg-[#fcd68d] border-3 border-[#daa94a] 
         rounded-sm cursor-pointer">
-            <h1 className="font-dynapuff text-4xl text-white drop-shadow-[-3px_3px_0px_rgba(0,0,0)]">
+            <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)]">
             Tasks
             </h1>
         </button>
 
-        <button className="w-62 h-25 bg-[#b6dcff] border-7 border-[#7fb0fd] 
+        <button className="w-62 h-25 bg-[#b6dcff] border-3 border-[#7fb0fd] 
         rounded-sm cursor-pointer">
-            <h1 className="font-dynapuff text-4xl text-white drop-shadow-[-3px_3px_0px_rgba(0,0,0)]">
+            <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)]">
             Store
             </h1>
         </button>
 
-        <button className="w-62 h-25 bg-[#ffbac5] border-7 border-[#ff8395] 
+        <button className="w-62 h-25 bg-[#ffbac5] border-3 border-[#ff8395] 
         rounded-sm cursor-pointer">
-            <h1 className="font-dynapuff text-4xl text-white drop-shadow-[-3px_3px_0px_rgba(0,0,0)]">
+            <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)]">
             Friends
             </h1>
         </button>
 
-        <button className="w-62 h-25 bg-[#d1ee80] border-7 border-[#a2c93b] 
+        <button className="w-62 h-25 bg-[#d1ee80] border-3 border-[#a2c93b] 
         rounded-sm cursor-pointer">
-            <h1 className="font-dynapuff text-4xl text-white drop-shadow-[-3px_3px_0px_rgba(0,0,0)]">
+            <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)]">
             Settings
             </h1>
         </button>
 
-        <button className="w-62 h-25 bg-[#d1ee80] border-7 border-[#a2c93b] 
+        <button className="w-62 h-25 bg-[#d1ee80] border-3 border-[#a2c93b] 
         rounded-sm cursor-pointer"
         onClick={handleSignOut}
 >
-            <h1 className="font-dynapuff text-4xl text-white drop-shadow-[-3px_3px_0px_rgba(0,0,0)]">
-            Sign Out
+            <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)]">
+              Sign Out
             </h1>
         </button>
     </div>
 
     {/* Top rectangle (overlapping) */}
-    <div className="absolute -ml-4 w-15 h-[85vh] bg-[#dbb9a0] border-8 border-[#524136] rounded-sm z-20"></div>
+    <img
+      src={BookCover}
+      alt="Top Rectangle"
+      className="absolute -ml-23 w-auto h-[95vh] z-20"
+    />
+
+    {/* Top rectangle (overlapping) */}
+    {/* <div className="absolute -ml-4 w-15 h-[85vh] bg-[#dbb9a0] border-8 border-[#524136] rounded-sm z-20"></div> */}
     </div>
+    
 
 
   );
