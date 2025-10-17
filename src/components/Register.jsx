@@ -6,7 +6,6 @@ import Notebook from "./Notebook";
 import { useNavigate } from "react-router-dom";
 
 
-
 export default function Register() {
   const [email, setEmail] = useState("");
   const [userName, setUser] = useState("");  
@@ -14,6 +13,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();  // ✅ define navigate here
+  const [justRegistered, setJustRegistered] = useState(false);
 
 
   const handleRegister = async (e) => {
@@ -38,8 +38,12 @@ export default function Register() {
           username: userName,
         }),
       });
-      navigate('/ChoosePet')
-      // redirect to login or dashboard
+      
+      localStorage.setItem("isNewUser", "true");
+      localStorage.setItem("uid", user.uid);
+      setJustRegistered(true); // tell App that we just registered
+      navigate("/ChoosePet", { replace: true });
+
     } catch (err) {
       console.log(email);
       console.log(password);
@@ -97,10 +101,9 @@ export default function Register() {
           />
 
           <button 
-          // type="submit" 
+          type="submit" 
           className="mt-7 bg-[#AD7B5C] shadow-[0_5px_10px_rgba(0,0,0,0.7)] cursor-pointer text-white 
           p-1 pt-2 text-5xl font-dongle rounded-3xl font-bold hover:bg-[#b6917d] transition"
-          onClick={handleRegister}
           >
             Create New Account
           </button>
@@ -132,28 +135,4 @@ export default function Register() {
 </div>
 
   );
-
-//   return (
-//     <form onSubmit={handleLogin} className="flex flex-col gap-4 p-6 bg-white rounded-lg shadow-md max-w-sm mx-auto">
-//       <h2 className="text-xl font-bold text-center">Login</h2>
-//       <input
-//         type="email"
-//         placeholder="Email"
-//         value={email}
-//         onChange={(e) => setEmail(e.target.value)}
-//         className="p-2 border rounded"
-//       />
-//       <input
-//         type="password"
-//         placeholder="Password"
-//         value={password}
-//         onChange={(e) => setPassword(e.target.value)}
-//         className="p-2 border rounded"
-//       />
-//       <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition">
-//         Login
-//       </button>
-//       {error && <p className="text-red-500 text-sm">{error}</p>}
-//     </form>
-//   );
 }

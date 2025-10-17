@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-import Sidebar from "./components/Sidebar";
+import MainPage from "./components/MainPage";
 import Floor from "./components/Floor";
-import Notebook from "./components/Notebook";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -20,89 +19,82 @@ function App() {
   const [currentTab, setCurrentTab] = useState("Tasks");
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // new
+  const [isNewUser, setIsNewUser] = useState(null); // start as null
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+
+      // Only check localStorage once auth state is known
+      const stored = localStorage.getItem("isNewUser");
+      setIsNewUser(stored === "true");
+
+      setLoading(false);
     });
+
     return unsubscribe;
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false); // auth state is now known
-    });
-    return unsubscribe;
-  }, []);
 
-  if (loading) {
-    // show nothing or a spinner while Firebase checks auth
-    return <div className="h-screen w-screen flex items-center justify-center">Loading...</div>;
+  if (loading || isNewUser === null) {
+    // Wait until both auth state and new-user status are known
+    return (
+      <div className="h-screen w-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
   }
 
+    // // Redirect new users BEFORE rendering any routes
+    // if ((user && isNewUser) || justRegistered) {
+    //   navigate("/ChoosePet", { replace: true });
+    // }
+      
 
   return (
     <Router>
       <Routes>
-        {/* Public routes */}
-        <Route
-          path="/login"
-          element={
-            !user ? (
-              <Layout>
-                <Login />
+      {/* Public routes */}
+      <Route path="/login" element={!user ? <Layout><Login /></Layout> : <Navigate to="/" />} />
+      <Route path="/register" element={!user ? <Layout><Register /></Layout> : <Navigate to="/ChoosePet" />} />
 
-              </Layout>
-            ) : (<Navigate to="/" />)}
-        />
-              
-        <Route
-          path="/register"
-          element={
-            !user ? (
-              <Layout>
-                <Register />
-              </Layout>
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
+  {/* Protected routes */}
+  {user && isNewUser && (
+    <Route
+      path="/*"
+      element={<Navigate to="/ChoosePet" replace />}
+    />
+  )}
 
+<Route
+  path="/"
+  element={
+    <ProtectedRoute user={user} loading={loading}>
+      {isNewUser ? <Navigate to="/ChoosePet" replace /> : <MainPage />}
+    </ProtectedRoute>
+  }
+/>
 
-        {/* Protected routes */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute user={user} loading={loading}>
-              <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0]">
-                <Sidebar />
-                <Floor />
-              </div>
-            </ProtectedRoute>
-          }
-        />
+  <Route
+    path="/ChoosePet"
+    element={
+      <ProtectedRoute user={user} loading={loading}>
+        <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0]">
+          <ChoosePet setIsNewUser={setIsNewUser} />
+          <Floor />
+        </div>
+      </ProtectedRoute>
+    }
+  />
 
-        <Route
-          path="/ChoosePet"
-          element={
-            <ProtectedRoute user={user} loading={loading}>
-              <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0]">
-                <ChoosePet />
-                <Floor />
-              </div>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/tasks"
-          element={
-            <ProtectedRoute user={user} loading={loading}>
-              <TasksPage />
-            </ProtectedRoute>
-          }
-        />
+  <Route
+    path="/tasks"
+    element={
+      <ProtectedRoute user={user} loading={loading}>
+        <TasksPage />
+      </ProtectedRoute>
+    }
+  />
 
       </Routes>
     </Router>
