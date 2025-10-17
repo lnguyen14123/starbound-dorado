@@ -21,7 +21,6 @@ function Sidebar({ tabs, currentTab, onTabClick }) {
       console.error("Error signing out:", error);
     }
   };
-
   return (
     <div className="relative w-150 h-screen bg-transparent flex items-center justify-start">
       {/* Bottom rectangle */}
@@ -35,6 +34,7 @@ function Sidebar({ tabs, currentTab, onTabClick }) {
         <button
           className="w-90 h-21 bg-[#fcd68d] border-3 border-[#daa94a] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
           rounded-sm cursor-pointer flex items-center pl-50"
+          onClick={() => navigate("/tasks")}
         >
           <h1 className="font-dongle font-bold text-7xl pr-3 pt-2 text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)]">
             Tasks
