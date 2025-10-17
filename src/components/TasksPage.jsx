@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Notebook from "./Notebook";
 import Floor from "./Floor";
 import GrayCat1 from "../assets/gray_cat1.png";
+import YellowDog1 from "../assets/yellow_dog1.png";
 import Window1 from "../assets/items/window_1.png";
 import Plant1 from "../assets/items/pottedplant_1.png";
 import TaskbookL from "../assets/L_TaskBook.png";
@@ -12,6 +13,37 @@ import pageflip_icon from "../assets/items/pageflip_icon.png";
 
 export default function TasksPage() {
   const [selectedTab, setSelectedTab] = useState('not-started');
+  const [petType, setPetType] = useState(null);
+
+  useEffect(() => {
+    const cachedPet = localStorage.getItem("petType");
+    if (cachedPet) setPetType(cachedPet);
+
+    const fetchPet = async () => {
+      try {
+        const uid = localStorage.getItem("uid");
+        const response = await fetch("/api/user/pet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid }),
+        });
+        const data = await response.json();
+        if (data && data.petType) {
+          setPetType(data.petType);
+          localStorage.setItem("petType", data.petType);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchPet();
+  }, []);
+
+  const getPetImage = () => {
+    if (petType === "cat") return GrayCat1;
+    if (petType === "dog") return YellowDog1;
+    return null;
+  };
 
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-[#dbb9a0] flex justify-center items-center">
@@ -264,18 +296,21 @@ export default function TasksPage() {
               }}
             />
 
-            {/* Cat */}
-            <img
-              src={GrayCat1}
-              alt="Cat"
-              className="absolute z-30 object-contain drop-shadow-[0_0_20px_rgba(0,0,0,0.2)]"
-              style={{
-                width: "55.08%",
-                height: "53.89%",
-                right: "-25%",
-                bottom: "5.56%"
-              }}
-            />
+            {/* Pet (same position as previous cat) */}
+            {petType && (
+              <img
+                src={getPetImage()}
+                alt={petType}
+                className="absolute z-30 object-contain drop-shadow-[0_0_20px_rgba(0,0,0,0.2)]"
+                style={{
+                  // keep same position; optionally tweak width per pet for better fit
+                  width: petType === "cat" ? "55.08%" : "45%",
+                  height: "53.89%",
+                  right: "-25%",
+                  bottom: "5.56%"
+                }}
+              />
+            )}
 
           </div>
         </div>
