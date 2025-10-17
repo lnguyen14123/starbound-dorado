@@ -2,6 +2,12 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import Floor from "./Floor";
+
+import Window from "./Window";
+import Dresser from "./Dresser";
+import Plant from "./Plant";
+
+
 import GrayCat1 from "../assets/gray_cat1.png";
 import YellowDog1 from "../assets/yellow_dog1.png";
 import Checkmark from "../assets/checkmark.png";
@@ -95,6 +101,12 @@ export default function MainPage() {
             />
             <span className="translate-y-[2px]">100</span>
             </div>
+
+
+            <Window />
+            <Dresser />
+            <Plant />
+
 
         {petType && (
           <img
