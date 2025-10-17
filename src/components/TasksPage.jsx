@@ -10,10 +10,27 @@ import Tasks_Selected_tab from "../assets/Tasks_Selected_tab.png";
 import Tasks_Untoggled_tab from "../assets/Tasks_Untoggled_tab.png";
 import Add_New_Task_button from "../assets/Add_New_Task_button.png";
 import pageflip_icon from "../assets/items/pageflip_icon.png";
+import high_tag from "../assets/items/high_tag.png";
+import medium_tag from "../assets/items/medium_tag.png";
+import low_tag from "../assets/items/low_tag.png";
 
 export default function TasksPage() {
   const [selectedTab, setSelectedTab] = useState('not-started');
   const [petType, setPetType] = useState(null);
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showAddTask, setShowAddTask] = useState(false);
+  const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    priority: 'Medium',
+    class: '',
+    type: '',
+    start_date: '',
+    due_date: '',
+    reminder: '',
+    custom_filter: ''
+  });
 
   useEffect(() => {
     const cachedPet = localStorage.getItem("petType");
@@ -39,10 +56,130 @@ export default function TasksPage() {
     fetchPet();
   }, []);
 
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const fetchTasks = async () => {
+    try {
+      const uid = localStorage.getItem("uid");
+      if (!uid) return;
+      
+      const response = await fetch(`/api/tasks/${uid}`);
+      const data = await response.json();
+      if (data && data.tasks) {
+        setTasks(data.tasks);
+      }
+    } catch (err) {
+      console.error("Error fetching tasks:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getPetImage = () => {
     if (petType === "cat") return GrayCat1;
     if (petType === "dog") return YellowDog1;
     return null;
+  };
+
+  const getPriorityIcon = (priority) => {
+    switch (priority) {
+      case 'High': return high_tag;
+      case 'Medium': return medium_tag;
+      case 'Low': return low_tag;
+      default: return medium_tag;
+    }
+  };
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'High': return 'border-red-400 bg-red-50';
+      case 'Medium': return 'border-yellow-400 bg-yellow-50';
+      case 'Low': return 'border-green-400 bg-green-50';
+      default: return 'border-yellow-400 bg-yellow-50';
+    }
+  };
+
+  const getFilteredTasks = () => {
+    switch (selectedTab) {
+      case 'not-started':
+        return tasks.filter(task => !task.is_completed && (!task.start_date || new Date(task.start_date) > new Date()));
+      case 'in-progress':
+        return tasks.filter(task => !task.is_completed && (task.start_date && new Date(task.start_date) <= new Date()));
+      case 'done':
+        return tasks.filter(task => task.is_completed);
+      default:
+        return tasks;
+    }
+  };
+
+  const handleAddTask = async (e) => {
+    e.preventDefault();
+    try {
+      const uid = localStorage.getItem("uid");
+      const response = await fetch("/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: uid,
+          ...newTask
+        }),
+      });
+      
+      if (response.ok) {
+        setNewTask({
+          title: '',
+          description: '',
+          priority: 'Medium',
+          class: '',
+          type: '',
+          start_date: '',
+          due_date: '',
+          reminder: '',
+          custom_filter: ''
+        });
+        setShowAddTask(false);
+        fetchTasks();
+      }
+    } catch (err) {
+      console.error("Error creating task:", err);
+    }
+  };
+
+  const handleToggleComplete = async (taskId, isCompleted) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_completed: !isCompleted }),
+      });
+      
+      if (response.ok) {
+        fetchTasks();
+      }
+    } catch (err) {
+      console.error("Error updating task:", err);
+    }
+  };
+
+  const handleDeleteTask = async (taskId) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: "DELETE",
+      });
+      
+      if (response.ok) {
+        fetchTasks();
+      }
+    } catch (err) {
+      console.error("Error deleting task:", err);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString();
   };
 
   return (
@@ -52,19 +189,21 @@ export default function TasksPage() {
         <Floor />
       </div>
 
-      {/* Responsive Container with fixed aspect ratio */}
+      {/* Containers for the notebook and contents inside it */}
       <div className="relative w-full h-full flex justify-center items-center p-4">
         <div
           className="relative"
           style={{
-            width: "100%",
-            height: "100%",
-            maxWidth: "1200px",
-            maxHeight: "900px",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "clamp(320px, 90vw, 1200px)",
+            height: "auto",
             aspectRatio: "4/3",
           }}
         >
-          {/* Scaled Content Container */}
+          {/* Container for the contents inside the notebook */}
           <div
             className="relative w-full h-full"
             style={{
@@ -86,7 +225,7 @@ export default function TasksPage() {
               }}
             />
 
-            {/* Progress Tabs - positioned right above content overlay */}
+            {/* Progress Tabs - positioned right above the contents inside the notebook */}
             <div
               className="absolute z-30 flex"
               style={{
@@ -115,7 +254,7 @@ export default function TasksPage() {
                     display: 'flex',
                     alignItems: 'center',
                     color: '#8F674D',
-                    fontSize: '2vmin',
+                    fontSize: 'clamp(14px, 2.2vw, 22px)',
                     fontFamily: 'Dongle',
                     fontWeight: '700',
                     whiteSpace: 'nowrap',
@@ -145,7 +284,7 @@ export default function TasksPage() {
                     display: 'flex',
                     alignItems: 'center',
                     color: '#8F674D',
-                    fontSize: '2vmin',
+                    fontSize: 'clamp(14px, 2.2vw, 22px)',
                     fontFamily: 'Dongle',
                     fontWeight: '700',
                     whiteSpace: 'nowrap',
@@ -175,7 +314,7 @@ export default function TasksPage() {
                     display: 'flex',
                     alignItems: 'center',
                     color: '#8F674D',
-                    fontSize: '2vmin',
+                    fontSize: 'clamp(14px, 2.2vw, 22px)',
                     fontFamily: 'Dongle',
                     fontWeight: '700',
                     whiteSpace: 'nowrap',
@@ -188,7 +327,7 @@ export default function TasksPage() {
 
             {/* Content overlay on notebook */}
             <div
-              className="absolute z-20 flex flex-col gap-4 p-6"
+              className="absolute z-20 flex flex-col gap-4 p-6 overflow-y-auto"
               style={{
                 width: "52%",
                 height: "82%",
@@ -200,20 +339,61 @@ export default function TasksPage() {
                 transform: "translateY(-50%)"
               }}
             >
-              <h1 className="font-dynapuff text-[#AD7B5C]" style={{ fontSize: '3.33vmin' }}> </h1>
-              <p className="text-[#8F674D]" style={{ fontSize: '1.67vmin' }}>Here's your task list and progress.</p>
-
-              <ul className="mt-4 space-y-3">
-                <li className="bg-[#f0e6d2] p-3 rounded-2xl font-bold" style={{ fontSize: '1.5vmin' }}>
-                  Task 1: Feed the cat
-                </li>
-                <li className="bg-[#f0e6d2] p-3 rounded-2xl font-bold" style={{ fontSize: '1.5vmin' }}>
-                  Task 2: Buy cat toys
-                </li>
-                <li className="bg-[#f0e6d2] p-3 rounded-2xl font-bold" style={{ fontSize: '1.5vmin' }}>
-                  Task 3: Walk the dog
-                </li>
-              </ul>
+              {loading ? (
+                <p className="text-gray-500" style={{ fontSize: 'clamp(12px, 1.8vw, 18px)' }}>Loading tasks...</p>
+              ) : (
+                <div className="space-y-4">
+                  {getFilteredTasks().length === 0 ? (
+                    <p className="text-center py-8 text-gray-500" style={{ fontSize: 'clamp(12px, 1.8vw, 18px)' }}>
+                      No tasks in this category yet.
+                    </p>
+                  ) : (
+                    getFilteredTasks().map((task) => (
+                      <div
+                        key={task.task_id}
+                        className={`bg-[#f0e6d2] p-3 rounded-2xl border-2 ${getPriorityColor(task.priority)}`}
+                        style={{ fontSize: 'clamp(12px, 1.6vw, 16px)' }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={getPriorityIcon(task.priority)}
+                              alt={task.priority}
+                              className="w-4 h-4"
+                            />
+                            <span className="font-bold">{task.title}</span>
+                            {task.is_completed && (
+                              <span className="text-green-600 text-xs">✓ Done</span>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleToggleComplete(task.task_id, task.is_completed)}
+                              className="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                              {task.is_completed ? 'Undo' : 'Complete'}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTask(task.task_id)}
+                              className="text-xs px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                        {task.description && (
+                          <p className="text-sm text-gray-600 mt-1">{task.description}</p>
+                        )}
+                        <div className="flex gap-4 mt-2 text-xs text-gray-500">
+                          {task.class && <span>Class: {task.class}</span>}
+                          {task.type && <span>Type: {task.type}</span>}
+                          {task.due_date && <span>Due: {formatDate(task.due_date)}</span>}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Add New Task */}
@@ -230,7 +410,7 @@ export default function TasksPage() {
               }}
             />
             <button
-              onClick={() => setSelectedTab('add-new-task')}
+              onClick={() => setShowAddTask(true)}
               className="absolute cursor-pointer hover:opacity-80 transition-opacity bg-transparent border-none"
               style={{
                 width: "30%",
@@ -250,6 +430,7 @@ export default function TasksPage() {
             >
               Add New Task
             </button>
+
             {/* Page Flip Icon */}
             <img
               src={pageflip_icon}
@@ -296,14 +477,13 @@ export default function TasksPage() {
               }}
             />
 
-            {/* Pet (same position as previous cat) */}
+            {/* Pet should be the same positions */}
             {petType && (
               <img
                 src={getPetImage()}
                 alt={petType}
                 className="absolute z-30 object-contain drop-shadow-[0_0_20px_rgba(0,0,0,0.2)]"
                 style={{
-                  // keep same position; optionally tweak width per pet for better fit
                   width: petType === "cat" ? "55.08%" : "45%",
                   height: "53.89%",
                   right: "-25%",
@@ -315,6 +495,99 @@ export default function TasksPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal for adding a new task */}
+      {showAddTask && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-96 max-h-96 overflow-y-auto">
+            <h2 className="text-xl font-bold mb-4">Add New Task</h2>
+            <form onSubmit={handleAddTask} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Title *</label>
+                <input
+                  type="text"
+                  value={newTask.title}
+                  onChange={(e) => setNewTask({...newTask, title: e.target.value})}
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <textarea
+                  value={newTask.description}
+                  onChange={(e) => setNewTask({...newTask, description: e.target.value})}
+                  className="w-full p-2 border rounded"
+                  rows="3"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Priority</label>
+                <select
+                  value={newTask.priority}
+                  onChange={(e) => setNewTask({...newTask, priority: e.target.value})}
+                  className="w-full p-2 border rounded"
+                >
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Class</label>
+                <input
+                  type="text"
+                  value={newTask.class}
+                  onChange={(e) => setNewTask({...newTask, class: e.target.value})}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Type</label>
+                <input
+                  type="text"
+                  value={newTask.type}
+                  onChange={(e) => setNewTask({...newTask, type: e.target.value})}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Start Date</label>
+                <input
+                  type="date"
+                  value={newTask.start_date}
+                  onChange={(e) => setNewTask({...newTask, start_date: e.target.value})}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Due Date</label>
+                <input
+                  type="date"
+                  value={newTask.due_date}
+                  onChange={(e) => setNewTask({...newTask, due_date: e.target.value})}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+                >
+                  Add Task
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAddTask(false)}
+                  className="flex-1 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
