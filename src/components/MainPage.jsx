@@ -6,6 +6,8 @@ import Floor from "./Floor";
 import Window from "./Window";
 import Dresser from "./Dresser";
 import Plant from "./Plant";
+import SlidingPanel from "./SlidingPanel";
+import SettingsContent from "./SettingsContent";
 
 
 import GrayCat1 from "../assets/gray_cat1.png";
@@ -15,6 +17,10 @@ import StreakFire from "../assets/streak_fire.png";
 
 export default function MainPage() {
   const [petType, setPetType] = useState(null);
+  const [activePanel, setActivePanel] = useState(null);
+  const closePanel = () => setActivePanel(null);
+
+  // activePanel can be "settings", "store", "tasks", "friends", etc.
 
   useEffect(() => {
     const cachedPet = localStorage.getItem("petType");
@@ -46,8 +52,15 @@ export default function MainPage() {
 
   return (
     <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0] relative">
-      <Sidebar />
-      <div className="w-screen relative flex justify-center">
+      <Sidebar
+        onSettingsClick={() => setActivePanel("settings")}
+        onStoreClick={() => setActivePanel("store")}
+        onTasksClick={() => setActivePanel("tasks")}
+        onFriendsClick={() => setActivePanel("friends")}
+      />
+
+        <div className="w-screen relative flex justify-center">
+
         <Floor />
         
         <div
@@ -118,6 +131,28 @@ export default function MainPage() {
                       />
         )}
       </div>
+
+
+      <SlidingPanel
+        show={!!activePanel}
+        onClose={closePanel}
+        title={
+          activePanel === "settings"
+            ? "Settings"
+            : activePanel === "store"
+            ? "Store"
+            : activePanel === "tasks"
+            ? "Tasks"
+            : activePanel === "friends"
+            ? "Friends"
+            : ""
+        }
+      >
+        {activePanel === "settings" && <SettingsContent onClose={closePanel} />}
+        {activePanel === "store" && <StoreContent />}
+        {/* add more like <TasksContent /> or <FriendsContent /> */}
+      </SlidingPanel>
+
     </div>
   );
 }

@@ -10,7 +10,12 @@ import Friends from "../assets/friends.png";
 import Badges from "../assets/badges.png";
 import SettingsIcon from "../assets/settings.png";
 
-function Sidebar({ tabs, currentTab, onTabClick }) {
+function Sidebar({ tabs, currentTab, onTabClick, 
+  onSettingsClick,
+  onStoreClick,
+  onTasksClick,
+  onFriendsClick
+}) {
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -35,6 +40,8 @@ function Sidebar({ tabs, currentTab, onTabClick }) {
         <button
           className="w-90 h-21 bg-[#fcd68d] border-3 border-[#daa94a] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
           rounded-sm cursor-pointer flex items-center pl-50"
+          onClick={onTasksClick}
+
         >
           <h1 className="font-dongle font-bold text-7xl pr-3 pt-2 text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)]">
             Tasks
@@ -48,6 +55,8 @@ function Sidebar({ tabs, currentTab, onTabClick }) {
         <button
           className="w-90 h-21 bg-[#b6dcff] border-3 border-[#7fb0fd] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
           rounded-sm cursor-pointer flex items-center pl-50"
+          onClick={onStoreClick}
+
         >
           <h1 className="font-dongle font-bold text-7xl pt-1 text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)] text-right ">
             Store
@@ -62,6 +71,8 @@ function Sidebar({ tabs, currentTab, onTabClick }) {
         <button
           className="w-90 h-21 bg-[#ffbac5] border-3 border-[#ff8395] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
           rounded-sm cursor-pointer flex items-center pl-40"
+          onClick={onFriendsClick}
+
         >
           <h1 className="font-dongle font-bold pt-1 text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)] text-right">
             Friends
@@ -75,6 +86,8 @@ function Sidebar({ tabs, currentTab, onTabClick }) {
         <button
           className="w-90 h-21 bg-[#fff49e] border-3 border-[#fde957]  drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
           rounded-sm cursor-pointer flex items-center pl-40"
+          // onClick={onBadgesClick}
+
         >
           <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)] text-right pr-2">
             Badges
@@ -88,7 +101,8 @@ function Sidebar({ tabs, currentTab, onTabClick }) {
         <button
           className="w-90 h-21 bg-[#d1ee80] border-3 border-[#a2c93b] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
           rounded-sm cursor-pointer flex items-center pl-35"
-          onClick={handleSignOut}
+          // onClick={handleSignOut}
+          onClick={onSettingsClick}
         >
           <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)] text-right pr-3">
             Settings
