@@ -14,7 +14,8 @@ function Sidebar({ tabs, currentTab, onTabClick,
   onSettingsClick,
   onStoreClick,
   onTasksClick,
-  onFriendsClick
+  onFriendsClick,
+  onBadgesClick
 }) {
   const navigate = useNavigate();
 
@@ -86,7 +87,7 @@ function Sidebar({ tabs, currentTab, onTabClick,
         <button
           className="w-90 h-21 bg-[#fff49e] border-3 border-[#fde957]  drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
           rounded-sm cursor-pointer flex items-center pl-40"
-          // onClick={onBadgesClick}
+          onClick={onBadgesClick}
 
         >
           <h1 className="font-dongle font-bold text-7xl text-white drop-shadow-[3px_3px_1px_rgba(0,0,0,.4)] text-right pr-2">

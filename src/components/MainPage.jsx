@@ -8,6 +8,7 @@ import Dresser from "./Dresser";
 import Plant from "./Plant";
 import SlidingPanel from "./SlidingPanel";
 import SettingsContent from "./SettingsContent";
+import BadgePage from "./BadgePage";
 
 
 import GrayCat1 from "../assets/gray_cat1.png";
@@ -57,6 +58,8 @@ export default function MainPage() {
         onStoreClick={() => setActivePanel("store")}
         onTasksClick={() => setActivePanel("tasks")}
         onFriendsClick={() => setActivePanel("friends")}
+        onBadgesClick={() => setActivePanel("badges")}
+
       />
 
         <div className="w-screen relative flex justify-center">
@@ -145,12 +148,14 @@ export default function MainPage() {
             ? "Tasks"
             : activePanel === "friends"
             ? "Friends"
+            : activePanel === "badges"
+            ? "Badges"
             : ""
         }
       >
         {activePanel === "settings" && <SettingsContent onClose={closePanel} />}
-        {activePanel === "store" && <StoreContent />}
-        {/* add more like <TasksContent /> or <FriendsContent /> */}
+        {activePanel === "badges" && <BadgePage onClose={closePanel} />}
+        {/* add more like <TasksContent />, <StoreContent />, or <FriendsContent /> */}
       </SlidingPanel>
 
     </div>
