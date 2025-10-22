@@ -12,7 +12,7 @@ import Register from "./components/Register";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import ChoosePet from "./components/ChoosePet";
-import { useNavigate } from "react-router-dom";
+import TasksPage from "./components/TasksPage";
 
 function App() {
   const tabs = ["Tasks", "Store", "Friends", "Settings"];
@@ -83,6 +83,15 @@ function App() {
           <ChoosePet setIsNewUser={setIsNewUser} />
           <Floor />
         </div>
+      </ProtectedRoute>
+    }
+  />
+
+  <Route
+    path="/tasks"
+    element={
+      <ProtectedRoute user={user} loading={loading}>
+        <TasksPage />
       </ProtectedRoute>
     }
   />

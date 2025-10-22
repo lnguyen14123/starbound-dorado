@@ -27,7 +27,6 @@ function Sidebar({ tabs, currentTab, onTabClick,
       console.error("Error signing out:", error);
     }
   };
-
   return (
     <div className="relative w-150 h-screen bg-transparent flex items-center justify-start">
       {/* Bottom rectangle */}
