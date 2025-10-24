@@ -1,5 +1,6 @@
 import React from "react";
 import TaskbookL from "../assets/L_TaskBook.png";
+import "../index.css";
 
 export default function SlidingPanel({ show, onClose, title, children }) {
   return (
@@ -19,12 +20,12 @@ export default function SlidingPanel({ show, onClose, title, children }) {
           />
 
           {/* Overlay for content */}
-          <div className="relative h-full flex flex-col justify-between pl-[7vw] py-6 text-[#4b3b2f]">
+          <div className="relative h-full flex flex-col pl-[7vw] py-6 text-[#4b3b2f]">
             {/* Header */}
             <div className="flex justify-between items-center rounded-md px-4 py-2">
-              <h2 className="font-dongle text-7xl font-bold">{title}</h2>
+              <h2 className="ml-15 titleHeading font-dongle text-6xl font-bold">{title}</h2>
               <button
-                className="text-5xl font-dongle hover:text-[#886b52] transition"
+                className="mr-3 text-5xl font-dongle hover:text-[#886b52] transition"
                 onClick={onClose}
               >
                 ✕
@@ -32,7 +33,7 @@ export default function SlidingPanel({ show, onClose, title, children }) {
             </div>
 
             {/* Content */}
-            <div className="p-8 font-dongle text-5xl text-[#4b3b2f]">
+            <div className="p-8 -mt-8 font-dongle text-5xl text-[#4b3b2f]">
               {children}
             </div>
           </div>
