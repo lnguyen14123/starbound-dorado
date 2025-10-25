@@ -7,7 +7,7 @@ import Window from "./Window";
 import Dresser from "./Dresser";
 import Plant from "./Plant";
 import SlidingPanel from "./SlidingPanel";
-import SettingsContent from "./SettingsContent";
+import SettingsPage from "./SettingsPage";
 import BadgePage from "./BadgePage";
 
 
@@ -15,7 +15,7 @@ import GrayCat1 from "../assets/gray_cat1.png";
 import YellowDog1 from "../assets/yellow_dog1.png";
 import Checkmark from "../assets/checkmark.png";
 import StreakFire from "../assets/streak_fire.png";
-import SettingsPage from "./SettingsPage";
+import TasksPage from "./TasksPage";
 
 export default function MainPage() {
   const [petType, setPetType] = useState(null);
@@ -157,6 +157,7 @@ export default function MainPage() {
         
         {activePanel === "badges" && <BadgePage onClose={closePanel} />}
         {activePanel === "settings" && <SettingsPage onClose={closePanel} />}
+        {activePanel === "tasks" && <TasksPage onClose={closePanel} />}
         {/* add more like <TasksContent />, <StoreContent />, or <FriendsContent /> */}
       </SlidingPanel>
 
