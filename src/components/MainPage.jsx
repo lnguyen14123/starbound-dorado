@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import Floor from "./Floor";
 
-
 import Window from "./Window";
 import Dresser from "./Dresser";
 import Plant from "./Plant";
@@ -14,7 +13,6 @@ import SettingsPage from "./SettingsPage";
 import BadgePage from "./BadgePage";
 import TasksPage from "./TasksPage";
 import StorePage from "./StorePage";
-import SettingsPage from "./SettingsPage";
 
 //import GrayCat1 from "../assets/gray_cat1.png";
 //import YellowDog1 from "../assets/yellow_dog1.png";
@@ -86,12 +84,20 @@ export default function MainPage() {
           <span className="translate-y-[2px] ml-1 text-[#41521b] font-dongle text-6xl font-bold">
             3x
           </span>
+
           <span className="translate-y-[2px] ml-40 text-[#41521b] font-dongle text-5xl font-bold">
             XP
           </span>
 
           <div
-            className="absolute top-[3vh] -right-[2vw] -translate-x-1/2 
+                    className="absolute left-[21.5vw]
+                     bg-[#f2be9c] border-3 border-[#7d5c47] 
+                     rounded-full drop-shadow-[3px_3px_3px_rgba(0,0,0,0.4)] z-30
+                     w-[20vw] h-[5vh] items-center"
+          ></div>
+
+          <div
+            className="absolute top-[0vh] -right-[26vw] 
                         bg-[#b1d47f] border-3 border-[#5a7435] 
                         rounded-full px-8 py-1 
                         text-white font-dongle text-6xl 
@@ -99,22 +105,21 @@ export default function MainPage() {
                         w-[22vw] h-[9vh] font-bold
                         flex items-center justify-center gap-3
                         [text-shadow:_2px_2px_0_#000,_-2px_2px_0_#000,_2px_-2px_0_#000,_-2px_-2px_0_#000]"
-            >
+          >
             <img
-                src={Checkmark}
-                className="w-12 h-auto drop-shadow-[2px_2px_2px_rgba(0,0,0,.3)]"
-                alt="Checkmark"
+              src={Checkmark}
+              className="w-12 h-auto drop-shadow-[2px_2px_2px_rgba(0,0,0,.3)]"
+              alt="Checkmark"
             />
             <span className="translate-y-[2px]">100</span>
-            </div>
-87
+          </div>
+        </div>
 
-            <Window />
-            <Dresser />
-            <Plant />
+        <Window />
+        <Dresser />
+        <Plant />
 
-          <Pets petType={petType}/>
-
+        <Pets petType={petType} />
       </div>
 
       {activePanel && (

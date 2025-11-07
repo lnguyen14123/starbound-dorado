@@ -6,9 +6,36 @@ export default function AddTaskForm({ onClose, onSave }) {
   const [priority, setPriority] = useState("Medium");
   const [difficulty, setDifficulty] = useState("Easy");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     onSave({ name, date, priority, difficulty });
+    const taskData = { name, date, priority, difficulty };
+
+    try {
+      // Replace "/api/tasks" with your actual backend endpoint
+      const response = await fetch("/api/tasks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(taskData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save task");
+      }
+
+      const savedTask = await response.json();
+
+      // Optionally pass the saved task back to parent
+      onSave(savedTask);
+
+      // Close the form
+      onClose();
+    } catch (err) {
+      console.error("Error saving task:", err);
+      alert("Could not save task. Try again!");
+    }
     onClose();
   };
 
@@ -27,20 +54,20 @@ export default function AddTaskForm({ onClose, onSave }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="border border-[#AD7B5C] rounded-lg px-5 py-2 focus:ring-2 focus:ring-[#AD7B5C] outline-none"
+            className="border-5 border-[#AD7B5C] rounded-lg px-5 py-2 focus:ring-2 focus:ring-[#AD7B5C] outline-none"
           />
 
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="border border-[#AD7B5C] rounded-lg px-5 py-2  focus:ring-2 focus:ring-[#AD7B5C] outline-non cursor-pointer"
+            className="border-5 border-[#AD7B5C] rounded-lg px-5 py-2  focus:ring-2 focus:ring-[#AD7B5C] outline-non cursor-pointer"
           />
 
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
-            className="border border-[#AD7B5C] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#AD7B5C] outline-none appearance-none cursor-pointer"
+            className="border-5 border-[#AD7B5C] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#AD7B5C] outline-none appearance-none cursor-pointer"
           >
             <option className="text-base"> Low</option>
             <option className="text-base">Medium</option>
@@ -50,7 +77,7 @@ export default function AddTaskForm({ onClose, onSave }) {
           <select
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value)}
-            className="border border-[#AD7B5C] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#AD7B5C] outline-none appearance-none cursor-pointer"
+            className="border-5 border-[#AD7B5C] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#AD7B5C] outline-none appearance-none cursor-pointer"
           >
             <option>Easy</option>
             <option>Moderate</option>
