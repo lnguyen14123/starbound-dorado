@@ -10,7 +10,6 @@ import Plant from "./Plant";
 import SlidingPanel from "./SlidingPanel";
 import SettingsPage from "./SettingsPage";
 import BadgePage from "./BadgePage";
-import SettingsPage from "./SettingsPage";
 
 //import GrayCat1 from "../assets/gray_cat1.png";
 //import YellowDog1 from "../assets/yellow_dog1.png";
