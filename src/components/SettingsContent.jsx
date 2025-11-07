@@ -77,9 +77,9 @@ export default function SettingsContent({ onClose }) {
       content: (
         <div className="grid grid-cols-2 gap-y-3 text-3xl mt-2">
           <span>Master Volume</span>
-          <input type="range" min="0" max="100" defaultValue="70" className="w-full accent-[#a2c93b]"/>
+          <input type="range" min="0" max="100" defaultValue="70"/>
           <label className="col-span-2 flex items-center gap-3 text-2xl mt-2">
-            <input type="checkbox" className="accent-[#a2c93b] dark:accent-[#c9eb6b]" defaultChecked/> UI sounds
+            <input type="checkbox" defaultChecked/> UI sounds
           </label>
         </div>
       ),
@@ -93,11 +93,11 @@ export default function SettingsContent({ onClose }) {
         <div className="grid grid-cols-2 gap-y-3 text-3xl mt-2">
           <span>Daily reminders</span>
           <label className="text-right">
-            <input type="checkbox" className="accent-[#a2c93b] dark:accent-[#c9eb6b] mr-2"/> On
+            <input type="checkbox"/> On
           </label>
           <span>Task streak notifs</span>
           <label className="text-right">
-            <input type="checkbox" className="accent-[#a2c93b] dark:accent-[#c9eb6b] mr-2"/> Off
+            <input type="checkbox"/> On
           </label>
         </div>
       ),
