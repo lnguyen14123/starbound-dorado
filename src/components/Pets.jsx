@@ -9,8 +9,23 @@ import YellowDogBlink from "../assets/pets/yellowdog/yellowdog_blink.svg";
 import YellowDogHappy from "../assets/pets/yellowdog/yellowdog_happy.svg";
 
 // Import clothing assets
+// Collars
+import RedCollar from "../assets/pets/clothing/collars/red_collar.svg";
+import BlueCollar from "../assets/pets/clothing/collars/blue_collar.svg";
+import BowTie from "../assets/pets/clothing/collars/bowtie.svg";
+
+// Hats
+import PartyHat from "../assets/pets/clothing/hats/party_hat.svg";
+import Crown from "../assets/pets/clothing/hats/crown.svg";
+import BlueCap from "../assets/pets/clothing/hats/blue_cap.svg";
 
 const Pets = ({ petType, equippedItems }) => {
+    console.log("Testing Clothing:");
+    console.log("Equipped Items:", equippedItems);
+    console.log("Collar Image:", getCollarImage());
+    console.log("Hat Image:", getHatImage());
+    console.log("Pet Type:", petType);
+    
     const [isBlinking, setIsBlinking] = useState(false);
     const [isHappy, setIsHappy] = useState(false);
     const [isJumping, setIsJumping] = useState(false);
@@ -106,7 +121,8 @@ const Pets = ({ petType, equippedItems }) => {
     };
 
     // Clothing
-    /*const getCollarImage = () => {
+    // Collars
+    const getCollarImage = () => {
         if (!equippedItems?.collar) return null;
         
         const collars = {
@@ -118,25 +134,47 @@ const Pets = ({ petType, equippedItems }) => {
         return collars[equippedItems.collar];
     };
 
+    // Hats
     const getHatImage = () => {
         if (!equippedItems?.hat) return null;
         
         const hats = {
             'party_hat': PartyHat,
             'crown': Crown,
-            'baseball_cap': BaseballCap
+            'blue_cap': BlueCap
         };
         
         return hats[equippedItems.hat];
-    };*/
+    };
 
     return (
-        <img
-            src={getPetImage()}
-            alt={petType}
-            className={getPetStyles()}
-            onClick={handleClick}
-        />
+        <div className="relative">
+            {/* Hat */}
+            {getHatImage() && (
+                <img
+                    src={getHatImage()}
+                    alt="Hat"
+                    className="absolute z-30 h-auto w-[15vw] top-[30vh] -translate-x-[5vw]"
+                />
+            )}
+
+            {/* Main Pet */}
+            <img
+                src={getPetImage()}
+                alt={petType}
+                className={getPetStyles()}
+                onClick={handleClick}
+            />
+
+            {/* Collar */}
+            {getCollarImage() && (
+                <img
+                    src={getCollarImage()}
+                    alt="Collar"
+                    className="absolute z-25 h-auto w-[25vw] top-[65vh] -translate-x-[5vw]"
+                />
+            )}
+        </div>
     );
 };
 
