@@ -75,14 +75,14 @@ router.get("/tasks/:uid", async (req, res) => {
 });
 
 router.post("/tasks", async (req, res) => {
-  const { user_id, title, priority = "Medium", due_date, difficulty = "Easy" } = req.body;
+  const { uid, name, date, priority, difficulty} = req.body;
 
   try {
     const result = await pool.query(
       `INSERT INTO tasks (user_id, title, priority, due_date, difficulty) 
        VALUES ($1, $2, $3, $4, $5) 
        RETURNING *`,
-      [user_id, title, priority, due_date, difficulty]
+      [uid, name, priority, date, difficulty]
     );
     res.status(201).json({ task: result.rows[0] });
   } catch (err) {

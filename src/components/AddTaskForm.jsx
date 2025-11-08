@@ -9,7 +9,9 @@ export default function AddTaskForm({ onClose, onSave }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     onSave({ name, date, priority, difficulty });
-    const taskData = { name, date, priority, difficulty };
+    const uid = localStorage.getItem("uid");
+
+    const taskData = { uid, name, date, priority, difficulty };
 
     try {
       // Replace "/api/tasks" with your actual backend endpoint
