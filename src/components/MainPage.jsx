@@ -84,7 +84,7 @@ export default function MainPage() {
   }
 
   return (
-    <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0] relative">
+    <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0] relative overflow-hidden">
       <Sidebar
         onSettingsClick={() => openPanel("settings")}
         onStoreClick={() => openPanel("store")}
@@ -93,7 +93,7 @@ export default function MainPage() {
         onBadgesClick={() => openPanel("badges")}
       />
 
-      <div className="w-screen relative flex justify-center">
+      <div className="w-screen flex justify-center">
         <Floor />
 
         <div
