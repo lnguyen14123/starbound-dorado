@@ -9,6 +9,7 @@ import Plant from "./Plant";
 import SlidingPanel from "./SlidingPanel";
 import SettingsPage from "./SettingsPage";
 import BadgePage from "./BadgePage";
+import StorePage from "./StorePage";
 
 
 import GrayCat1 from "../assets/gray_cat1.png";
@@ -158,6 +159,7 @@ export default function MainPage() {
         {activePanel === "badges" && <BadgePage onClose={closePanel} />}
         {activePanel === "settings" && <SettingsPage onClose={closePanel} />}
         {activePanel === "tasks" && <TasksPage onClose={closePanel} />}
+        {activePanel === "store" && <StorePage onClose={closePanel} />}
         {/* add more like <TasksContent />, <StoreContent />, or <FriendsContent /> */}
       </SlidingPanel>
 
