@@ -6,7 +6,7 @@ export default function BadgePage({ onClose }) {
       {/* Main light beige container */}
       <div className="w-[33vw] h-full bg-[#F1E2D4] rounded-2xl p-3">
         {/* 3x3 Grid container */}
-        <div className="grid grid-cols-3 gap-2 w-full h-full p-1">
+        <div className="grid grid-cols-3 gap-4 w-full h-full p-1">
           {/* Generate 12 light brown squares for 3x4 grid */}
           {[...Array(12)].map((_, index) => (
             <div
