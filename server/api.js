@@ -90,15 +90,26 @@ router.get("/tasks", async (req, res) => {
   }
 });
 
-router.post("/api/tasks/delete", async (req, res) => {
+router.post("/tasks/delete", async (req, res) => {
   const { uid, taskIds } = req.body;
+
+  if (!taskIds || taskIds.length === 0) {
+    return res.status(400).json({ error: "No tasks to delete" });
+  }
+
+  console.log(taskIds)
+  console.log(uid)
+
   try {
-    await db.collection("tasks").deleteMany({
-      uid,
-      id: { $in: taskIds },
-    });
+    // Build a parameterized query to avoid SQL injection
+    const placeholders = taskIds.map((_, i) => `$${i + 2}`).join(", ");
+    const query = `DELETE FROM tasks WHERE user_id = $1 AND task_id IN (${placeholders})`;
+
+    await pool.query(query, [uid, ...taskIds]);
+
     res.json({ success: true });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Failed to delete tasks" });
   }
 });
