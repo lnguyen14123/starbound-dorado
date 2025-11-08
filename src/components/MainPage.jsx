@@ -21,6 +21,9 @@ import Pets from "./Pets";
 import Checkmark from "../assets/checkmark.png";
 import StreakFire from "../assets/streak_fire.png";
 
+import PetInventory from "../assets/icons/petInventory.svg";
+import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
+
 export default function MainPage() {
   const [petType, setPetType] = useState(null);
   const [activePanel, setActivePanel] = useState(null);
@@ -96,6 +99,40 @@ export default function MainPage() {
       <div className="w-screen flex justify-center">
         <Floor />
 
+        {/* Top-right stacked buttons with icons */}
+        <div className="absolute top-[17vh] -right-[12vw] flex flex-col gap-[3vh] z-50">
+          {/* Pet button */}
+          <button
+            className="
+              w-[20vw] h-[13vh]
+              bg-[#FFBAC5] border-6 border-[#FE8693]
+              shadow-md cursor-pointer pl-[1vw]
+              transition-transform duration-300 ease-in-out
+              hover:-translate-x-4
+              flex items-center
+            "
+            onClick={() => console.log('Pet button clicked')}
+          >
+            <img src={PetInventory} alt="Pet Inventory" className="w-1/4" />
+          </button>
+
+          {/* Furniture button */}
+          <button
+            className="
+              w-[20vw] h-[13vh]
+              bg-[#FCD68D] border-6 border-[#DAA94B]
+              shadow-md cursor-pointer pl-[1vw]
+              transition-transform duration-300 ease-in-out
+              hover:-translate-x-4 
+              flex items-center
+            "
+            onClick={() => console.log('Furniture button clicked')}
+          >
+            <img src={FurnitureInventory} alt="Furniture Inventory" className="w-1/4" />
+          </button>
+        </div>
+
+
         <div
           className="absolute flex top-[3vh] left-[45vw] -translate-x-1/2 
                      bg-[#f2be9c] border-3 border-[#7d5c47] 
@@ -138,6 +175,8 @@ export default function MainPage() {
         <Window />
         <Dresser />
         <Plant />
+
+
 
         <Pets petType={petType} />
       </div>
