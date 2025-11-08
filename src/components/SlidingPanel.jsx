@@ -54,6 +54,7 @@ export default function SlidingPanel({ show, onClose, title, children }) {
                 </button>
               </div>
             )}
+
             <div
               className={`p-8 font-dongle text-5xl text-[#4b3b2f] ${
                 !isTasksPage ? "-mt-8" : ""

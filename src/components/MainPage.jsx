@@ -58,6 +58,31 @@ export default function MainPage() {
     fetchPet();
   }, []);
 
+  function ProgressBar({ progress }) {
+    return (
+      <div
+        className="
+        relative
+        w-[20vw] h-[5vh]
+        bg-[#ECF0A4] border-4 border-[#86A445]
+        rounded-full shadow-md overflow-hidden
+      "
+      >
+        <div
+          className="
+            h-full bg-[#86A445] 
+            rounded-full transition-all duration-500
+          "
+          style={{
+            width: `calc(${progress}% + 4px)`,
+            marginLeft: "-4px",
+          }}
+          // style={{ width: 10 }}
+        ></div>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0] relative">
       <Sidebar
@@ -85,16 +110,11 @@ export default function MainPage() {
             3x
           </span>
 
-          <span className="translate-y-[2px] ml-40 text-[#41521b] font-dongle text-5xl font-bold">
+          <span className="translate-y-[2px] ml-39 mr-2 text-[#41521b] font-dongle text-5xl font-bold">
             XP
           </span>
 
-          <div
-                    className="absolute left-[21.5vw]
-                     bg-[#f2be9c] border-3 border-[#7d5c47] 
-                     rounded-full drop-shadow-[3px_3px_3px_rgba(0,0,0,0.4)] z-30
-                     w-[20vw] h-[5vh] items-center"
-          ></div>
+          <ProgressBar progress={65} />
 
           <div
             className="absolute top-[0vh] -right-[26vw] 

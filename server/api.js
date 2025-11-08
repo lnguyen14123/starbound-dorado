@@ -90,4 +90,18 @@ router.get("/tasks", async (req, res) => {
   }
 });
 
+router.post("/api/tasks/delete", async (req, res) => {
+  const { uid, taskIds } = req.body;
+  try {
+    await db.collection("tasks").deleteMany({
+      uid,
+      id: { $in: taskIds },
+    });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete tasks" });
+  }
+});
+
+
 export default router;
