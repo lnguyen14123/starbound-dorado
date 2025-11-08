@@ -2,9 +2,9 @@ import React from "react";
 
 export default function StorePage({ onClose }) {
   return (
-    <div className="w-[40vw] h-[80vh] mt-[1vh] p-1">
+    <div className="w-full h-[80vh] mt-[1vh] py-2 flex justify-center">
       {/* Main light beige container */}
-      <div className="-ml-2 w-[33vw] h-full bg-[#F1E2D4] rounded-2xl p-3">
+      <div className="w-[100%] h-full bg-[#F1E2D4] rounded-2xl p-3">
         {/* 2x3 Grid container */}
         <div className="grid grid-cols-2 gap-3 w-full h-full p-1">
           {[...Array(6)].map((_, index) => (

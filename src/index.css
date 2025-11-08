@@ -42,6 +42,15 @@ body {
   min-height: 100vh;
 }
 
+
+/* Make everything unhighlightable */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 /* General Sidebar CSS */
 .titleHeading {
   @apply text-[aliceblue] bg-[#d5b5a1]

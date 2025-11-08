@@ -40,14 +40,16 @@ export default function SlidingPanel({ show, onClose, title, children }) {
             className="absolute inset-0 w-full h-[97vh] object-fill z-0 pointer-events-none"
             alt=""
           />
+
           <div className="relative h-full flex flex-col pl-[7vw] py-6 text-[#4b3b2f] z-10">
             {!isTasksPage && (
               <div className="flex justify-between items-center rounded-md px-4 py-2">
-                <h2 className="ml-8 titleHeading font-dongle text-6xl font-bold">
+                <h2 className="ml-10 titleHeading font-dongle text-6xl font-bold">
                   {title}
                 </h2>
+
                 <button
-                  className="mr-3 text-5xl font-dongle hover:text-[#886b52] transition cursor-pointer"
+                  className="mr-3 ml-5 mt-5 text-5xl font-dongle hover:text-[#886b52] transition cursor-pointer"
                   onClick={onClose}
                 >
                   ✕
