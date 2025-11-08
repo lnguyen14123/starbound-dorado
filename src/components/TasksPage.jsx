@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../index.css";
 import toggleTab from "../assets/toggle_tab.svg";
 import AddTaskModal from "./AddTaskForm.jsx";
@@ -6,33 +6,25 @@ import AddTaskModal from "./AddTaskForm.jsx";
 export default function TaskPage({ onClose }) {
   const [openId, setOpenId] = useState(null); // ✅ define openId state
   const [showModal, setShowModal] = useState(false);
-  const [tasks, setTasks] = useState([
-    { name: "Buy groceries", priority: "Low" },
-    { name: "Finish project report", priority: "High" },
-    { name: "Call mom", priority: "Low" },
-  ]);
+  const [tasks, setTasks] = useState([]);
 
-  async function addTaskToBackend(task) {
-    try {
-      const response = await fetch("/api/tasks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(task),
-      });
+    useEffect(() => {
+    async function fetchTasks() {
+      try {
+        const uid = localStorage.getItem("uid");
 
-      if (!response.ok) throw new Error("Failed to add task");
-      return await response.json();
-    } catch (error) {
-      console.error("Error adding task:", error);
-      alert("Could not add task");
+        const response = await fetch(`/api/tasks?uid=${uid}`);
+        if (!response.ok) throw new Error("Failed to fetch tasks");
+        const data = await response.json();
+        setTasks(data.tasks || []);
+        console.log(data);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
     }
-  }
 
-  async function handleAddTask() {
-    const newTask = { name: "New Task", priority: "Medium" };
-    const savedTask = await addTaskToBackend(newTask);
-    setTasks((prev) => [...prev, savedTask || newTask]);
-  }
+    fetchTasks();
+  }, []);
 
   return (
     <div className="flex h-screen">
@@ -82,9 +74,22 @@ export default function TaskPage({ onClose }) {
                     />
                     <div className="h-8 w-[2px] bg-[#6b4b33] rounded-full opacity-70 flex-shrink-0"></div>
                     <span className="text-2xl font-semibold truncate">
-                      {task.name}
+                      {task.title}
                     </span>
                   </div>
+
+{task.due_date && (
+  <div
+    className="absolute left-1/2 -translate-x-1/2 -bottom-4 px-3 pt-1 bg-[#dcdcdc] 
+      rounded-full text-lg font-semibold text-[#4b3b2f] shadow-md"
+  >
+    {new Date(task.due_date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })}
+  </div>
+)}
 
                   {/* Right side: divider + dropdown button — absolutely positioned */}
                   <div className="absolute right-[2.3vw] top-[50%] -translate-y-1/2 flex items-center gap-[2vw]">
@@ -106,15 +111,29 @@ export default function TaskPage({ onClose }) {
 
                   {/* Dropdown section */}
                   {/* <div
-    id={`task-${index}`}
-    className={`overflow-hidden transition-all duration-300 ease-in-out ${
-      openId === index ? "max-h-40 mt-3" : "max-h-0"
-    }`}
-  >
-    <div className="pl-10 text-lg text-[#4b3b2f]">
-      <p>Details about "{task.name}" go here…</p>
-    </div>
-  </div> */}
+  id={`task-${index}`}
+  className={`overflow-hidden transition-all duration-300 ease-in-out ${
+    openId === index ? "max-h-40 mt-3" : "max-h-0"
+  }`}
+>
+  <div className="pl-10 text-lg text-[#4b3b2f] flex flex-col gap-2">
+    {task.date && (
+      <p>
+        <span className="font-semibold">Due Date:</span>{" "}
+        {new Date(task.date).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })}
+      </p>
+    )}
+    {task.description && (
+      <p>
+        <span className="font-semibold">Description:</span> {task.description}
+      </p>
+    )}
+  </div>
+</div> */}
                 </div>
               ))}
             </div>
@@ -131,10 +150,14 @@ export default function TaskPage({ onClose }) {
       {/* Modal overlay */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <AddTaskModal
-            onClose={() => setShowModal(false)}
-            onSave={(task) => console.log("Save task", task)}
-          />
+<AddTaskModal
+  onClose={() => setShowModal(false)}
+  onSave={(newTask) => {
+    // Add the new task to the existing tasks state
+    setTasks((prevTasks) => [...prevTasks, newTask]);
+    setShowModal(false); // close the modal
+  }}
+/>
         </div>
       )}
     </div>

@@ -59,21 +59,6 @@ router.post("/user/pet", async (req, res) => {
 });
 
 // Task CRUD api routes
-router.get("/tasks/:uid", async (req, res) => {
-  const { uid } = req.params;
-  
-  try {
-    const result = await pool.query(
-      "SELECT * FROM tasks WHERE user_id = $1 ORDER BY created_at DESC",
-      [uid]
-    );
-    res.status(200).json({ tasks: result.rows });
-  } catch (err) {
-    console.error("Error fetching tasks:", err);
-    res.status(500).json({ error: "Database error" });
-  }
-});
-
 router.post("/tasks", async (req, res) => {
   const { uid, name, date, priority, difficulty} = req.body;
 
@@ -91,67 +76,16 @@ router.post("/tasks", async (req, res) => {
   }
 });
 
-router.put("/tasks/:taskId", async (req, res) => {
-  const { taskId } = req.params;
-  const { 
-    title, 
-    description, 
-    priority, 
-    class: taskClass, 
-    type, 
-    start_date, 
-    due_date, 
-    reminder, 
-    is_completed, 
-    custom_filter 
-  } = req.body;
-  
+router.get("/tasks", async (req, res) => {
+  const { uid } = req.query;
   try {
     const result = await pool.query(
-      `UPDATE tasks 
-       SET title = COALESCE($1, title),
-           description = COALESCE($2, description),
-           priority = COALESCE($3, priority),
-           class = COALESCE($4, class),
-           type = COALESCE($5, type),
-           start_date = COALESCE($6, start_date),
-           due_date = COALESCE($7, due_date),
-           reminder = COALESCE($8, reminder),
-           is_completed = COALESCE($9, is_completed),
-           custom_filter = COALESCE($10, custom_filter),
-           updated_at = CURRENT_TIMESTAMP
-       WHERE task_id = $11 
-       RETURNING *`,
-      [title, description, priority, taskClass, type, start_date, due_date, reminder, is_completed, custom_filter, taskId]
+      `SELECT * FROM tasks WHERE user_id = $1 ORDER BY due_date ASC`,
+      [uid]
     );
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Task not found" });
-    }
-    
-    res.status(200).json({ task: result.rows[0] });
+    res.json({ tasks: result.rows });
   } catch (err) {
-    console.error("Error updating task:", err);
-    res.status(500).json({ error: "Database error" });
-  }
-});
-
-router.delete("/tasks/:taskId", async (req, res) => {
-  const { taskId } = req.params;
-  
-  try {
-    const result = await pool.query(
-      "DELETE FROM tasks WHERE task_id = $1 RETURNING *",
-      [taskId]
-    );
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Task not found" });
-    }
-    
-    res.status(200).json({ message: "Task deleted successfully" });
-  } catch (err) {
-    console.error("Error deleting task:", err);
+    console.error("Error fetching tasks:", err);
     res.status(500).json({ error: "Database error" });
   }
 });

@@ -6,40 +6,28 @@ export default function AddTaskForm({ onClose, onSave }) {
   const [priority, setPriority] = useState("Medium");
   const [difficulty, setDifficulty] = useState("Easy");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    onSave({ name, date, priority, difficulty });
-    const uid = localStorage.getItem("uid");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const uid = localStorage.getItem("uid");
+  const taskData = { uid, name, date, priority, difficulty };
 
-    const taskData = { uid, name, date, priority, difficulty };
+  try {
+    const response = await fetch("/api/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(taskData),
+    });
 
-    try {
-      // Replace "/api/tasks" with your actual backend endpoint
-      const response = await fetch("/api/tasks", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(taskData),
-      });
+    if (!response.ok) throw new Error("Failed to save task");
 
-      if (!response.ok) {
-        throw new Error("Failed to save task");
-      }
-
-      const savedTask = await response.json();
-
-      // Optionally pass the saved task back to parent
-      onSave(savedTask);
-
-      // Close the form
-      onClose();
-    } catch (err) {
-      console.error("Error saving task:", err);
-      alert("Could not save task. Try again!");
-    }
-    onClose();
-  };
+    const savedTask = await response.json();
+    // pass the saved task back to parent
+    onSave(savedTask.task); // your backend returns { task: ... }
+  } catch (err) {
+    console.error("Error saving task:", err);
+    alert("Could not save task. Try again!");
+  }
+};
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
