@@ -21,6 +21,8 @@ router.post("/users", async (req, res) => {
   
 router.post("/choosePet", async (req, res) => {
   const { uid, petType } = req.body;
+
+  console.log(req.body)
   
   try {
     await pool.query(
