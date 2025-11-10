@@ -1,0 +1,74 @@
+import React, { useEffect } from "react";
+import TaskbookL from "../assets/L_TaskBook.png";
+import "../index.css";
+
+export default function RightSlidingPanel({ show, onClose, title, children }) {
+  const isTasksPage = title === "Tasks";
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && show) onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [show, onClose]);
+
+  return (
+    <div
+      className={`fixed inset-0 z-100 transition-all duration-500 ease-in-out ${
+        show ? "pointer-events-auto" : "pointer-events-none"
+      }`}
+    >
+      {/* Background overlay */}
+      <div
+        onClick={onClose}
+        className={`absolute inset-0 bg-black transition-opacity duration-500 ${
+          show ? "opacity-20" : "opacity-0"
+        }`}
+      ></div>
+
+      {/* Panel */}
+      <div
+        className={`absolute top-0 right-0 h-full transition-transform duration-500 ease-in-out ${
+          show ? "translate-x-0" : "translate-x-full"
+        }`}
+        style={{ width: "45vw" }}
+      >
+        <div className="relative h-full w-full flex items-center justify-center">
+          {/* Flipped image */}
+          <img
+            src={TaskbookL}
+            className="absolute inset-0 w-full h-[97vh] object-fill z-0 pointer-events-none"
+            style={{ transform: "scaleX(-1)" }}
+            alt=""
+          />
+
+          <div className="relative h-full flex flex-col pr-[7vw] py-6 text-[#4b3b2f] z-10">
+            {!isTasksPage && (
+              <div className="flex justify-between items-center rounded-md px-4 py-2">
+                <h2 className="ml-10 titleHeading font-dongle text-6xl font-bold">
+                  {title}
+                </h2>
+
+                <button
+                  className="mr-3 ml-5 mt-5 text-5xl font-dongle hover:text-[#886b52] transition cursor-pointer"
+                  onClick={onClose}
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            <div
+              className={`p-8 font-dongle text-5xl text-[#4b3b2f] ${
+                !isTasksPage ? "-mt-8" : ""
+              }`}
+            >
+              {children}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
