@@ -83,7 +83,7 @@ function ChoosePet({ tabs, currentTab, onTabClick, setIsNewUser}) {
         {/* Dog */}
         <div
         className="cursor-pointer transition-transform duration-300 hover:scale-105  rounded-3xl"
-        onClick={() => handleChoosePet("dog")}
+        onClick={() => handleChoosePet("yellowdog")}
         >
         <img
             src={YellowDog1}
@@ -95,7 +95,7 @@ function ChoosePet({ tabs, currentTab, onTabClick, setIsNewUser}) {
         {/* Cat */}
         <div
         className="cursor-pointer transition-transform duration-300 hover:scale-105 rounded-3xl"
-        onClick={() => handleChoosePet("cat")}
+        onClick={() => handleChoosePet("graycat")}
         >
         <img
             src={GrayCat1}

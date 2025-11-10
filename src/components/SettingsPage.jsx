@@ -125,7 +125,7 @@ export default function SettingsPage({ onClose }) {
       <button
           onClick={handleSignOut}
           className="absolute bottom-10 left-1/2 -translate-x-[8vw] w-[20vw] bg-[#d1ee80] hover:bg-[#b9d66b] border-3 border-[#a2c93b]
-                    text-4xl font-bold text-white rounded-2xl drop-shadow-[3px_3px_3px_rgba(0,0,0,0.3)] py-2 transition"
+                    text-4xl font-bold text-white rounded-2xl drop-shadow-[3px_3px_3px_rgba(0,0,0,0.3)] py-2 transition cursor-pointer"
         >
           Sign Out
         </button>

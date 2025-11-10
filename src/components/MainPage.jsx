@@ -8,12 +8,15 @@ import Dresser from "./Dresser";
 import Plant from "./Plant";
 
 // Pages
+import RightSlidingPanel from "./RightSlidingPanel";
 import SlidingPanel from "./SlidingPanel";
 import SettingsPage from "./SettingsPage";
 import BadgePage from "./BadgePage";
 import FriendsPage from "./FriendsPage";
 import TasksPage from "./TasksPage";
 import StorePage from "./StorePage";
+
+
 
 //import GrayCat1 from "../assets/gray_cat1.png";
 //import YellowDog1 from "../assets/yellow_dog1.png";
@@ -124,35 +127,35 @@ export default function MainPage() {
 
         {/* Top-right stacked buttons with icons */}
         <div className="absolute top-[17vh] -right-[12vw] flex flex-col gap-[3vh] z-50">
-          {/* Pet button */}
-          <button
-            className="
-              w-[20vw] h-[13vh]
-              bg-[#FFBAC5] border-6 border-[#FE8693]
-              shadow-md cursor-pointer pl-[1vw]
-              transition-transform duration-300 ease-in-out
-              hover:-translate-x-4
-              flex items-center
-            "
-            onClick={() => console.log('Pet button clicked')}
-          >
-            <img src={PetInventory} alt="Pet Inventory" className="w-1/4" />
-          </button>
+{/* Pet button */}
+<button
+  className="
+    w-[20vw] h-[13vh]
+    bg-[#FFBAC5] border-6 border-[#FE8693]
+    shadow-md cursor-pointer pl-[1vw]
+    transition-transform duration-300 ease-in-out
+    hover:-translate-x-4
+    flex items-center
+  "
+  onClick={() => openPanel("petClothes")}
+>
+  <img src={PetInventory} alt="Pet Inventory" className="w-1/4" />
+</button>
 
-          {/* Furniture button */}
-          <button
-            className="
-              w-[20vw] h-[13vh]
-              bg-[#FCD68D] border-6 border-[#DAA94B]
-              shadow-md cursor-pointer pl-[1vw]
-              transition-transform duration-300 ease-in-out
-              hover:-translate-x-4 
-              flex items-center
-            "
-            onClick={() => console.log('Furniture button clicked')}
-          >
-            <img src={FurnitureInventory} alt="Furniture Inventory" className="w-1/4" />
-          </button>
+{/* Furniture button */}
+<button
+  className="
+    w-[20vw] h-[13vh]
+    bg-[#FCD68D] border-6 border-[#DAA94B]
+    shadow-md cursor-pointer pl-[1vw]
+    transition-transform duration-300 ease-in-out
+    hover:-translate-x-4 
+    flex items-center
+  "
+  onClick={() => openPanel("furniture")}
+>
+  <img src={FurnitureInventory} alt="Furniture Inventory" className="w-1/4" />
+</button>
         </div>
 
 
