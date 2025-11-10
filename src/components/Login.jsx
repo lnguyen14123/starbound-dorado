@@ -16,7 +16,30 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // Store Firebase auth uid in localStorage
+      localStorage.setItem("uid", user.uid);
+      
+      // Ensure user exists in database (create or update)
+      try {
+        await fetch("/api/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            uid: user.uid,
+            email: user.email,
+            username: user.email?.split("@")[0] || "User", // Use email prefix as default username
+          }),
+        });
+      } catch (dbErr) {
+        console.error("Error creating/updating user in database:", dbErr);
+        // Continue anyway - user can still log in
+      }
+      
+      // Navigate to home page after successful login
+      navigate("/");
     } catch (err) {
       setError(err.message);
     }

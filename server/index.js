@@ -1,10 +1,10 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import pkg from "pg";
 import path from "path";
 import { fileURLToPath } from "url";
-import apiRoutes from "./api.js"; // <-- import your router
+import { existsSync } from "fs";
+import apiRoutes from "./api.js";
 
 dotenv.config();
 
@@ -16,18 +16,50 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const reactDist = path.join(__dirname, "../dist");
 
-// Serve static files from React build
-app.use(express.static(reactDist));
+app.use((req, res, next) => {
+  next();
+});
 
+app.get("/api/test", (req, res) => {
+  res.json({ message: "API routes are working!", timestamp: new Date().toISOString() });
+});
+
+app.use("/api", (req, res, next) => {
+  next();
+});
 app.use("/api", apiRoutes);
 
-// Catch-all: serve index.html for all other routes
+if (existsSync(reactDist)) {
+  app.use((req, res, next) => {
+    if (req.path.startsWith("/api")) {
+      return next();
+    }
+    const filePath = path.join(reactDist, req.path);
+    if (existsSync(filePath) && !filePath.endsWith('.html')) {
+      res.sendFile(filePath);
+    } else {
+      next();
+    }
+  });
+}
+
 app.use((req, res) => {
-  console.log("Serving React app...");
-  res.sendFile(path.join(reactDist, "index.html"));
+  if (req.path.startsWith("/api")) {
+    return res.status(404).json({ error: "API endpoint not found", path: req.path });
+  }
+  
+  const indexPath = path.join(reactDist, "index.html");
+  if (existsSync(reactDist) && existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).json({ 
+      error: "React app not built. Run 'npm run build' first.",
+      message: "API endpoints are available at /api/*"
+    });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+
 });

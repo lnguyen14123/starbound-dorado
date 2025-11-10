@@ -42,23 +42,35 @@ body {
   min-height: 100vh;
 }
 
+
+/* Make everything unhighlightable */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 /* General Sidebar CSS */
 .titleHeading {
-  color: aliceblue;
-  background-color: #d5b5a1;
-  border: 5px solid #C6AB99;
-  border-radius: 2rem;
-  padding: 0rem 8rem;
+  @apply text-[aliceblue] bg-[#d5b5a1]
+         border-[5px] border-[#C6AB99]
+         rounded-[2rem] px-32 py-0;
 }
 
 .panel-card {
-  color: #8F674D;
-  border: 3px solid #e3cfbf;
-  border-radius: 1.5rem;
-  background-color: #ead4c3;
-  padding: 6px 2rem;
-  font-weight: bold;
-  margin-top: 1rem;
+  @apply text-[#8F674D] bg-[#ead4c3]
+         border-[3px] border-[#e3cfbf]
+         rounded-[1.5rem] px-8 py-[6px]
+         font-bold mt-4;
+}
+
+input[type="range"] {
+  @apply w-full h-2 rounded-lg accent-[#a2c93b];
+}
+
+input[type="checkbox"] {
+  @apply accent-[#a2c93b] dark:accent-[#c9eb6b];
 }
 
 /* button {

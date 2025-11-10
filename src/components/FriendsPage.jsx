@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../index.css";
 import { auth } from "../firebase";
 
-export default function FriendsPage({ onClose }) {
+export default function FriendsPage({ onClose, onPendingRequestsChange }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [friends, setFriends] = useState([]);
@@ -33,7 +33,12 @@ export default function FriendsPage({ onClose }) {
     try {
       const response = await fetch(`/api/friends/requests/${uid}`);
       const data = await response.json();
-      setPendingRequests(data.requests || []);
+      const requests = data.requests || [];
+      setPendingRequests(requests);
+      // Update the notification badge count
+      if (onPendingRequestsChange) {
+        onPendingRequestsChange(requests.length);
+      }
     } catch (err) {
       console.error("Error fetching friend requests:", err);
     }
@@ -106,8 +111,9 @@ export default function FriendsPage({ onClose }) {
       });
 
       if (response.ok) {
-        fetchFriends(currentUid);
-        fetchPendingRequests(currentUid);
+        // Refresh friends list and pending requests
+        await fetchFriends(currentUid);
+        await fetchPendingRequests(currentUid);
         alert(`Friend request ${status}!`);
       } else {
         const error = await response.json();

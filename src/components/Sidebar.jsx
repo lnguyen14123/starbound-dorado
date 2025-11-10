@@ -15,7 +15,8 @@ function Sidebar({ tabs, currentTab, onTabClick,
   onStoreClick,
   onTasksClick,
   onFriendsClick,
-  onBadgesClick
+  onBadgesClick,
+  pendingFriendRequests = 0
 }) {
   const navigate = useNavigate();
 
@@ -70,7 +71,7 @@ function Sidebar({ tabs, currentTab, onTabClick,
 
         <button
           className="w-90 h-21 bg-[#ffbac5] border-3 border-[#ff8395] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
-          rounded-sm cursor-pointer flex items-center pl-40 transition-all duration-200 ease-in-out hover:scale-105"
+          rounded-sm cursor-pointer flex items-center pl-40 transition-all duration-200 ease-in-out hover:scale-105 relative"
           onClick={onFriendsClick}
 
         >
@@ -81,6 +82,11 @@ function Sidebar({ tabs, currentTab, onTabClick,
             src={Friends}
             className="w-25 h-auto drop-shadow-[2px_2px_2px_rgba(0,0,0,.3)]"
           />
+          {pendingFriendRequests > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-3xl font-bold font-dongle rounded-full w-12 h-12 flex items-center justify-center border-3 border-white drop-shadow-[2px_2px_2px_rgba(0,0,0,.5)]">
+              {pendingFriendRequests > 9 ? '9+' : pendingFriendRequests}
+            </span>
+          )}
         </button>
 
         <button
