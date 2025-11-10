@@ -17,7 +17,7 @@ import PartyHat from "../assets/pets/clothing/hats/party_hat.svg";
 import Crown from "../assets/pets/clothing/hats/crown.svg";
 import BlueCap from "../assets/pets/clothing/hats/blue_cap.svg";
 
-const Pets = ({ petType, equippedItems, focusMode = false, onDressUpClick }) => {
+const Pets = ({ petType, equippedItems, focusMode = false }) => {
   const [isBlinking, setIsBlinking] = useState(false);
   const [isHappy, setIsHappy] = useState(false);
   const [isJumping, setIsJumping] = useState(false);
@@ -109,7 +109,7 @@ useEffect(() => {
 
   const getPetStyles = () => {
     if (focusMode) {
-      return `relative w-[20vw] max-w-[320px] ${isJumping ? "-translate-y-3" : ""}`;
+      return `relative w-[35vw] max-w-[400px] ${isJumping ? "-translate-y-3" : ""}`;
     }
     let classes = "h-auto w-[34vw] transition-transform duration-300";
     if (isJumping) classes += " -translate-y-6";
@@ -128,11 +128,11 @@ useEffect(() => {
     : "absolute w-full h-full flex items-center justify-center";
 
   const hatClass = focusMode
-    ? "absolute -top-12 w-[12vw] max-w-[180px]"
+    ? "absolute -top-12 w-[21vw] max-w-[315px]"
     : "absolute z-30 h-auto w-[15vw] top-[30vh] -translate-x-[5vw]";
 
   const collarClass = focusMode
-    ? "absolute top-[65%] w-[18vw] max-w-[230px]"
+    ? "absolute top-[65%] w-[31vw] max-w-[400px]"
     : "absolute z-25 h-auto w-[25vw] top-[65vh] -translate-x-[5vw]";
 
   const handlePetClick = () => {
@@ -142,7 +142,7 @@ useEffect(() => {
   };
 
   return (
-    <div className={containerClass} onClick={focusMode ? undefined : onDressUpClick}>
+    <div className={containerClass}>
       {getHatImage() && (
         <img
           src={getHatImage()}
