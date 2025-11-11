@@ -8,12 +8,18 @@ import Dresser from "./Dresser";
 import Plant from "./Plant";
 
 // Pages
+import RightSlidingPanel from "./RightSlidingPanel";
 import SlidingPanel from "./SlidingPanel";
 import SettingsPage from "./SettingsPage";
 import BadgePage from "./BadgePage";
+import FriendsPage from "./FriendsPage";
 import TasksPage from "./TasksPage";
 import StorePage from "./StorePage";
 
+
+
+//import GrayCat1 from "../assets/gray_cat1.png";
+//import YellowDog1 from "../assets/yellow_dog1.png";
 import Pets from "./Pets";
 
 import Checkmark from "../assets/checkmark.png";
@@ -28,6 +34,7 @@ export default function MainPage() {
   const [petType, setPetType] = useState(null);
   const [activePanel, setActivePanel] = useState(null);
   const [panelVisible, setPanelVisible] = useState(false);
+  const [pendingFriendRequests, setPendingFriendRequests] = useState(0);
 
   const openPanel = (panelName) => {
     setActivePanel(panelName);
@@ -39,6 +46,19 @@ export default function MainPage() {
     setPanelVisible(false);
     setTimeout(() => setActivePanel(null), 500); // match slide duration
   };
+
+  useEffect(() => {
+  const handleOpenPanel = (e) => {
+    const panelName = e.detail;
+    setActivePanel(panelName);
+    requestAnimationFrame(() => setPanelVisible(true));
+  };
+
+  window.addEventListener("openPanel", handleOpenPanel);
+
+  return () => window.removeEventListener("openPanel", handleOpenPanel);
+}, []);
+
 
   useEffect(() => {
     const cachedPet = localStorage.getItem("petType");
@@ -59,6 +79,26 @@ export default function MainPage() {
       }
     };
     fetchPet();
+
+    // Fetch pending friend requests count on mount
+    const fetchPendingRequests = async () => {
+      try {
+        const uid = localStorage.getItem("uid");
+        if (uid) {
+          const response = await fetch(`/api/friends/requests/${uid}`);
+          const data = await response.json();
+          const requests = data.requests || [];
+          setPendingFriendRequests(requests.length);
+        }
+      } catch (err) {
+        console.error("Error fetching pending friend requests:", err);
+      }
+    };
+    fetchPendingRequests();
+
+    // Poll for new friend requests every 30 seconds
+    const interval = setInterval(fetchPendingRequests, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   function ProgressBar({ progress }) {
@@ -140,6 +180,7 @@ export default function MainPage() {
         onTasksClick={() => openPanel("tasks")}
         onFriendsClick={() => openPanel("friends")}
         onBadgesClick={() => openPanel("badges")}
+        pendingFriendRequests={pendingFriendRequests}
       />
 
       <div className="w-screen flex justify-center relative">
@@ -195,18 +236,54 @@ export default function MainPage() {
         {renderInventoryButtons("right-[3vw] top-[20vh]")}
       </div>
 
-      {activePanel && (
-        <SlidingPanel
-          show={panelVisible}
-          onClose={closePanel}
-          title={titleMap[activePanel] || ""}
-        >
-          {activePanel === "badges" && <BadgePage onClose={closePanel} />}
-          {activePanel === "settings" && <SettingsPage onClose={closePanel} />}
-          {activePanel === "tasks" && <TasksPage onClose={closePanel} />}
-          {activePanel === "store" && <StorePage onClose={closePanel} />}
-        </SlidingPanel>
-      )}
+{/* Left-side panel (Store, Friends, Badges, etc.) */}
+{activePanel &&
+  ["store", "friends", "badges", "settings", "tasks"].includes(activePanel) && (
+    <SlidingPanel
+      show={panelVisible}
+      onClose={closePanel}
+      title={
+        activePanel === "store"
+          ? "Store"
+          : activePanel === "friends"
+          ? "Friends"
+          : activePanel === "badges"
+          ? "Badges"
+          : activePanel === "settings"
+          ? "Settings"
+          : activePanel === "tasks"
+          ? "Tasks"
+          : ""
+      }
+    >
+      {activePanel === "badges" && <BadgePage onClose={closePanel} />}
+      {activePanel === "settings" && <SettingsPage onClose={closePanel} />}
+      {activePanel === "tasks" && <TasksPage onClose={closePanel} />}
+      {activePanel === "store" && <StorePage onClose={closePanel} />}
+      {activePanel === "friends" && <FriendsPage onClose={closePanel} />}
+    </SlidingPanel>
+  )}
+
+<RightSlidingPanel
+  show={panelVisible}
+  onClose={closePanel}
+  title={activePanel === "furniture" ? "Furniture" :
+         activePanel === "petClothes" ? "Items" : "Inventory"}
+>
+  {/* Buttons inside the panel */}
+  <div className="absolute top-10 right-[-5vw] flex flex-col gap-4 z-50">
+    <button onClick={() => openPanel("petClothes")}>
+      <img src={PetInventory} alt="Pet Inventory" />
+    </button>
+    <button onClick={() => openPanel("furniture")}>
+      <img src={FurnitureInventory} alt="Furniture Inventory" />
+    </button>
+  </div>
+
+  <div className="text-5xl font-dongle text-[#4b3b2f]">
+    Coming soon!
+  </div>
+</RightSlidingPanel>
     </div>
   );
 }

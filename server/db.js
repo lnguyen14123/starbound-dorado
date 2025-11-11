@@ -8,7 +8,7 @@ dotenv.config({ path: path.resolve('./server/.env') }); // adjust path to where 
 
 const { Pool } = pkg;
 
-console.log(process.env.DATABASE_URL);
+
 
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,

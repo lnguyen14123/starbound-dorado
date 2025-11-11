@@ -26,7 +26,13 @@ function App() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
 
-      // Only check localStorage once auth state is known
+      // Store Firebase auth uid in localStorage when user is logged in
+      if (currentUser) {
+        localStorage.setItem("uid", currentUser.uid);
+      } else {
+        localStorage.removeItem("uid");
+      }
+
       const stored = localStorage.getItem("isNewUser");
       setIsNewUser(stored === "true");
 
@@ -38,19 +44,15 @@ function App() {
 
 
   if (loading || isNewUser === null) {
-    // Wait until both auth state and new-user status are known
+
     return (
       <div className="h-screen w-screen flex items-center justify-center">
         Loading...
       </div>
     );
   }
-
-    // // Redirect new users BEFORE rendering any routes
-    // if ((user && isNewUser) || justRegistered) {
-    //   navigate("/ChoosePet", { replace: true });
-    // }
       
+
 
   return (
     <Router>
