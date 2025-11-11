@@ -13,6 +13,7 @@ import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import ChoosePet from "./components/ChoosePet";
 import TasksPage from "./components/TasksPage";
+import CustomizePage from "./components/CustomizePage";
 
 function App() {
   const tabs = ["Tasks", "Store", "Friends", "Settings"];
@@ -60,14 +61,6 @@ function App() {
       <Route path="/login" element={!user ? <Layout><Login /></Layout> : <Navigate to="/" />} />
       <Route path="/register" element={!user ? <Layout><Register /></Layout> : <Navigate to="/ChoosePet" />} />
 
-  {/* Protected routes */}
-  {user && isNewUser && (
-    <Route
-      path="/*"
-      element={<Navigate to="/ChoosePet" replace />}
-    />
-  )}
-
 <Route
   path="/"
   element={
@@ -81,10 +74,14 @@ function App() {
     path="/ChoosePet"
     element={
       <ProtectedRoute user={user} loading={loading}>
-        <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0]">
-          <ChoosePet setIsNewUser={setIsNewUser} />
-          <Floor />
-        </div>
+        {isNewUser ? (
+          <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0]">
+            <ChoosePet setIsNewUser={setIsNewUser} />
+            <Floor />
+          </div>
+        ) : (
+          <Navigate to="/" replace />
+        )}
       </ProtectedRoute>
     }
   />
@@ -94,6 +91,15 @@ function App() {
     element={
       <ProtectedRoute user={user} loading={loading}>
         <TasksPage />
+      </ProtectedRoute>
+    }
+  />
+
+  <Route
+    path="/customize"
+    element={
+      <ProtectedRoute user={user} loading={loading}>
+        {isNewUser ? <Navigate to="/ChoosePet" replace /> : <CustomizePage />}
       </ProtectedRoute>
     }
   />

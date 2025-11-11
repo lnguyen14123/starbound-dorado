@@ -8,12 +8,15 @@ import Dresser from "./Dresser";
 import Plant from "./Plant";
 
 // Pages
+import RightSlidingPanel from "./RightSlidingPanel";
 import SlidingPanel from "./SlidingPanel";
 import SettingsPage from "./SettingsPage";
 import BadgePage from "./BadgePage";
 import FriendsPage from "./FriendsPage";
 import TasksPage from "./TasksPage";
 import StorePage from "./StorePage";
+
+
 
 //import GrayCat1 from "../assets/gray_cat1.png";
 //import YellowDog1 from "../assets/yellow_dog1.png";
@@ -24,8 +27,10 @@ import StreakFire from "../assets/streak_fire.png";
 
 import PetInventory from "../assets/icons/petInventory.svg";
 import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
+import { useNavigate } from "react-router-dom";
 
 export default function MainPage() {
+  const navigate = useNavigate();
   const [petType, setPetType] = useState(null);
   const [activePanel, setActivePanel] = useState(null);
   const [panelVisible, setPanelVisible] = useState(false);
@@ -41,6 +46,19 @@ export default function MainPage() {
     setPanelVisible(false);
     setTimeout(() => setActivePanel(null), 500); // match slide duration
   };
+
+  useEffect(() => {
+  const handleOpenPanel = (e) => {
+    const panelName = e.detail;
+    setActivePanel(panelName);
+    requestAnimationFrame(() => setPanelVisible(true));
+  };
+
+  window.addEventListener("openPanel", handleOpenPanel);
+
+  return () => window.removeEventListener("openPanel", handleOpenPanel);
+}, []);
+
 
   useEffect(() => {
     const cachedPet = localStorage.getItem("petType");
@@ -108,6 +126,52 @@ export default function MainPage() {
     );
   }
 
+  const titleMap = {
+    settings: "Settings",
+    store: "Store",
+    tasks: "Tasks",
+    friends: "Friends",
+    badges: "Badges",
+  };
+
+  const renderInventoryButtons = (anchorClass = "") => (
+    <div className={`absolute ${anchorClass} flex flex-col gap-[2vh] z-40 pointer-events-none`}>
+      <div className="flex items-center gap-3 pointer-events-auto">
+        <span className="text-4xl font-dongle text-[#4b3b2f]"></span>
+        <button
+          className="
+            w-[11vw] h-[10vh]
+            bg-[#FFBAC5] border-[5px] border-[#FE8693]
+            shadow-md cursor-pointer pl-4 pr-2
+            transition-transform duration-200 ease-in-out
+            hover:-translate-x-1
+            flex items-center justify-between rounded-sm
+          "
+          onClick={() => navigate("/customize?mode=pet")}
+        >
+          <img src={PetInventory} alt="Pet Inventory" className="w-10" />
+        </button>
+      </div>
+
+      <div className="flex items-center gap-3 pointer-events-auto">
+        <span className="text-4xl font-dongle text-[#4b3b2f]"></span>
+        <button
+          className="
+            w-[11vw] h-[10vh]
+            bg-[#FCD68D] border-[5px] border-[#DAA94B]
+            shadow-md cursor-pointer pl-4 pr-2
+            transition-transform duration-200 ease-in-out
+            hover:-translate-x-1 
+            flex items-center justify-between rounded-sm
+          "
+          onClick={() => navigate("/customize?mode=furniture")}
+        >
+          <img src={FurnitureInventory} alt="Furniture Inventory" className="w-10" />
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0] relative overflow-hidden">
       <Sidebar
@@ -119,48 +183,14 @@ export default function MainPage() {
         pendingFriendRequests={pendingFriendRequests}
       />
 
-      <div className="w-screen flex justify-center">
+      <div className="w-screen flex justify-center relative">
         <Floor />
-
-        {/* Top-right stacked buttons with icons */}
-        <div className="absolute top-[17vh] -right-[12vw] flex flex-col gap-[3vh] z-50">
-          {/* Pet button */}
-          <button
-            className="
-              w-[20vw] h-[13vh]
-              bg-[#FFBAC5] border-6 border-[#FE8693]
-              shadow-md cursor-pointer pl-[1vw]
-              transition-transform duration-300 ease-in-out
-              hover:-translate-x-4
-              flex items-center
-            "
-            onClick={() => console.log('Pet button clicked')}
-          >
-            <img src={PetInventory} alt="Pet Inventory" className="w-1/4" />
-          </button>
-
-          {/* Furniture button */}
-          <button
-            className="
-              w-[20vw] h-[13vh]
-              bg-[#FCD68D] border-6 border-[#DAA94B]
-              shadow-md cursor-pointer pl-[1vw]
-              transition-transform duration-300 ease-in-out
-              hover:-translate-x-4 
-              flex items-center
-            "
-            onClick={() => console.log('Furniture button clicked')}
-          >
-            <img src={FurnitureInventory} alt="Furniture Inventory" className="w-1/4" />
-          </button>
-        </div>
-
 
         <div
           className="absolute flex top-[3vh] left-[45vw] -translate-x-1/2 
-                     bg-[#f2be9c] border-3 border-[#7d5c47] 
-                     rounded-full drop-shadow-[3px_3px_3px_rgba(0,0,0,0.4)] z-30
-                     w-[43vw] h-[9vh] items-center"
+                    bg-[#f2be9c] border-3 border-[#7d5c47] 
+                    rounded-full drop-shadow-[3px_3px_3px_rgba(0,0,0,0.4)] z-30
+                    w-[43vw] h-[9vh] items-center"
         >
           <img
             src={StreakFire}
@@ -199,41 +229,61 @@ export default function MainPage() {
         <Dresser />
         <Plant />
 
+        <Pets
+          petType={petType}
+        />
 
-
-        <Pets petType={petType} />
+        {renderInventoryButtons("right-[3vw] top-[20vh]")}
       </div>
 
-      {activePanel && (
-        <SlidingPanel
-          show={panelVisible}
-          onClose={closePanel}
-          title={
-            activePanel === "settings"
-              ? "Settings"
-              : activePanel === "store"
-              ? "Store"
-              : activePanel === "tasks"
-              ? "Tasks"
-              : activePanel === "friends"
-              ? "Friends"
-              : activePanel === "badges"
-              ? "Badges"
-              : ""
-          }
-        >
-          {activePanel === "badges" && <BadgePage onClose={closePanel} />}
-          {activePanel === "settings" && <SettingsPage onClose={closePanel} />}
-          {activePanel === "tasks" && <TasksPage onClose={closePanel} />}
-          {activePanel === "friends" && (
-            <FriendsPage 
-              onClose={closePanel} 
-              onPendingRequestsChange={setPendingFriendRequests}
-            />
-          )}
-          {activePanel === "store" && <StorePage onClose={closePanel} />}
-        </SlidingPanel>
-      )}
+{/* Left-side panel (Store, Friends, Badges, etc.) */}
+{activePanel &&
+  ["store", "friends", "badges", "settings", "tasks"].includes(activePanel) && (
+    <SlidingPanel
+      show={panelVisible}
+      onClose={closePanel}
+      title={
+        activePanel === "store"
+          ? "Store"
+          : activePanel === "friends"
+          ? "Friends"
+          : activePanel === "badges"
+          ? "Badges"
+          : activePanel === "settings"
+          ? "Settings"
+          : activePanel === "tasks"
+          ? "Tasks"
+          : ""
+      }
+    >
+      {activePanel === "badges" && <BadgePage onClose={closePanel} />}
+      {activePanel === "settings" && <SettingsPage onClose={closePanel} />}
+      {activePanel === "tasks" && <TasksPage onClose={closePanel} />}
+      {activePanel === "store" && <StorePage onClose={closePanel} />}
+      {activePanel === "friends" && <FriendsPage onClose={closePanel} />}
+    </SlidingPanel>
+  )}
+
+<RightSlidingPanel
+  show={panelVisible}
+  onClose={closePanel}
+  title={activePanel === "furniture" ? "Furniture" :
+         activePanel === "petClothes" ? "Items" : "Inventory"}
+>
+  {/* Buttons inside the panel */}
+  <div className="absolute top-10 right-[-5vw] flex flex-col gap-4 z-50">
+    <button onClick={() => openPanel("petClothes")}>
+      <img src={PetInventory} alt="Pet Inventory" />
+    </button>
+    <button onClick={() => openPanel("furniture")}>
+      <img src={FurnitureInventory} alt="Furniture Inventory" />
+    </button>
+  </div>
+
+  <div className="text-5xl font-dongle text-[#4b3b2f]">
+    Coming soon!
+  </div>
+</RightSlidingPanel>
     </div>
   );
 }
