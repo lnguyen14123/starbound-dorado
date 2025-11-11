@@ -210,6 +210,7 @@ export default function MainPage() {
       {activePanel === "settings" && <SettingsPage onClose={closePanel} />}
       {activePanel === "tasks" && <TasksPage onClose={closePanel} />}
       {activePanel === "store" && <StorePage onClose={closePanel} />}
+      {activePanel === "friends" && <FriendsPage onClose={closePanel} />}
     </SlidingPanel>
   )}
 

@@ -15,7 +15,7 @@ export default function StorePage({ onClose }) {
               className="bg-[#E4CFBD] rounded-2xl w-full aspect-[4/3] shadow-md hover:shadow-lg transition-shadow duration-300 relative"
             >
               {/* Buy button */}
-              <button className="absolute bottom-2 left-5 right-5 bg-[#b6e5b6] hover:bg-[#a8d8a8] rounded-lg px-3 py-1.5 flex items-center justify-center gap-2 shadow-md transition-colors duration-200">
+              <button className="absolute bottom-2 left-5 right-5 bg-[#b6e5b6] hover:bg-[#a8d8a8] rounded-lg px-3 py-1.5 flex items-center justify-center gap-2 shadow-md transition-colors duration-200 cursor-pointer">
                 <img
                   src={Checkmark}
                   alt="Buy"
