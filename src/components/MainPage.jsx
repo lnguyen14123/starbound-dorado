@@ -166,7 +166,7 @@ export default function MainPage() {
         </div>
 
         <Window />
-        <Dresser />
+        <Dresser/>
         <Plant />
 
 
