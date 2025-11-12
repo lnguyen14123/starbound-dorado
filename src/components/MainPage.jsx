@@ -8,7 +8,6 @@ import Dresser from "./Dresser";
 import Plant from "./Plant";
 
 // Pages
-import RightSlidingPanel from "./RightSlidingPanel";
 import SlidingPanel from "./SlidingPanel";
 import SettingsPage from "./SettingsPage";
 import BadgePage from "./BadgePage";
@@ -214,26 +213,6 @@ export default function MainPage() {
     </SlidingPanel>
   )}
 
-<RightSlidingPanel
-  show={panelVisible}
-  onClose={closePanel}
-  title={activePanel === "furniture" ? "Furniture" :
-         activePanel === "petClothes" ? "Items" : "Inventory"}
->
-  {/* Buttons inside the panel */}
-  <div className="absolute top-10 right-[-5vw] flex flex-col gap-4 z-50">
-    <button onClick={() => openPanel("petClothes")}>
-      <img src={PetInventory} alt="Pet Inventory" />
-    </button>
-    <button onClick={() => openPanel("furniture")}>
-      <img src={FurnitureInventory} alt="Furniture Inventory" />
-    </button>
-  </div>
-
-  <div className="text-5xl font-dongle text-[#4b3b2f]">
-    Coming soon!
-  </div>
-</RightSlidingPanel>
     </div>
   );
 }
