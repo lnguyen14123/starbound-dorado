@@ -24,9 +24,6 @@ import Pets from "./Pets";
 import Checkmark from "../assets/checkmark.png";
 import StreakFire from "../assets/streak_fire.png";
 
-import PetInventory from "../assets/icons/petInventory.svg";
-import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
-
 export default function MainPage() {
   const [petType, setPetType] = useState(null);
   const [activePanel, setActivePanel] = useState(null);
@@ -100,14 +97,7 @@ export default function MainPage() {
 
   function ProgressBar({ progress }) {
     return (
-      <div
-        className="
-        relative
-        w-[20vw] h-[5vh]
-        bg-[#ECF0A4] border-4 border-[#86A445]
-        rounded-full shadow-md overflow-hidden
-      "
-      >
+<div className="relative w-full max-w-md h-10 bg-[#ECF0A4] border-4 border-[#86A445] rounded-full overflow-hidden">
         <div
           className="
             h-full bg-[#86A445] 
@@ -137,12 +127,11 @@ export default function MainPage() {
       <div className="w-screen flex justify-center">
         <Floor />
 
-        <div
-          className="absolute flex top-[3vh] left-[45vw] -translate-x-1/2 
-                     bg-[#f2be9c] border-3 border-[#7d5c47] 
-                     rounded-full drop-shadow-[3px_3px_3px_rgba(0,0,0,0.4)] z-30
-                     w-[43vw] h-[9vh] items-center"
-        >
+        <div className="absolute flex top-3 left-1/2 transform -translate-x-1/2
+                        bg-[#f2be9c] border-3 border-[#7d5c47] 
+                        rounded-full shadow-lg z-30
+                        w-6/12 h-20 items-center px-4">
+        
           <img
             src={StreakFire}
             className="w-13 ml-[1vw] h-auto drop-shadow-[2px_2px_2px_rgba(0,0,0,.3)]"
