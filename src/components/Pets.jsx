@@ -26,6 +26,12 @@ const Pets = ({ petType, equippedItems }) => {
   const [hunger, setHunger] = useState(50);
   const [thirst, setThirst] = useState(50);
 
+  const placeholderEquippedItems = {
+    collar: "red_collar",
+    hat: "party_hat",
+  };
+  const resolvedItems = equippedItems ?? placeholderEquippedItems;
+
   // 🐾 Blinking effect
 useEffect(() => {
   if (!petType) return;
@@ -59,23 +65,23 @@ useEffect(() => {
 
   // 🧢 Clothing helpers
   const getCollarImage = () => {
-    if (!equippedItems?.collar) return null;
+    if (!resolvedItems?.collar) return null;
     const collars = {
       red_collar: RedCollar,
       blue_collar: BlueCollar,
       bow_tie: BowTie,
     };
-    return collars[equippedItems.collar];
+    return collars[resolvedItems.collar];
   };
 
   const getHatImage = () => {
-    if (!equippedItems?.hat) return null;
+    if (!resolvedItems?.hat) return null;
     const hats = {
       party_hat: PartyHat,
       crown: Crown,
       blue_cap: BlueCap,
     };
-    return hats[equippedItems.hat];
+    return hats[resolvedItems.hat];
   };
 
   // 🐶 Click behavior
@@ -90,7 +96,7 @@ useEffect(() => {
 
   // 🐱 Pet image selection (you might already have a helper)
   const getPetImage = () => {
-    if (petType === "graycat")
+    if (petType === "cat")
       return isHappy
         ? GrayCatHappy
         : isBlinking
@@ -105,16 +111,23 @@ useEffect(() => {
     return null;
   };
 
-  const getPetStyles = () => {
-    let classes = "h-auto w-[34vw] transition-transform duration-300";
-    if (isJumping) classes += " -translate-y-6";
-    
-    if (petType?.toLowerCase().includes("cat")) {
-      classes += " translate-x-4"; // adjust 4 to whatever looks good
-    } else {
-      classes += " -translate-x-8"; // keep your default for non-cats
+  const getMotionClasses = () => {
+    let classes = "transition-transform duration-300";
+    if (isJumping) {
+      classes += " -translate-y-6";
+    } else if (isBlinking) {
+      classes += " -translate-y-1";
     }
+    return classes;
+  };
 
+  const getPetLayoutClasses = () => {
+    let classes = "h-auto w-[34vw]";
+    if (petType?.toLowerCase().includes("cat")) {
+      classes += " translate-x-4";
+    } else {
+      classes += " -translate-x-8";
+    }
     return classes;
   };
 
@@ -126,7 +139,7 @@ useEffect(() => {
         <img
           src={getHatImage()}
           alt="Hat"
-          className="absolute z-30 h-auto w-[15vw] top-[30vh] -translate-x-[5vw]"
+          className={`${getMotionClasses()} absolute z-30 h-auto w-[12vw] top-[27vh] -translate-x-[6vw]`}
         />
       )}
 
@@ -137,7 +150,7 @@ useEffect(() => {
         onMouseEnter={() => setIsBlinking(true)}
         onMouseLeave={() => setIsBlinking(false)}
         onClick={handleClick}
-        className={`${getPetStyles()} absolute top-[40vh] cursor-pointer z-10`}
+        className={`${getMotionClasses()} ${getPetLayoutClasses()} absolute top-[40vh] cursor-pointer z-10`}
       />
 
       
@@ -146,7 +159,7 @@ useEffect(() => {
         <img
           src={getCollarImage()}
           alt="Collar"
-          className="absolute z-25 h-auto w-[25vw] top-[65vh] -translate-x-[5vw]"
+          className={`${getMotionClasses()} absolute z-25 h-auto w-[11vw] top-[60vh] -translate-x-[5vw]`}
         />
       )}
     </div>
