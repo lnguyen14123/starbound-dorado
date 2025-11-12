@@ -96,7 +96,7 @@ useEffect(() => {
 
   // 🐱 Pet image selection (you might already have a helper)
   const getPetImage = () => {
-    if (petType === "cat")
+    if (petType === "graycat")
       return isHappy
         ? GrayCatHappy
         : isBlinking
@@ -126,7 +126,7 @@ useEffect(() => {
     if (petType?.toLowerCase().includes("cat")) {
       classes += " translate-x-4";
     } else {
-      classes += " -translate-x-8";
+      classes += " -translate-x-30";
     }
     return classes;
   };
@@ -139,7 +139,9 @@ useEffect(() => {
         <img
           src={getHatImage()}
           alt="Hat"
-          className={`${getMotionClasses()} absolute z-30 h-auto w-[12vw] top-[27vh] -translate-x-[6vw]`}
+          className={`${getMotionClasses()} absolute z-30 h-auto w-[12vw] -translate-x-[6vw] ${
+            petType?.toLowerCase().includes("dog") ? "top-[24vh]" : "top-[27vh]"
+          }`}
         />
       )}
 
@@ -159,7 +161,9 @@ useEffect(() => {
         <img
           src={getCollarImage()}
           alt="Collar"
-          className={`${getMotionClasses()} absolute z-25 h-auto w-[11vw] top-[60vh] -translate-x-[5vw]`}
+          className={`${getMotionClasses()} absolute z-25 h-auto w-[11vw] ${
+            petType?.toLowerCase().includes("dog") ? "top-[63vh] -translate-x-[5.3vw]" : "top-[60vh] -translate-x-[5vw]"
+          }`}
         />
       )}
     </div>
