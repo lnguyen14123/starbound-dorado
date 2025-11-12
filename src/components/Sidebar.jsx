@@ -32,14 +32,14 @@ function Sidebar({ tabs, currentTab, onTabClick,
     <div className="relative w-150 h-screen bg-transparent flex items-center justify-start">
       {/* Bottom rectangle */}
       {/* <div className="w-50 h-[85vh] bg-[#dbb9a0] border-8 border-[#524136] border-l-0 rounded-sm -ml-4 z-5"></div> */}
-      <div className="absolute -ml-120 w-auto h-[95vh] z-5 flex items-center justify-center drop-shadow-[5px_5px_5px_rgba(0,0,0,.5)]">
+      <div className="absolute -ml-120 w-170 h-[95vh] z-5 flex items-center justify-center drop-shadow-[5px_5px_5px_rgba(0,0,0,.5)]">
         <img src={TaskbookL} alt="Bottom Rectangle" className="w-full h-full" />
       </div>
 
       {/* Buttons container */}
-      <div className="absolute -left-20 transform z-10 flex flex-col space-y-8 ml-4">
+      <div className="absolute -left-20 transform z-10 flex flex-col space-y-[5.5vh] ml-4">
         <button
-          className="w-90 h-21 bg-[#fcd68d] border-3 border-[#daa94a] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
+          className="w-90 h-[10vh] bg-[#fcd68d] border-3 border-[#daa94a] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
           rounded-sm cursor-pointer flex items-center pl-50 transition-all duration-200 ease-in-out hover:scale-105"
           onClick={onTasksClick}
 
@@ -54,7 +54,7 @@ function Sidebar({ tabs, currentTab, onTabClick,
         </button>
 
         <button
-          className="w-90 h-21 bg-[#b6dcff] border-3 border-[#7fb0fd] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
+          className="w-90 h-[10vh] bg-[#b6dcff] border-3 border-[#7fb0fd] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
           rounded-sm cursor-pointer flex items-center pl-50 transition-all duration-200 ease-in-out hover:scale-105"
           onClick={onStoreClick}
 
@@ -70,7 +70,7 @@ function Sidebar({ tabs, currentTab, onTabClick,
         </button>
 
         <button
-          className="w-90 h-21 bg-[#ffbac5] border-3 border-[#ff8395] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
+          className="w-90 h-[10vh] bg-[#ffbac5] border-3 border-[#ff8395] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
           rounded-sm cursor-pointer flex items-center pl-40 transition-all duration-200 ease-in-out hover:scale-105 relative"
           onClick={onFriendsClick}
 
@@ -90,7 +90,7 @@ function Sidebar({ tabs, currentTab, onTabClick,
         </button>
 
         <button
-          className="w-90 h-21 bg-[#fff49e] border-3 border-[#fde957]  drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
+          className="w-90 h-[10vh] bg-[#fff49e] border-3 border-[#fde957]  drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
           rounded-sm cursor-pointer flex items-center pl-40 transition-all duration-200 ease-in-out hover:scale-105"
           onClick={onBadgesClick}
 
@@ -105,7 +105,7 @@ function Sidebar({ tabs, currentTab, onTabClick,
         </button>
 
         <button
-          className="w-90 h-21 bg-[#d1ee80] border-3 border-[#a2c93b] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
+          className="w-90 h-[10vh] bg-[#d1ee80] border-3 border-[#a2c93b] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
           rounded-sm cursor-pointer flex items-center pl-35 transition-all duration-200 ease-in-out hover:scale-105"
           // onClick={handleSignOut}
           onClick={onSettingsClick}
@@ -124,7 +124,7 @@ function Sidebar({ tabs, currentTab, onTabClick,
       <img
         src={BookCover}
         alt="Top Rectangle"
-        className="absolute -ml-23 w-auto h-[95vh] z-20"
+        className="absolute -ml-23 w-50 h-[95vh] z-20"
       />
 
       {/* Top rectangle (overlapping) */}
