@@ -97,7 +97,7 @@ export default function MainPage() {
 
   function ProgressBar({ progress }) {
     return (
-<div className="relative w-full max-w-md h-10 bg-[#ECF0A4] border-4 border-[#86A445] rounded-full overflow-hidden">
+<div className="relative w-full h-[6vh] bg-[#ECF0A4] border-4 border-[#86A445] rounded-full overflow-hidden">
         <div
           className="
             h-full bg-[#86A445] 
@@ -127,10 +127,10 @@ export default function MainPage() {
       <div className="w-screen flex justify-center">
         <Floor />
 
-        <div className="absolute flex top-3 left-1/2 transform -translate-x-1/2
+        <div className="absolute flex top-3 left-[23vw] transform 
                         bg-[#f2be9c] border-3 border-[#7d5c47] 
                         rounded-full shadow-lg z-30
-                        w-6/12 h-20 items-center px-4">
+                        w-6/12 h-[10vh] items-center px-4">
         
           <img
             src={StreakFire}
@@ -140,19 +140,19 @@ export default function MainPage() {
             3x
           </span>
 
-          <span className="translate-y-[2px] ml-39 mr-2 text-[#41521b] font-dongle text-5xl font-bold">
+          <span className="translate-y-[2px] ml-[4vw] mr-2 text-[#41521b] font-dongle text-5xl font-bold">
             XP
           </span>
 
           <ProgressBar progress={65} />
 
           <div
-            className="absolute top-[0vh] -right-[26vw] 
+            className="absolute top-[0vh] -right-[25vw] 
                         bg-[#b1d47f] border-3 border-[#5a7435] 
                         rounded-full px-8 py-1 
                         text-white font-dongle text-6xl 
                         drop-shadow-[3px_3px_3px_rgba(0,0,0,0.4)] z-30
-                        w-[22vw] h-[9vh] font-bold
+                        w-[22vw] h-[10vh] font-bold
                         flex items-center justify-center gap-3
                         [text-shadow:_2px_2px_0_#000,_-2px_2px_0_#000,_2px_-2px_0_#000,_-2px_-2px_0_#000]"
           >
