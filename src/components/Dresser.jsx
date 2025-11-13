@@ -8,7 +8,7 @@ function Dresser({ tabs, currentTab}) {
         <img
             src={Dresser1}
             alt="Bottom Banner"
-            className="absolute bottom-50 left-[62vw] w-[18vw] h-auto object-cover z-10 -ml-25 -mb-10 scale-110"
+            className="absolute bottom-[24vh] left-[68vw] w-auto h-[30vh] object-cover z-10 -ml-25 -mb-10 scale-110"
         />
     </div>
   );
