@@ -65,9 +65,9 @@ export default function TaskPage({ onClose }) {
 
   return (
     <div className="flex h-screen">
-      <div className="flex h-full w-full">
+      <div className="flex h-[96vh] w-133">
         <div className="flex flex-col">
-          <div className="-ml-[1vw] h-[75vh] w-[35vw] max-w-4xl p-8 bg-[#f4e1d2] rounded-2xl border-2 border-[#926B51]">
+          <div className=" h-[75vh] w-133 max-w-4xl p-8 bg-[#f4e1d2] rounded-2xl border-2 border-[#926B51]">
             {/* Priority labels */}
             <div className="flex gap-4">
               <div className="h-[4vh] w-[6vw] text-2xl bg-[#d2ee80] rounded-2xl flex items-center justify-center pt-1 text-[#48855c]">
@@ -157,7 +157,7 @@ export default function TaskPage({ onClose }) {
           <div className="ml-[.5vw] mt-4 flex gap-7">
             <button
               onClick={() => setShowModal(true)}
-              className="w-[15vw] h-[7vh] bg-[#AD7B5C] text-white font-bold rounded-2xl cursor-pointer 
+              className="w-60 h-[7vh] bg-[#AD7B5C] text-white font-bold rounded-2xl cursor-pointer 
                          shadow-[0_7px_4px_rgba(0,0,0,0.3)] hover:bg-[#8e634a] 
                          flex items-center justify-center text-4xl pt-1"
             >
@@ -167,7 +167,7 @@ export default function TaskPage({ onClose }) {
             <button
               onClick={handleFinishTasks}
               disabled={checkedTasks.size === 0} // 👈 disable if no tasks checked
-              className={`w-[15vw] h-[7vh] text-white font-bold rounded-2xl 
+              className={`w-60 h-[7vh] text-white font-bold rounded-2xl 
                           shadow-[0_7px_4px_rgba(0,0,0,0.3)] flex items-center justify-center text-4xl pt-2
                           transition-all duration-200
                           ${
