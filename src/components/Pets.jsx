@@ -26,6 +26,12 @@ const Pets = ({ petType, equippedItems, focusMode = false }) => {
   const [hunger, setHunger] = useState(50);
   const [thirst, setThirst] = useState(50);
 
+  const placeholderEquippedItems = {
+    collar: "red_collar",
+    hat: "party_hat",
+  };
+  const resolvedItems = equippedItems ?? placeholderEquippedItems;
+
   // 🐾 Blinking effect
 useEffect(() => {
   if (!petType) return;
@@ -66,7 +72,7 @@ useEffect(() => {
       blue_collar: BlueCollar,
       bow_tie: BowTie,
     };
-    return collars[equippedItems.collar];
+    return collars[resolvedItems.collar];
   };
 
   const getHatImage = () => {
@@ -77,7 +83,7 @@ useEffect(() => {
       crown: Crown,
       blue_cap: BlueCap,
     };
-    return hats[equippedItems.hat];
+    return hats[resolvedItems.hat];
   };
 
   // 🐶 Click behavior
@@ -119,7 +125,6 @@ useEffect(() => {
     } else {
       classes += " -translate-x-8";
     }
-
     return `${classes} absolute top-[40vh] cursor-pointer z-10`;
   };
 

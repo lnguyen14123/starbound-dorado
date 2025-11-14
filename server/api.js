@@ -252,14 +252,6 @@ router.post("/choosePet", async (req, res) => {
 
   console.log(req.body)
   
-  try {
-    await pool.query(
-      "UPDATE users SET pet_type = $1 WHERE uid = $2",
-      [petType, uid]
-    );
-
-    res.status(200).json({ message: "Pet choice saved successfully" });
-
   const breedItemId = PET_TYPE_TO_BREED_ITEM[petType];
   const client = await pool.connect();
 
@@ -294,6 +286,7 @@ router.post("/choosePet", async (req, res) => {
 
     res.status(200).json({ message: "Pet choice saved successfully" });
   } catch (err) {
+    await client.query("ROLLBACK");
     res.status(500).json({ error: "Database error" });
   } finally {
     client.release();
@@ -430,19 +423,120 @@ router.post("/tasks/delete", async (req, res) => {
     return res.status(400).json({ error: "No tasks to delete" });
   }
 
-
+  const client = await pool.connect();
 
   try {
+    await client.query("BEGIN");
 
+    // First, record task completions before deleting
+    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+    
+    // Insert a single completion record for today (one record per day, regardless of task count)
+    // Using INSERT ... ON CONFLICT to handle multiple task completions on the same day
+    // We use the first task_id, but the important part is tracking the completion_date
+    await client.query(
+      `INSERT INTO task_completions (user_id, task_id, completion_date)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (user_id, completion_date) DO NOTHING`,
+      [uid, taskIds[0], today]
+    );
+
+    // Then delete the tasks
     const placeholders = taskIds.map((_, i) => `$${i + 2}`).join(", ");
     const query = `DELETE FROM tasks WHERE user_id = $1 AND task_id IN (${placeholders})`;
 
-    await pool.query(query, [uid, ...taskIds]);
+    await client.query(query, [uid, ...taskIds]);
+
+    await client.query("COMMIT");
 
     res.json({ success: true });
   } catch (err) {
-
+    await client.query("ROLLBACK");
+    console.error("Error completing tasks:", err);
     res.status(500).json({ error: "Failed to delete tasks" });
+  } finally {
+    client.release();
+  }
+});
+
+// Get user's current streak
+router.get("/tasks/streak", async (req, res) => {
+  const { uid } = req.query;
+
+  if (!uid) {
+    return res.status(400).json({ error: "Missing uid" });
+  }
+
+  try {
+    // Get all unique completion dates for this user, ordered by date descending
+    const result = await pool.query(
+      `SELECT DISTINCT completion_date 
+       FROM task_completions 
+       WHERE user_id = $1 
+       ORDER BY completion_date DESC`,
+      [uid]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({ streak: 0, lastCompletionDate: null });
+    }
+
+    // Calculate streak
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Convert completion dates to Date objects and create a Set for quick lookup
+    const completionDateSet = new Set(
+      result.rows.map(row => {
+        const date = new Date(row.completion_date);
+        date.setHours(0, 0, 0, 0);
+        return date.getTime();
+      })
+    );
+
+    const mostRecentDate = new Date(result.rows[0].completion_date);
+    mostRecentDate.setHours(0, 0, 0, 0);
+    
+    // Calculate days difference from today
+    const daysDiff = Math.floor((today.getTime() - mostRecentDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    // If the most recent completion is more than 1 day ago, streak is broken
+    if (daysDiff > 1) {
+      return res.json({ streak: 0, lastCompletionDate: mostRecentDate.toISOString().split('T')[0] });
+    }
+
+    // Count consecutive days starting from today (or yesterday if no completion today)
+    let streak = 0;
+    let checkDate = new Date(today);
+    
+    // If no completion today, start from yesterday
+    if (daysDiff === 1) {
+      checkDate.setDate(checkDate.getDate() - 1);
+    }
+
+    // Count backwards day by day until we find a gap
+    while (true) {
+      const checkTime = checkDate.getTime();
+      
+      if (completionDateSet.has(checkTime)) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+
+    res.json({ 
+      streak, 
+      lastCompletionDate: mostRecentDate.toISOString().split('T')[0] 
+    });
+  } catch (err) {
+    // If table doesn't exist yet, return 0 streak
+    if (err.code === '42P01') {
+      return res.json({ streak: 0, lastCompletionDate: null });
+    }
+    console.error("Error calculating streak:", err);
+    res.status(500).json({ error: "Failed to calculate streak" });
   }
 });
 

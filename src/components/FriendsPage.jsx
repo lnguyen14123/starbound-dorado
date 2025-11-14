@@ -128,8 +128,8 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
   return (
     <div className="flex h-full w-full">
       <div className="flex flex-col w-full">
-        <div className="-ml-[1vw] h-[75vh] w-[35vw] max-w-4xl p-8 bg-[#f4e1d2] rounded-2xl border-2 border-[#926B51] overflow-y-auto">
-          {/* Pending Friend Requests Section */}
+          <div className="-ml-[1vw] h-[75vh] w-[35vw] max-w-4xl p-8 bg-[#f4e1d2] rounded-2xl border-2 border-[#926B51] overflow-y-auto">
+          {/* Pending Friend Requests section */}
           {pendingRequests.length > 0 && (
             <div className="mb-6">
               <h2 className="text-5xl font-dongle font-bold text-[#4b3b2f] mb-4">

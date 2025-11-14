@@ -8,7 +8,6 @@ import Dresser from "./Dresser";
 import Plant from "./Plant";
 
 // Pages
-import RightSlidingPanel from "./RightSlidingPanel";
 import SlidingPanel from "./SlidingPanel";
 import SettingsPage from "./SettingsPage";
 import BadgePage from "./BadgePage";
@@ -28,7 +27,6 @@ import StreakFire from "../assets/streak_fire.png";
 import PetInventory from "../assets/icons/petInventory.svg";
 import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
 import { useNavigate } from "react-router-dom";
-
 export default function MainPage() {
   const navigate = useNavigate();
   const [petType, setPetType] = useState(null);
@@ -103,14 +101,7 @@ export default function MainPage() {
 
   function ProgressBar({ progress }) {
     return (
-      <div
-        className="
-        relative
-        w-[20vw] h-[5vh]
-        bg-[#ECF0A4] border-4 border-[#86A445]
-        rounded-full shadow-md overflow-hidden
-      "
-      >
+<div className="relative w-full h-[6vh] bg-[#ECF0A4] border-4 border-[#86A445] rounded-full overflow-hidden">
         <div
           className="
             h-full bg-[#86A445] 
@@ -200,19 +191,19 @@ export default function MainPage() {
             3x
           </span>
 
-          <span className="translate-y-[2px] ml-39 mr-2 text-[#41521b] font-dongle text-5xl font-bold">
+          <span className="translate-y-[2px] ml-[4vw] mr-2 text-[#41521b] font-dongle text-5xl font-bold">
             XP
           </span>
 
           <ProgressBar progress={65} />
 
           <div
-            className="absolute top-[0vh] -right-[26vw] 
+            className="absolute top-[0vh] -right-[25vw] 
                         bg-[#b1d47f] border-3 border-[#5a7435] 
                         rounded-full px-8 py-1 
                         text-white font-dongle text-6xl 
                         drop-shadow-[3px_3px_3px_rgba(0,0,0,0.4)] z-30
-                        w-[22vw] h-[9vh] font-bold
+                        w-[22vw] h-[10vh] font-bold
                         flex items-center justify-center gap-3
                         [text-shadow:_2px_2px_0_#000,_-2px_2px_0_#000,_2px_-2px_0_#000,_-2px_-2px_0_#000]"
           >
@@ -226,7 +217,7 @@ export default function MainPage() {
         </div>
 
         <Window />
-        <Dresser />
+        <Dresser/>
         <Plant />
 
         <Pets
@@ -264,26 +255,6 @@ export default function MainPage() {
     </SlidingPanel>
   )}
 
-<RightSlidingPanel
-  show={panelVisible}
-  onClose={closePanel}
-  title={activePanel === "furniture" ? "Furniture" :
-         activePanel === "petClothes" ? "Items" : "Inventory"}
->
-  {/* Buttons inside the panel */}
-  <div className="absolute top-10 right-[-5vw] flex flex-col gap-4 z-50">
-    <button onClick={() => openPanel("petClothes")}>
-      <img src={PetInventory} alt="Pet Inventory" />
-    </button>
-    <button onClick={() => openPanel("furniture")}>
-      <img src={FurnitureInventory} alt="Furniture Inventory" />
-    </button>
-  </div>
-
-  <div className="text-5xl font-dongle text-[#4b3b2f]">
-    Coming soon!
-  </div>
-</RightSlidingPanel>
     </div>
   );
 }

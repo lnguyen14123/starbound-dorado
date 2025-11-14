@@ -8,7 +8,7 @@ function Plant({ tabs, currentTab}) {
         <img
             src={PottedPlant1}
             alt="Bottom Banner"
-            className="absolute bottom-[63vh] left-[72vw] w-[7vw] h-auto object-cover z-10 -ml-25 -mb-10 scale-110"
+            className="absolute bottom-[55vh] left-[74vw] w-auto h-[20vh] object-cover z-10 -ml-25 -mb-10 scale-110"
         />
     </div>
   );

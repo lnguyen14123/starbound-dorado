@@ -8,7 +8,7 @@ function Window({ tabs, currentTab}) {
         <img
             src={Window1}
             alt="Bottom Banner"
-            className="absolute bottom-[62vh] left-[70vw] w-[22vw] h-auto object-cover z-0 -ml-25 -mb-10 scale-110"
+            className="absolute bottom-[54vh] left-[73vw] w-auto h-[35vh] object-cover z-0 -ml-25 -mb-10 scale-110"
         />
     </div>
   );
