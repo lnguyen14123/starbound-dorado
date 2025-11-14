@@ -14,6 +14,7 @@ import BadgePage from "./BadgePage";
 import FriendsPage from "./FriendsPage";
 import TasksPage from "./TasksPage";
 import StorePage from "./StorePage";
+import Inventory from "./Inventory";
 
 
 
@@ -202,6 +203,7 @@ export default function MainPage() {
     </SlidingPanel>
   )}
 
+      <Inventory />
     </div>
   );
 }
