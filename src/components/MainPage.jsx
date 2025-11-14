@@ -97,7 +97,7 @@ export default function MainPage() {
 
   function ProgressBar({ progress }) {
     return (
-<div className="relative w-full h-[6vh] bg-[#ECF0A4] border-4 border-[#86A445] rounded-full overflow-hidden">
+<div className="relative w-full h-[6vh] bg-[#ECF0A4] border-4 border-[#86A445] rounded-full overflow-hidden will-change-transform">
         <div
           className="
             h-full bg-[#86A445] 
@@ -134,7 +134,7 @@ export default function MainPage() {
         
           <img
             src={StreakFire}
-            className="w-13 ml-[1vw] h-auto drop-shadow-[2px_2px_2px_rgba(0,0,0,.3)]"
+            className="w-13 ml-[1vw] h-auto"
           />
           <span className="translate-y-[2px] ml-1 text-[#41521b] font-dongle text-6xl font-bold">
             3x
@@ -151,7 +151,7 @@ export default function MainPage() {
                         bg-[#b1d47f] border-3 border-[#5a7435] 
                         rounded-full px-8 py-1 
                         text-white font-dongle text-6xl 
-                        drop-shadow-[3px_3px_3px_rgba(0,0,0,0.4)] z-30
+                        shadow-2xl z-30
                         w-[22vw] h-[10vh] font-bold
                         flex items-center justify-center gap-3
                         [text-shadow:_2px_2px_0_#000,_-2px_2px_0_#000,_2px_-2px_0_#000,_-2px_-2px_0_#000]"
