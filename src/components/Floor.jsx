@@ -11,7 +11,7 @@ function Floor({ tabs, currentTab, onTabClick }) {
     <img
         src={Floor1}
         alt="Bottom Banner"
-        className="absolute bottom-0 left-0 w-full h-[30vh] z-0 -ml-2 -mb-10 scale-105"
+        className="absolute bottom-0 left-0 w-full h-[30vh] z-0 -ml-20 -mb-10 scale-105"
     />
     </div>
   );

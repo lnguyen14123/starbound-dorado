@@ -125,35 +125,53 @@ export default function MainPage() {
         pendingFriendRequests={pendingFriendRequests}
       />
 
-      <div className="w-screen flex justify-center">
-        <Floor />
+<div className="w-screen flex justify-center relative">
+  <Floor />
 
-        <div className="absolute flex top-3 left-[23vw] transform 
-                        bg-[#f2be9c] border-3 border-[#7d5c47] 
-                        rounded-full shadow-lg z-30
-                        w-6/12 h-[10vh] items-center px-4">
-        
-          <img
-            src={StreakFire}
-            className="w-13 ml-[1vw] h-auto"
-          />
-          <span className="translate-y-[2px] ml-1 text-[#41521b] font-dongle text-6xl font-bold">
-            3x
-          </span>
+  <div
+    className="absolute top-3 left-[15vw] transform 
+               bg-[#f2be9c] border-3 border-[#7d5c47]
+               rounded-full shadow-lg z-30
+               w-7/12 h-[10vh] flex items-center px-6 gap-8"
+  >
 
-          <span className="translate-y-[2px] ml-[4vw] mr-2 text-[#41521b] font-dongle text-5xl font-bold">
-            XP
-          </span>
+    {/* Streak Section */}
+    <div className="flex items-center gap-3">
+      <img src={StreakFire} className="w-14 h-auto" />
+      <span className="text-[#41521b] font-dongle text-6xl font-bold">
+        3x
+      </span>
+    </div>
 
-          <ProgressBar progress={65} />
+    {/* Divider */}
+    <div className="w-[3px] h-[65%] bg-[#7d5c47] opacity-50"></div>
+
+    {/* Level Section */}
+    <span className="text-[#41521b] font-dongle text-6xl font-bold">
+      Lvl&nbsp;1
+    </span>
+
+    {/* Divider */}
+    <div className="w-[3px] h-[65%] bg-[#7d5c47] opacity-50"></div>
+
+    {/* XP + Bar Section */}
+    <div className="flex items-center gap-3 grow">
+      <span className="text-[#41521b] font-dongle text-6xl font-bold">
+        XP
+      </span>
+
+      <div className="flex-1">
+        <ProgressBar progress={65} />
+      </div>
+    </div>
 
           <div
-            className="absolute top-[0vh] -right-[25vw] 
+            className="absolute top-[0vh] -right-[19vw] 
                         bg-[#b1d47f] border-3 border-[#5a7435] 
-                        rounded-full px-8 py-1 
+                        rounded-full px-5 py-1 
                         text-white font-dongle text-6xl 
                         shadow-2xl z-30
-                        w-[22vw] h-[10vh] font-bold
+                        w-[16vw] h-[10vh] font-bold
                         flex items-center justify-center gap-3
                         [text-shadow:_2px_2px_0_#000,_-2px_2px_0_#000,_2px_-2px_0_#000,_-2px_-2px_0_#000]"
           >
