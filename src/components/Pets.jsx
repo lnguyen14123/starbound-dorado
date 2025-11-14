@@ -65,8 +65,10 @@ useEffect(() => {
 
   // 🧢 Clothing helpers
   const getCollarImage = () => {
-    if (!equippedItems?.collar) return null;
-    if (equippedItems.collar.asset_path) return equippedItems.collar.asset_path;
+    if (equippedItems?.collar?.asset_path) {
+      return equippedItems.collar.asset_path;
+    }
+    if (!resolvedItems?.collar) return null;
     const collars = {
       red_collar: RedCollar,
       blue_collar: BlueCollar,
@@ -76,8 +78,10 @@ useEffect(() => {
   };
 
   const getHatImage = () => {
-    if (!equippedItems?.hat) return null;
-    if (equippedItems.hat.asset_path) return equippedItems.hat.asset_path;
+    if (equippedItems?.hat?.asset_path) {
+      return equippedItems.hat.asset_path;
+    }
+    if (!resolvedItems?.hat) return null;
     const hats = {
       party_hat: PartyHat,
       crown: Crown,

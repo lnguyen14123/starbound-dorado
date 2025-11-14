@@ -42,6 +42,11 @@ body {
   min-height: 100vh;
 }
 
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
 
 /* Make everything unhighlightable */
 * {

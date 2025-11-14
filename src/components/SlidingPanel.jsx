@@ -41,7 +41,7 @@ export default function SlidingPanel({
 
       {/* Panel */}
       <div
-        className={`absolute top-0 ${anchorClass} h-full transition-transform duration-500 ease-in-out ${
+        className={`absolute top-0 ${anchorClass} w-170 h-full transition-transform duration-500 ease-in-out ${
           show ? "translate-x-0" : hiddenTransform
         }`}
       >
