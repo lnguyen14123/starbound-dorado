@@ -1,6 +1,44 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import "../index.css";
 
+const assetImports = import.meta.glob("../assets/**/*", {
+  eager: true,
+  import: "default",
+});
+
+const normalizeAssetKey = (assetPath = "") => {
+  if (!assetPath) return null;
+  const cleaned = assetPath
+    .replace(/^src\//i, "")
+    .replace(/^public\//i, "")
+    .replace(/^\//, "");
+
+  const candidates = [
+    cleaned,
+    `assets/${cleaned}`,
+    cleaned.startsWith("assets/") ? cleaned : `assets/${cleaned}`,
+    `../assets/${cleaned.replace(/^assets\//, "")}`,
+    `../${cleaned}`,
+  ];
+
+  for (const candidate of candidates) {
+    if (assetImports[`../${candidate}`]) {
+      return `../${candidate}`;
+    }
+    if (assetImports[candidate]) {
+      return candidate;
+    }
+  }
+  return null;
+};
+
+const resolveAssetSource = (assetPath) => {
+  if (!assetPath) return null;
+  if (/^https?:\/\//i.test(assetPath)) return assetPath;
+  const key = normalizeAssetKey(assetPath);
+  return key ? assetImports[key] : null;
+};
+
 const CATEGORY_CONFIG = {
   hat: { label: "Hats", group: "pet", slot: "hat_item" },
   collar: { label: "Collars", group: "pet", slot: "collar_item" },
@@ -227,7 +265,7 @@ export default function Inventory() {
 
       <button
         type="button"
-        className="fixed top-1/2 left-40 -translate-y-1/2 z-40 bg-[#7a563c] text-white font-dongle text-4xl px-4 py-2 rounded-r-3xl shadow-lg hover:bg-[#653f2a] transition-colors"
+        className="fixed top-1/2 right-0 -translate-y-1/2 z-40 bg-[#7a563c] text-white font-dongle text-4xl px-4 py-2 rounded-r-3xl shadow-lg hover:bg-[#653f2a] transition-colors"
         onClick={() => setOpen((prev) => !prev)}
       >
         {open ? "Close" : "Inventory"}
@@ -237,7 +275,7 @@ export default function Inventory() {
         className={`fixed top-0 h-full z-40 transition-transform duration-500 ease-in-out ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
-        style={{ width: "26rem", left: "80px" }}
+        style={{ width: "26rem", left: "0px" }}
       >
         <div className="h-full w-full bg-[#f9ecd7] border-r-4 border-[#b0885f] shadow-2xl flex flex-col">
           <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b-2 border-[#d4b18c]">
@@ -341,6 +379,8 @@ export default function Inventory() {
                       {categoryItems.map((item) => {
                         const equippedCurrent = isItemEquipped(item);
                         const slotKey = CATEGORY_CONFIG[item.category].slot;
+                        const resolvedImage = resolveAssetSource(item.asset_path);
+                        const hasImage = Boolean(resolvedImage);
 
                         return (
                           <div
@@ -351,9 +391,9 @@ export default function Inventory() {
                                 : "border-[#e1c4a5]"
                             }`}
                           >
-                            {item.asset_path ? (
+                            {hasImage ? (
                               <img
-                                src={item.asset_path}
+                                src={resolvedImage}
                                 alt={item.display_name}
                                 className="h-24 object-contain rounded-xl w-full bg-[#f5e7d6]"
                                 loading="lazy"
