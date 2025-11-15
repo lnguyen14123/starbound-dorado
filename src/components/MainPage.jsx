@@ -17,7 +17,6 @@ import StorePage from "./StorePage";
 import Inventory from "./Inventory";
 
 
-
 //import GrayCat1 from "../assets/gray_cat1.png";
 //import YellowDog1 from "../assets/yellow_dog1.png";
 import Pets from "./Pets";
@@ -30,6 +29,7 @@ export default function MainPage() {
   const [activePanel, setActivePanel] = useState(null);
   const [panelVisible, setPanelVisible] = useState(false);
   const [pendingFriendRequests, setPendingFriendRequests] = useState(0);
+  const [currency, setCurrency] = useState(0);
 
   const openPanel = (panelName) => {
     setActivePanel(panelName);
@@ -54,7 +54,23 @@ export default function MainPage() {
   return () => window.removeEventListener("openPanel", handleOpenPanel);
 }, []);
 
+useEffect(() => {
+  async function fetchCurrency() {
+    const uid = localStorage.getItem("uid");
+    const res = await fetch("api/user/currency", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid }),
+    });
 
+    const data = await res.json();
+    setCurrency(data.currency);   // store it
+  }
+
+  fetchCurrency();
+}, []);
+
+  
   useEffect(() => {
     const cachedPet = localStorage.getItem("petType");
     if (cachedPet) setPetType(cachedPet);
@@ -180,7 +196,7 @@ export default function MainPage() {
               className="w-12 h-auto drop-shadow-[2px_2px_2px_rgba(0,0,0,.3)]"
               alt="Checkmark"
             />
-            <span className="translate-y-[2px]">100</span>
+<span className="translate-y-[2px]">{currency}</span>
           </div>
         </div>
 

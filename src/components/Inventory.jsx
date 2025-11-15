@@ -318,7 +318,7 @@ export default function Inventory() {
         className={`fixed top-0 h-full z-40 transition-transform duration-500 ease-in-out ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
-        style={{ width: "26rem", left: "0px" }}
+        style={{ width: "", left: "0px" }}
       >
         <div className="h-full w-full bg-[#f9ecd7] border-r-4 border-[#b0885f] shadow-2xl flex flex-col">
           <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b-2 border-[#d4b18c]">
@@ -330,19 +330,19 @@ export default function Inventory() {
             </div>
             <button
               type="button"
-              className="text-3xl font-dongle text-[#a0613a] hover:text-[#80472a] transition-colors"
+              className="text-3xl font-dongle text-[#a0613a] hover:text-[#80472a] transition-colors cursor-pointer"
               onClick={() => setOpen(false)}
             >
               ✕
             </button>
           </div>
 
-          <div className="px-6 py-3 flex gap-3">
+          <div className="px-6 py-3 flex gap-3 ">
             {Object.entries(GROUP_CONFIG).map(([key, meta]) => (
               <button
                 key={key}
                 type="button"
-                className={`flex-1 font-dongle text-3xl border-2 border-[#c9965e] rounded-full py-1 transition-colors ${
+                className={`flex-1 font-dongle text-3xl border-2 border-[#c9965e] rounded-full py-1 transition-colors cursor-pointer ${
                   activeGroup === key
                     ? "bg-[#c28554] text-white"
                     : "text-[#9c6b3c] bg-white hover:bg-[#f0d4b7]"
