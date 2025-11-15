@@ -42,6 +42,7 @@ export default function MainPage() {
   const [pendingFriendRequests, setPendingFriendRequests] = useState(0);
   const [streak, setStreak] = useState(0);
   const [xp, setXp] = useState(0);
+  const [level, setLevel] = useState(1);
   const { currency, setCurrency } = useCurrency();
 
   const [storeCategory, setStoreCategory] = useState("Hats");
@@ -142,7 +143,7 @@ useEffect(() => {
     }
   };
 
-  // Fetch user XP
+  // Fetch user XP and level
   const fetchXP = async () => {
     try {
       const uid = localStorage.getItem("uid");
@@ -150,6 +151,7 @@ useEffect(() => {
         const response = await fetch(`/api/user/xp?uid=${uid}`);
         const data = await response.json();
         setXp(data.progress || 0);
+        setLevel(data.level || 1);
       }
     } catch (err) {
       console.error("Error fetching XP:", err);
@@ -267,6 +269,14 @@ useEffect(() => {
               {streak > 0 ? `${streak}x` : '0x'}
             </span>
           </div>
+
+          {/* Divider */}
+          <div className="w-[3px] h-[65%] bg-[#7d5c47] opacity-50"></div>
+
+          {/* Level Section */}
+          <span className="text-[#41521b] font-dongle text-6xl font-bold">
+            Lvl&nbsp;{level}
+          </span>
 
           {/* Divider */}
           <div className="w-[3px] h-[65%] bg-[#7d5c47] opacity-50"></div>
