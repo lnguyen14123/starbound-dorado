@@ -1,5 +1,6 @@
 // MainPage.jsx
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Floor from "./Floor";
 
@@ -17,6 +18,13 @@ import StorePage from "./StorePage";
 import Inventory from "./Inventory";
 
 
+import HatIcon from "../assets/pets/clothing/hats/blue_cap.svg";
+import CollarIcon from "../assets/pets/clothing/collars/red_collar.svg";
+import FurnitureIcon from "../assets/furniture/Dresser.png";
+import PetInventory from "../assets/icons/petInventory.svg";
+import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
+
+
 //import GrayCat1 from "../assets/gray_cat1.png";
 //import YellowDog1 from "../assets/yellow_dog1.png";
 import Pets from "./Pets";
@@ -24,9 +32,7 @@ import Pets from "./Pets";
 import Checkmark from "../assets/checkmark.png";
 import StreakFire from "../assets/streak_fire.png";
 
-import PetInventory from "../assets/icons/petInventory.svg";
-import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
-import { useNavigate } from "react-router-dom";
+import { useCurrency } from "../context/CurrencyContext";
 
 export default function MainPage() {
   const navigate = useNavigate();
@@ -36,7 +42,9 @@ export default function MainPage() {
   const [pendingFriendRequests, setPendingFriendRequests] = useState(0);
   const [streak, setStreak] = useState(0);
   const [xp, setXp] = useState(0);
-  const [currency, setCurrency] = useState(0);
+  const { currency, setCurrency } = useCurrency();
+
+  const [storeCategory, setStoreCategory] = useState("Hats");
 
   const openPanel = (panelName) => {
     setActivePanel(panelName);
@@ -297,11 +305,7 @@ useEffect(() => {
         <Dresser/>
         <Plant />
 
-        <Pets
-          petType={petType}
-        />
-
-        {renderInventoryButtons("right-[3vw] top-[20vh]")}
+        <Pets petType={petType} />
       </div>
 
 {/* Left-side panel (Store, Friends, Badges, etc.) */}
@@ -311,9 +315,7 @@ useEffect(() => {
       show={panelVisible}
       onClose={closePanel}
       title={
-        activePanel === "store"
-          ? "Store"
-          : activePanel === "friends"
+          activePanel === "friends"
           ? "Friends"
           : activePanel === "badges"
           ? "Badges"
@@ -327,10 +329,51 @@ useEffect(() => {
       {activePanel === "badges" && <BadgePage onClose={closePanel} />}
       {activePanel === "settings" && <SettingsPage onClose={closePanel} />}
       {activePanel === "tasks" && <TasksPage onClose={closePanel} />}
-      {activePanel === "store" && <StorePage onClose={closePanel} />}
       {activePanel === "friends" && <FriendsPage onClose={closePanel} />}
     </SlidingPanel>
-  )}
+        )}
+      
+      {activePanel === "store" && (
+      <SlidingPanel show={panelVisible} onClose={closePanel} title="Store">
+        <StorePage onClose={closePanel} selectedCategory={storeCategory} />
+      </SlidingPanel>
+)}
+
+{activePanel === "store" && (
+  <div
+    className={`absolute top-[15vh] right-[calc(50%-0px)] flex flex-col gap-3 z-35 left-160
+      transition-transform duration-500 ease-in-out w-60
+      ${panelVisible ? "translate-x-0" : "-translate-x-220"}`}
+  >
+    {[
+      { name: "Hats", icon: HatIcon },
+      { name: "Collars", icon: CollarIcon },
+      { name: "Furniture", icon: FurnitureIcon },
+    ].map((cat) => (
+      <button
+        key={cat.name}
+        onClick={() => setStoreCategory(cat.name)}
+        className={`flex items-center justify-center bg-[#E4CFBD] rounded-lg shadow-md
+          w-28 h-[10vh] transition-transform duration-500 ease-in-out
+          hover:bg-[#d8bfa8] cursor-pointer pl-8 hover:translate-x-3
+          ${storeCategory === cat.name ? "bg-[#b1d47f]" : ""}`}
+      >
+        <img src={cat.icon} alt={cat.name} className="w-2/3 object-contain pointer-events-none" />
+      </button>
+    ))}
+  </div>
+)}
+
+      
+{/* Overlay */}
+<div
+  className={`absolute inset-0 bg-black z-30 transition-opacity duration-500 ${
+    panelVisible ? "opacity-20" : "opacity-0 pointer-events-none"
+  }`}
+  onClick={closePanel}
+/>
+
+
 
       <Inventory />
     </div>
