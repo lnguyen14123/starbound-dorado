@@ -1,5 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import "../index.css";
+import FurnitureIcon from '../assets/icons/furnitureInventory.svg';
+import PetIcon from '../assets/icons/petInventory.svg';
+
+
 
 const assetImports = import.meta.glob("../assets/**/*", {
   eager: true,
@@ -233,10 +237,18 @@ export default function Inventory() {
   );
 
   const handleEquip = (item) =>
-    handleSlotUpdate(item.category, item.item_id, `${item.display_name} equipped`);
+    handleSlotUpdate(
+      item.category,
+      item.item_id,
+      `${item.display_name} equipped`
+    );
 
   const handleUnequip = (categoryKey) =>
-    handleSlotUpdate(categoryKey, null, `${CATEGORY_CONFIG[categoryKey].label} cleared`);
+    handleSlotUpdate(
+      categoryKey,
+      null,
+      `${CATEGORY_CONFIG[categoryKey].label} cleared`
+    );
 
   const isItemEquipped = (item) => {
     const config = CATEGORY_CONFIG[item.category];
@@ -263,13 +275,44 @@ export default function Inventory() {
         />
       )}
 
-      <button
-        type="button"
-        className="fixed top-1/2 right-0 -translate-y-1/2 z-40 bg-[#7a563c] text-white font-dongle text-4xl px-4 py-2 rounded-r-3xl shadow-lg hover:bg-[#653f2a] transition-colors"
-        onClick={() => setOpen((prev) => !prev)}
-      >
-        {open ? "Close" : "Inventory"}
-      </button>
+{/* RIGHT SIDE BUTTONS */}
+<div className="fixed -right-9 top-1/5 z-40 flex flex-col gap-3">
+
+  {/* PET ITEMS BUTTON */}
+  <button
+    type="button"
+    className="h-[12vh] bg-[#FFBAC5] border-5 border-[#FE8693] pr-10 pl-2 transition-transform duration-200 hover:-translate-x-2
+               flex items-center justify-center rounded-l-2xl shadow-lg cursor-pointer"
+    onClick={() => {
+      setActiveGroup("pet");
+      setOpen(true);
+    }}
+  >
+    <img
+      src={PetIcon}
+      alt="Pet Inventory"
+      className="w-4/5 h-4/5 object-contain"
+    />
+  </button>
+
+  {/* FURNITURE BUTTON */}
+  <button
+    type="button"
+    className="h-[12vh] bg-[#FCD68D] border-5 border-[#DAA94B] pr-10 pl-2 transition-transform duration-200 hover:-translate-x-2
+               flex items-center justify-center rounded-l-2xl shadow-lg cursor-pointer"
+    onClick={() => {
+      setActiveGroup("room");
+      setOpen(true);
+    }}
+  >
+    <img
+      src={FurnitureIcon}
+      alt="Furniture Inventory"
+      className="w-4/5 h-4/5 object-contain"
+    />
+  </button>
+
+</div>
 
       <div
         className={`fixed top-0 h-full z-40 transition-transform duration-500 ease-in-out ${
@@ -355,7 +398,9 @@ export default function Inventory() {
                         {CATEGORY_CONFIG[categoryKey].label}
                       </p>
                       <p className="text-[#4b3b2f] font-dongle text-4xl font-bold">
-                        {equippedItem ? equippedItem.display_name : "None equipped"}
+                        {equippedItem
+                          ? equippedItem.display_name
+                          : "None equipped"}
                       </p>
                     </div>
                     {equippedItem && (
@@ -363,7 +408,9 @@ export default function Inventory() {
                         type="button"
                         className="text-2xl font-dongle text-[#a15a35] underline decoration-dotted hover:text-[#7d3f1d]"
                         onClick={() => handleUnequip(categoryKey)}
-                        disabled={pendingSlot === CATEGORY_CONFIG[categoryKey].slot}
+                        disabled={
+                          pendingSlot === CATEGORY_CONFIG[categoryKey].slot
+                        }
                       >
                         Remove
                       </button>
@@ -379,7 +426,9 @@ export default function Inventory() {
                       {categoryItems.map((item) => {
                         const equippedCurrent = isItemEquipped(item);
                         const slotKey = CATEGORY_CONFIG[item.category].slot;
-                        const resolvedImage = resolveAssetSource(item.asset_path);
+                        const resolvedImage = resolveAssetSource(
+                          item.asset_path
+                        );
                         const hasImage = Boolean(resolvedImage);
 
                         return (
