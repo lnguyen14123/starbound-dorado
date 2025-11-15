@@ -14,7 +14,7 @@ import BadgePage from "./BadgePage";
 import FriendsPage from "./FriendsPage";
 import TasksPage from "./TasksPage";
 import StorePage from "./StorePage";
-
+import Inventory from "./Inventory";
 
 
 //import GrayCat1 from "../assets/gray_cat1.png";
@@ -36,6 +36,7 @@ export default function MainPage() {
   const [pendingFriendRequests, setPendingFriendRequests] = useState(0);
   const [streak, setStreak] = useState(0);
   const [xp, setXp] = useState(0);
+  const [currency, setCurrency] = useState(0);
 
   const openPanel = (panelName) => {
     setActivePanel(panelName);
@@ -60,7 +61,23 @@ export default function MainPage() {
   return () => window.removeEventListener("openPanel", handleOpenPanel);
 }, []);
 
+useEffect(() => {
+  async function fetchCurrency() {
+    const uid = localStorage.getItem("uid");
+    const res = await fetch("api/user/currency", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid }),
+    });
 
+    const data = await res.json();
+    setCurrency(data.currency);   // store it
+  }
+
+  fetchCurrency();
+}, []);
+
+  
   useEffect(() => {
     const cachedPet = localStorage.getItem("petType");
     if (cachedPet) setPetType(cachedPet);
@@ -230,32 +247,40 @@ export default function MainPage() {
       <div className="w-screen flex justify-center relative">
         <Floor />
 
-        <div className="absolute flex top-3 left-[23vw] transform 
+        <div className="absolute top-3 left-[15vw] transform 
                         bg-[#f2be9c] border-3 border-[#7d5c47] 
                         rounded-full shadow-lg z-30
-                        w-6/12 h-[10vh] items-center px-4">
+                        w-7/12 h-[10vh] flex items-center px-6 gap-8">
         
-          <img
-            src={StreakFire}
-            className="w-13 ml-[1vw] h-auto"
-          />
-          <span className="translate-y-[2px] ml-1 text-[#41521b] font-dongle text-6xl font-bold">
-            {streak > 0 ? `${streak}x` : '0x'}
-          </span>
+          {/* Streak Section */}
+          <div className="flex items-center gap-3">
+            <img src={StreakFire} className="w-14 h-auto" />
+            <span className="text-[#41521b] font-dongle text-6xl font-bold">
+              {streak > 0 ? `${streak}x` : '0x'}
+            </span>
+          </div>
 
-          <span className="translate-y-[2px] ml-[4vw] mr-2 text-[#41521b] font-dongle text-5xl font-bold">
-            XP
-          </span>
+          {/* Divider */}
+          <div className="w-[3px] h-[65%] bg-[#7d5c47] opacity-50"></div>
 
-          <ProgressBar progress={xp} />
+          {/* XP + Bar Section */}
+          <div className="flex items-center gap-3 grow">
+            <span className="text-[#41521b] font-dongle text-6xl font-bold">
+              XP
+            </span>
+
+            <div className="flex-1">
+              <ProgressBar progress={xp} />
+            </div>
+          </div>
 
           <div
-            className="absolute top-[0vh] -right-[25vw] 
+            className="absolute top-[0vh] -right-[19vw] 
                         bg-[#b1d47f] border-3 border-[#5a7435] 
-                        rounded-full px-8 py-1 
+                        rounded-full px-5 py-1 
                         text-white font-dongle text-6xl 
                         shadow-2xl z-30
-                        w-[22vw] h-[10vh] font-bold
+                        w-[16vw] h-[10vh] font-bold
                         flex items-center justify-center gap-3
                         [text-shadow:_2px_2px_0_#000,_-2px_2px_0_#000,_2px_-2px_0_#000,_-2px_-2px_0_#000]"
           >
@@ -264,7 +289,7 @@ export default function MainPage() {
               className="w-12 h-auto drop-shadow-[2px_2px_2px_rgba(0,0,0,.3)]"
               alt="Checkmark"
             />
-            <span className="translate-y-[2px]">100</span>
+<span className="translate-y-[2px]">{currency}</span>
           </div>
         </div>
 
@@ -307,6 +332,7 @@ export default function MainPage() {
     </SlidingPanel>
   )}
 
+      <Inventory />
     </div>
   );
 }

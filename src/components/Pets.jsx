@@ -173,7 +173,11 @@ useEffect(() => {
         <img
           src={getCollarImage()}
           alt="Collar"
-          className={collarClass}
+          onMouseEnter={() => setIsBlinking(true)}
+          onMouseLeave={() => setIsBlinking(false)}
+          className={`absolute z-25 h-auto w-[11vw] cursor-pointer ${
+            petType?.toLowerCase().includes("dog") ? "top-[63vh] -translate-x-[5.3vw]" : "top-[60vh] -translate-x-[5vw]"
+          }`}
         />
       )}
     </div>

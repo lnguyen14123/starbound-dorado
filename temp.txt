@@ -1,0 +1,85 @@
+import React from "react";
+import PetInventory from "../assets/icons/petInventory.svg";
+import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
+import TaskbookL from "../assets/L_TaskBook.png"; // notebook background
+import "../index.css";
+
+export default function RightSlidingPanel({ show, onClose, title, children }) {
+  return (
+    <>
+      {/* Sticky buttons — always visible */}
+      <div className="fixed top-[17vh] right-0 flex flex-col gap-[3vh] z-50 pr-2">
+        {/* Pet button */}
+        <button
+          onClick={() =>
+            window.dispatchEvent(
+              new CustomEvent("openPanel", { detail: "petClothes" })
+            )
+          }
+          className="
+            w-[20vw] h-[13vh] 
+            bg-[#FFBAC5] border-6 border-[#FE8693] 
+            shadow-md cursor-pointer pl-[1vw] 
+            flex items-center justify-start 
+            hover:-translate-x-1 transition-transform duration-300
+          "
+        >
+          <img src={PetInventory} alt="Pet" className="w-1/4" />
+        </button>
+
+        {/* Furniture button */}
+        <button
+          onClick={() =>
+            window.dispatchEvent(
+              new CustomEvent("openPanel", { detail: "furniture" })
+            )
+          }
+          className="
+            w-[20vw] h-[13vh] 
+            bg-[#FCD68D] border-6 border-[#DAA94B] 
+            shadow-md cursor-pointer pl-[1vw] 
+            flex items-center justify-start
+            hover:-translate-x-1 transition-transform duration-300
+          "
+        >
+          <img src={FurnitureInventory} alt="Furniture" className="w-1/4" />
+        </button>
+      </div>
+
+      {/* Sliding panel */}
+      <div
+        className={`fixed top-0 right-0 h-full transition-transform duration-500 z-100 ${
+          show ? "translate-x-0" : "translate-x-full"
+        }`}
+        style={{ width: "45vw" }}
+      >
+        {/* Background notebook image */}
+        <img
+          src={TaskbookL}
+          className="absolute inset-0 w-full h-full object-fill z-0 pointer-events-none"
+          alt=""
+        />
+
+        {/* Panel content */}
+        <div className="relative h-full flex flex-col pl-[7vw] py-6 text-[#4b3b2f] z-10">
+          <div className="flex justify-between items-center rounded-md px-4 py-2">
+            <h2 className="ml-10 titleHeading font-dongle text-6xl font-bold">
+              {title}
+            </h2>
+            <button
+              className="mr-3 ml-5 mt-5 text-5xl font-dongle hover:text-[#886b52] transition cursor-pointer"
+              onClick={onClose}
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="p-8 font-dongle text-5xl text-[#4b3b2f] -mt-8">
+            {children}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+

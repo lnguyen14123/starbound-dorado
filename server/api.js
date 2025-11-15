@@ -6,6 +6,7 @@ const router = express.Router();
 
 const PET_CATEGORIES = ["hat", "collar", "breed", "back"];
 const FURNITURE_CATEGORIES = ["wall", "floor", "decor"];
+const ITEM_CATEGORIES = ["hat", "collar", "breed", "wall", "floor", "decor"];
 
 const PET_SLOT_COLUMNS = {
   hat: "hat_item",
@@ -27,6 +28,31 @@ const SLOT_COLUMN_MAP = {
 const CATEGORY_FILTERS = {
   pet: PET_CATEGORIES,
   furniture: FURNITURE_CATEGORIES,
+};
+
+const DEFAULT_PET_SLOTS = {
+  hat_item: null,
+  collar_item: null,
+  breed_item: null,
+};
+
+const DEFAULT_ROOM_SLOTS = {
+  wall_item: null,
+  floor_item: null,
+  decor_item: null,
+};
+
+const SLOT_CONFIG = {
+  pet: {
+    table: "equipped_pet_slots",
+    columns: Object.keys(DEFAULT_PET_SLOTS),
+    validCategories: ["hat", "collar", "breed"],
+  },
+  room: {
+    table: "equipped_room_slots",
+    columns: Object.keys(DEFAULT_ROOM_SLOTS),
+    validCategories: ["wall", "floor", "decor"],
+  },
 };
 
 const STARTER_INVENTORY_ITEMS = [
@@ -62,6 +88,11 @@ const ITEM_SELECT_FIELDS = `
   i.display_name AS name,
   i.asset_path
 `;
+
+const buildEquippedResponse = (petRow = {}, roomRow = {}) => ({
+  pet: { ...DEFAULT_PET_SLOTS, ...petRow },
+  room: { ...DEFAULT_ROOM_SLOTS, ...roomRow },
+});
 
 async function getExistingItemIds(client, itemIds) {
   if (!itemIds?.length) {
@@ -122,6 +153,45 @@ async function fetchEquippedSlots(uid, type, itemMap = new Map()) {
   return equipped;
 }
 
+async function getEquippedSlots(uid) {
+  const [petResult, roomResult] = await Promise.all([
+    pool.query(
+      `SELECT ${SLOT_CONFIG.pet.columns.join(", ")} FROM ${SLOT_CONFIG.pet.table} WHERE uid = $1`,
+      [uid]
+    ),
+    pool.query(
+      `SELECT ${SLOT_CONFIG.room.columns.join(", ")} FROM ${SLOT_CONFIG.room.table} WHERE uid = $1`,
+      [uid]
+    ),
+  ]);
+
+  return buildEquippedResponse(petResult.rows[0], roomResult.rows[0]);
+}
+
+async function seedStarterInventory(uid) {
+  try {
+    const result = await pool.query(
+      `INSERT INTO inventory_items (uid, item_id)
+       SELECT $1, starter.item_id
+       FROM (
+         SELECT DISTINCT ON (category) item_id
+         FROM items
+         WHERE category = ANY($2::text[])
+         ORDER BY category, created_at ASC
+       ) AS starter
+       ON CONFLICT (uid, item_id) DO NOTHING`,
+      [uid, ITEM_CATEGORIES]
+    );
+
+    return result.rowCount > 0;
+  } catch (err) {
+    if (err.code === "42P01") {
+      return false;
+    }
+    throw err;
+  }
+}
+
 router.post("/users", async (req, res) => {
   const { uid, email, username } = req.body;
   
@@ -129,6 +199,7 @@ router.post("/users", async (req, res) => {
     return res.status(400).json({ error: "Missing required fields: uid, email, or username" });
   }
 
+  const client = await pool.connect();
   try {
     await client.query("BEGIN");
     await client.query(
@@ -227,9 +298,12 @@ router.post("/users", async (req, res) => {
     }
 
     await client.query("COMMIT");
+    client.release();
 
     res.status(201).json({ message: "User created with starter inventory" });
   } catch (err) {
+    await client.query("ROLLBACK");
+    client.release();
     
     if (err.code === '23505') { 
       try {
@@ -312,40 +386,6 @@ router.post("/user/pet", async (req, res) => {
   } catch (err) {
 
     res.status(500).json({ error: "Database error" });
-  }
-});
-
-router.get("/inventory/:uid", async (req, res) => {
-  const { uid } = req.params;
-  const { type } = req.query;
-
-  if (!uid) {
-    return res.status(400).json({ error: "Missing UID" });
-  }
-
-  const categories = CATEGORY_FILTERS[type] || [
-    ...new Set([...PET_CATEGORIES, ...FURNITURE_CATEGORIES]),
-  ];
-
-  try {
-    const params = [uid, categories];
-    const { rows: items } = await pool.query(
-      `SELECT ${ITEM_SELECT_FIELDS}
-       FROM inventory_items ii
-       JOIN items i ON i.item_id = ii.item_id
-       WHERE ii.uid = $1
-         AND i.category = ANY($2)
-       ORDER BY i.display_name`,
-      params
-    );
-
-    const itemMap = new Map(items.map((item) => [item.item_id, item]));
-    const equipped = await fetchEquippedSlots(uid, type || "pet", itemMap);
-
-    return res.json({ items, equipped });
-  } catch (err) {
-    console.error("Error fetching inventory:", err);
-    return res.status(500).json({ error: "Failed to fetch inventory" });
   }
 });
 
@@ -1095,6 +1135,171 @@ router.put("/friends/requests/:requestId", async (req, res) => {
     }
 
     res.json({ message: `Friend request ${status}` });
+  } catch (err) {
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+
+router.get("/inventory/catalog", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT item_id, category, display_name, asset_path, created_at 
+       FROM items
+       ORDER BY category, display_name`
+    );
+    res.json({ items: result.rows });
+  } catch (err) {
+    if (err.code === "42P01") {
+      return res.json({ items: [] });
+    }
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+router.get("/inventory/:uid", async (req, res) => {
+  const { uid } = req.params;
+
+  if (!uid) {
+    return res.status(400).json({ error: "Missing uid" });
+  }
+
+  try {
+    const inventoryQuery = `SELECT 
+        ii.item_id,
+        ii.acquired_at,
+        i.category,
+        i.display_name,
+        i.asset_path
+       FROM inventory_items ii
+       INNER JOIN items i ON i.item_id = ii.item_id
+       WHERE ii.uid = $1
+       ORDER BY i.category, ii.acquired_at DESC`;
+
+    const inventoryResult = await pool.query(inventoryQuery, [uid]);
+    let userItems = inventoryResult.rows;
+
+    if (!userItems.length) {
+      const seeded = await seedStarterInventory(uid);
+      if (seeded) {
+        const seededResult = await pool.query(inventoryQuery, [uid]);
+        userItems = seededResult.rows;
+      }
+    }
+
+    const equipped = await getEquippedSlots(uid);
+
+    res.json({
+      items: userItems,
+      equipped,
+    });
+  } catch (err) {
+    if (err.code === "42P01") {
+      return res.json({
+        items: [],
+        equipped: buildEquippedResponse(),
+      });
+    }
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+router.put("/inventory/:uid/equipped", async (req, res) => {
+  const { uid } = req.params;
+  const { type, slots } = req.body || {};
+
+  if (!uid) {
+    return res.status(400).json({ error: "Missing uid" });
+  }
+
+  if (!type || !SLOT_CONFIG[type]) {
+    return res.status(400).json({ error: "Type must be either 'pet' or 'room'" });
+  }
+
+  if (!slots || typeof slots !== "object") {
+    return res.status(400).json({ error: "Provide a slots object to update" });
+  }
+
+  const config = SLOT_CONFIG[type];
+  const slotEntries = Object.entries(slots).filter(([slot]) => config.columns.includes(slot));
+
+  if (!slotEntries.length) {
+    return res.status(400).json({ error: "No valid slots provided" });
+  }
+
+  const values = slotEntries.map(([, value]) => value ?? null);
+  const distinctItems = [...new Set(values.filter((value) => value !== null))];
+
+  try {
+    if (distinctItems.length) {
+      const ownershipResult = await pool.query(
+        `SELECT item_id 
+         FROM inventory_items 
+         WHERE uid = $1 AND item_id = ANY($2::text[])`,
+        [uid, distinctItems]
+      );
+
+      if (ownershipResult.rows.length !== distinctItems.length) {
+        return res.status(400).json({ error: "You can only equip items that belong to you" });
+      }
+
+      const categoryResult = await pool.query(
+        `SELECT item_id, category 
+         FROM items 
+         WHERE item_id = ANY($1::text[])`,
+        [distinctItems]
+      );
+
+      const invalidCategory = categoryResult.rows.find(
+        (row) => !config.validCategories.includes(row.category)
+      );
+
+      if (invalidCategory) {
+        return res.status(400).json({
+          error: `Item ${invalidCategory.item_id} cannot be equipped in ${type} slots`,
+        });
+      }
+    }
+
+    const columnNames = slotEntries.map(([slot]) => slot);
+    const valuePlaceholders = columnNames.map((_, idx) => `$${idx + 2}`).join(", ");
+
+    await pool.query(
+      `INSERT INTO ${config.table} (uid, ${columnNames.join(", ")})
+       VALUES ($1, ${valuePlaceholders})
+       ON CONFLICT (uid)
+       DO UPDATE SET ${columnNames.map((col) => `${col} = EXCLUDED.${col}`).join(", ")}, updated_at = now()`,
+      [uid, ...values]
+    );
+
+    const equipped = await getEquippedSlots(uid);
+
+    res.json({ message: "Equipped items updated", equipped });
+  } catch (err) {
+    if (err.code === "42P01") {
+      return res.status(400).json({ error: "Inventory tables are not configured" });
+    }
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+// Get user's currency total
+router.post("/user/currency", async (req, res) => {
+  const { uid } = req.body;
+
+  if (!uid) return res.status(400).json({ error: "Missing UID" });
+
+  try {
+    const result = await pool.query(
+      "SELECT currency_total FROM users WHERE uid = $1",
+      [uid]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ currency: result.rows[0].currency_total });
   } catch (err) {
     res.status(500).json({ error: "Database error" });
   }
