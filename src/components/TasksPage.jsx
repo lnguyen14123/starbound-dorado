@@ -38,28 +38,61 @@ export default function TaskPage({ onClose }) {
 
   // ✅ finish selected tasks
   const handleFinishTasks = async () => {
-    if (checkedTasks.size === 0) return;
+    if (checkedTasks.size === 0) {
+      console.log("No tasks selected");
+      return;
+    }
 
     try {
       const uid = localStorage.getItem("uid");
+      if (!uid) {
+        alert("You must be logged in to complete tasks");
+        return;
+      }
+
+      const taskIdsArray = Array.from(checkedTasks);
+      console.log("Finishing tasks:", taskIdsArray);
 
       // Send delete request for checked tasks
       const response = await fetch(`/api/tasks/delete`, {
-        method: "POST", // or DELETE depending on your backend
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           uid,
-          taskIds: Array.from(checkedTasks),
+          taskIds: taskIdsArray,
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to delete tasks");
+      if (!response.ok) {
+        let errorMessage = "Failed to delete tasks";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.details || errorMessage;
+          console.error("Server error response:", errorData);
+        } catch (parseError) {
+          const text = await response.text();
+          console.error("Server error (non-JSON):", text);
+          errorMessage = text || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const result = await response.json();
+      console.log("Tasks completed successfully:", result);
 
       // Remove them locally too
       setTasks((prev) => prev.filter((task) => !checkedTasks.has(task.task_id)));
       setCheckedTasks(new Set());
+      
+      // Dispatch event to notify MainPage to refresh streak and XP
+      window.dispatchEvent(new CustomEvent("taskCompleted"));
+      
+      if (result.xpEarned) {
+        console.log(`Earned ${result.xpEarned} XP!`);
+      }
     } catch (error) {
       console.error("Error finishing tasks:", error);
+      alert(`Error completing tasks: ${error.message}`);
     }
   };
 
@@ -165,15 +198,19 @@ export default function TaskPage({ onClose }) {
             </button>
 
             <button
-              onClick={handleFinishTasks}
+              onClick={(e) => {
+                e.preventDefault();
+                console.log("Finish button clicked, checked tasks:", checkedTasks.size);
+                handleFinishTasks();
+              }}
               disabled={checkedTasks.size === 0} // 👈 disable if no tasks checked
               className={`w-60 h-[7vh] text-white font-bold rounded-2xl 
                           shadow-[0_7px_4px_rgba(0,0,0,0.3)] flex items-center justify-center text-4xl pt-2
                           transition-all duration-200
                           ${
                             checkedTasks.size === 0
-                              ? "bg-gray-400 cursor-not-allowed"
-                              : "bg-[#b1d47f] hover:bg-[#7a9456] cursor-pointer"
+                              ? "bg-gray-400 cursor-not-allowed opacity-50"
+                              : "bg-[#b1d47f] hover:bg-[#7a9456] cursor-pointer active:scale-95"
                           }`}
             >
               ✓ Finish Tasks

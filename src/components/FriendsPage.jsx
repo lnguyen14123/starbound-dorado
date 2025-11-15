@@ -224,12 +224,24 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
                     key={friend.friend_uid}
                     className="bg-[#E4CFBD] rounded-xl p-4"
                   >
-                    <p className="text-4xl font-dongle text-[#4b3b2f] font-semibold">
-                      {friend.username}
-                    </p>
-                    <p className="text-3xl font-dongle text-[#4b3b2f] opacity-70">
-                      {friend.email}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-4xl font-dongle text-[#4b3b2f] font-semibold">
+                          {friend.username}
+                        </p>
+                        <p className="text-3xl font-dongle text-[#4b3b2f] opacity-70">
+                          {friend.email}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-3xl font-dongle text-[#4b3b2f] font-semibold">
+                          {friend.lifetime_tasks_completed || 0}
+                        </p>
+                        <p className="text-2xl font-dongle text-[#4b3b2f] opacity-70">
+                          tasks
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

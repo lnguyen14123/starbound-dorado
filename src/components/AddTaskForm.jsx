@@ -18,14 +18,18 @@ const handleSubmit = async (e) => {
       body: JSON.stringify(taskData),
     });
 
-    if (!response.ok) throw new Error("Failed to save task");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+      throw new Error(errorData.error || "Failed to save task");
+    }
 
     const savedTask = await response.json();
     // pass the saved task back to parent
     onSave(savedTask.task); // your backend returns { task: ... }
+    onClose();
   } catch (err) {
     console.error("Error saving task:", err);
-    alert("Could not save task. Try again!");
+    alert(`Could not save task: ${err.message}. Try again!`);
   }
 };
 

@@ -34,6 +34,8 @@ export default function MainPage() {
   const [activePanel, setActivePanel] = useState(null);
   const [panelVisible, setPanelVisible] = useState(false);
   const [pendingFriendRequests, setPendingFriendRequests] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [xp, setXp] = useState(0);
 
   const openPanel = (panelName) => {
     setActivePanel(panelName);
@@ -98,6 +100,56 @@ export default function MainPage() {
     // Poll for new friend requests every 30 seconds
     const interval = setInterval(fetchPendingRequests, 30000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Fetch user streak
+  const fetchStreak = async () => {
+    try {
+      const uid = localStorage.getItem("uid");
+      if (uid) {
+        const response = await fetch(`/api/tasks/streak?uid=${uid}`);
+        const data = await response.json();
+        console.log("Streak data:", data); 
+        setStreak(data.streak || 0);
+      }
+    } catch (err) {
+      console.error("Error fetching streak:", err);
+    }
+  };
+
+  // Fetch user XP
+  const fetchXP = async () => {
+    try {
+      const uid = localStorage.getItem("uid");
+      if (uid) {
+        const response = await fetch(`/api/user/xp?uid=${uid}`);
+        const data = await response.json();
+        setXp(data.progress || 0);
+      }
+    } catch (err) {
+      console.error("Error fetching XP:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchStreak();
+    fetchXP();
+    const interval = setInterval(() => {
+      fetchStreak();
+      fetchXP();
+    }, 300000); 
+    
+    // Listen for task completion events to refresh streak and XP immediately
+    const handleTaskCompleted = () => {
+      fetchStreak();
+      fetchXP();
+    };
+    window.addEventListener("taskCompleted", handleTaskCompleted);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("taskCompleted", handleTaskCompleted);
+    };
   }, []);
 
   function ProgressBar({ progress }) {
@@ -188,14 +240,14 @@ export default function MainPage() {
             className="w-13 ml-[1vw] h-auto"
           />
           <span className="translate-y-[2px] ml-1 text-[#41521b] font-dongle text-6xl font-bold">
-            3x
+            {streak > 0 ? `${streak}x` : '0x'}
           </span>
 
           <span className="translate-y-[2px] ml-[4vw] mr-2 text-[#41521b] font-dongle text-5xl font-bold">
             XP
           </span>
 
-          <ProgressBar progress={65} />
+          <ProgressBar progress={xp} />
 
           <div
             className="absolute top-[0vh] -right-[25vw] 
