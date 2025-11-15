@@ -1005,7 +1005,8 @@ router.get("/friends/:uid", async (req, res) => {
           WHEN f.user1_uid = $1 THEN u2.email
           ELSE u1.email
         END as email,
-        COALESCE(uts.lifetime_tasks_completed, 0) as lifetime_tasks_completed
+        COALESCE(uts.lifetime_tasks_completed, 0) as lifetime_tasks_completed,
+        COALESCE(us.streak_days, 0) as streak_days
        FROM friendships f
        LEFT JOIN users u1 ON f.user1_uid = u1.uid
        LEFT JOIN users u2 ON f.user2_uid = u2.uid
@@ -1013,6 +1014,10 @@ router.get("/friends/:uid", async (req, res) => {
          WHEN f.user1_uid = $1 THEN f.user2_uid
          ELSE f.user1_uid
        END
+       LEFT JOIN user_streaks us ON us.uid = CASE 
+         WHEN f.user1_uid = $1 THEN f.user2_uid
+         ELSE f.user1_uid
+        END
        WHERE f.user1_uid = $1 OR f.user2_uid = $1
        ORDER BY f.created_at DESC`,
       [uid]

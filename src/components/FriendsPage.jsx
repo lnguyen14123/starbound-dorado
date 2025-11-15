@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "../index.css";
+import user_icon from "../assets/icons/User.svg"
+import Checkmark from "../assets/checkmark.png";
+import StreakFire from "../assets/streak_fire.png";
+import achievements from "../assets/icons/achievements.svg"
 import { auth } from "../firebase";
 
 export default function FriendsPage({ onClose, onPendingRequestsChange }) {
@@ -193,9 +197,7 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
                         <p className="text-4xl font-dongle text-[#4b3b2f] font-semibold">
                           {user.username}
                         </p>
-                        <p className="text-3xl font-dongle text-[#4b3b2f] opacity-70">
-                          {user.email}
-                        </p>
+                        
                       </div>
                       <button
                         onClick={() => sendFriendRequest(user.uid)}
@@ -224,7 +226,11 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
                     key={friend.friend_uid}
                     className="bg-[#E4CFBD] rounded-xl p-4"
                   >
+              
+
                     <div className="flex items-center justify-between">
+                      <img src={user_icon} alt="User_icon" className="w-10"/>
+      
                       <div>
                         <p className="text-4xl font-dongle text-[#4b3b2f] font-semibold">
                           {friend.username}
@@ -233,13 +239,30 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
                           {friend.email}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="text-3xl font-dongle text-[#4b3b2f] font-semibold">
-                          {friend.lifetime_tasks_completed || 0}
-                        </p>
-                        <p className="text-2xl font-dongle text-[#4b3b2f] opacity-70">
-                          tasks
-                        </p>
+                      <div className="flex items-center gap-4">
+
+                        <div className="flex items-center gap-2">
+
+                          <img src={Checkmark} alt="Checkmark" className="w-10" />
+                          
+                          <p className="text-3xl font-dongle text-[#4b3b2f] font-semibold">
+                            {friend.lifetime_tasks_completed || 0}
+                          </p>
+
+                        </div>
+
+                        <div className="flex items-center gap-2">
+      
+                          <img src={StreakFire} alt="StreakFire" className="w-10"/>
+
+                          <p className="text-3xl font-dongle text-[#4b3b2f]">
+                            {friend.streak_days > 0 ? `${friend.streak_days}` : '0'}
+                          </p>
+
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <img src={achievements} alt="trophies" className="w-10"/>
+                        </div>
                       </div>
                     </div>
                   </div>
