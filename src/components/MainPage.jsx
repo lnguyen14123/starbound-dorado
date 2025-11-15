@@ -164,7 +164,7 @@ useEffect(() => {
     const interval = setInterval(() => {
       fetchStreak();
       fetchXP();
-    }, 300000); 
+    }, 86400000);
     
     // Listen for task completion events to refresh streak and XP immediately
     const handleTaskCompleted = () => {
