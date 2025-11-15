@@ -647,5 +647,27 @@ router.post("/user/currency", async (req, res) => {
   }
 });
 
+router.post("/user/reward", async (req, res) => {
+  const { uid, amount } = req.body;
+
+  if (!uid || !amount)
+    return res.status(400).json({ error: "Missing uid or amount" });
+
+  try {
+    // Add coins
+await pool.query(
+  `UPDATE users 
+   SET currency_total = currency_total + $1 
+   WHERE uid = $2`,
+  [amount, uid]
+);
+
+    res.json({ success: true, rewardGiven: amount });
+  } catch (err) {
+    console.error("Reward error:", err);
+    res.status(500).json({ error: "Failed to update currency" });
+  }
+});
+
 
 export default router;

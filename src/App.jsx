@@ -14,6 +14,8 @@ import { onAuthStateChanged } from "firebase/auth";
 import ChoosePet from "./components/ChoosePet";
 import TasksPage from "./components/TasksPage";
 
+import { CurrencyProvider } from "./context/CurrencyContext";
+
 function App() {
   const tabs = ["Tasks", "Store", "Friends", "Settings"];
   const [currentTab, setCurrentTab] = useState("Tasks");
@@ -54,6 +56,8 @@ function App() {
 
 
   return (
+      <CurrencyProvider>
+
     <Router>
       <Routes>
       {/* Public routes */}
@@ -99,7 +103,9 @@ function App() {
   />
 
       </Routes>
-    </Router>
+      </Router>
+        </CurrencyProvider>
+
   );
 }
 

@@ -15,21 +15,11 @@ export default function SlidingPanel({ show, onClose, title, children }) {
 
   return (
     <div
-      className={`fixed inset-0 z-40 transition-all duration-500 ease-in-out ${
-        show ? "pointer-events-auto" : "pointer-events-none"
-      }`}
+      className={`fixed inset-0 z-40 transition-all duration-500 ease-in-out pointer-events-none`}
     >
-      {/* Background overlay */}
-      <div
-        onClick={onClose}
-        className={`absolute inset-0 bg-black transition-opacity duration-500 ${
-          show ? "opacity-20" : "opacity-0"
-        }`}
-      ></div>
-
       {/* Panel */}
       <div
-        className={`absolute top-0 w-170 left-0 h-full transition-transform duration-500 ease-in-out ${
+        className={`absolute top-0 w-170 left-0 h-full transition-transform duration-500 ease-in-out pointer-events-auto ${
           show ? "translate-x-0" : "-translate-x-full"
         }`}
       >

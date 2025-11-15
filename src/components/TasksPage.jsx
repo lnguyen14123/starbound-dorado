@@ -3,11 +3,25 @@ import "../index.css";
 import toggleTab from "../assets/toggle_tab.svg";
 import AddTaskModal from "./AddTaskForm.jsx";
 
+
+import { useCurrency } from "../context/CurrencyContext.jsx";
+import { useContext } from "react";
+
 export default function TaskPage({ onClose }) {
   const [openId, setOpenId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [checkedTasks, setCheckedTasks] = useState(new Set()); // ✅ store checked task IDs
+
+
+const difficultyValues = {
+  Low: 5,
+  Medium: 7,
+  High: 10,
+};
+
+  const { setCurrency } = useCurrency()
+
 
   useEffect(() => {
     async function fetchTasks() {
@@ -36,32 +50,62 @@ export default function TaskPage({ onClose }) {
     });
   };
 
-  // ✅ finish selected tasks
-  const handleFinishTasks = async () => {
-    if (checkedTasks.size === 0) return;
+const handleFinishTasks = async () => {
+  if (checkedTasks.size === 0) return;
 
-    try {
-      const uid = localStorage.getItem("uid");
+  const uid = localStorage.getItem("uid");
 
-      // Send delete request for checked tasks
-      const response = await fetch(`/api/tasks/delete`, {
-        method: "POST", // or DELETE depending on your backend
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          uid,
-          taskIds: Array.from(checkedTasks),
-        }),
-      });
+  // 🎯 Calculate reward
+  let totalReward = 0;
+  let completedTasks = tasks.filter((t) => checkedTasks.has(t.task_id));
 
-      if (!response.ok) throw new Error("Failed to delete tasks");
+  completedTasks.forEach((task) => {
+    const base = difficultyValues[task.priority] || 5;
+    totalReward += base;
+  });
 
-      // Remove them locally too
-      setTasks((prev) => prev.filter((task) => !checkedTasks.has(task.task_id)));
-      setCheckedTasks(new Set());
-    } catch (error) {
-      console.error("Error finishing tasks:", error);
-    }
-  };
+  // Optional: bonus for doing multiple tasks at once
+  const streakBonus = completedTasks.length * 2;
+  totalReward += streakBonus;
+
+  try {
+    // ⛏️ 1. Remove tasks
+    const response = await fetch(`/api/tasks/delete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uid,
+        taskIds: Array.from(checkedTasks),
+      }),
+    });
+
+    if (!response.ok) throw new Error("Failed to delete tasks");
+
+    // 💰 2. Award currency
+    const rewardResponse = await fetch(`/api/user/reward`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uid,
+        amount: totalReward,
+      }),
+    });
+
+    if (!rewardResponse.ok) throw new Error("Failed to reward user");
+
+    const data = await rewardResponse.json();
+    setCurrency(prev => prev + data.rewardGiven);
+
+
+    // ✨ 3. Update UI locally
+    setTasks((prev) => prev.filter((task) => !checkedTasks.has(task.task_id)));
+    setCheckedTasks(new Set());
+
+    console.log("Awarded:", totalReward);
+  } catch (error) {
+    console.error("Error finishing tasks:", error);
+  }
+};
 
   return (
     <div className="flex h-screen">
