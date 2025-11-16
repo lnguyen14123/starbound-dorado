@@ -24,7 +24,7 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
     {
       id: 2,
       name: "Bow tie",
-      price: 50,
+      price: 75,
       image: Bowtie,
       category: "Collars",
       db_name: "bowtie",
@@ -48,7 +48,7 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
     {
       id: 5,
       name: "Crown",
-      price: 50,
+      price: 75,
       image: Crown,
       category: "Hats",
       db_name: "crown",

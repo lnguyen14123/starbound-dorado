@@ -136,21 +136,43 @@ useEffect(() => {
     return classes;
   };
 
+  const hatClasses = {
+  hat_party: "h-[26vh] translate-y-[14vh] -translate-x-20",
+  crown: "h-[16vh] translate-y-[12vh] -translate-x-21", 
+  cap_blue: "h-[18vh] translate-y-[13vh] -translate-x-20",
+};
+
+const collarClasses = {
+  collar_red: "h-[10vh] -translate-y-[12vh] -translate-x-18",
+  collar_blue: "h-[10vh] -translate-y-[13vh] -translate-x-19",
+  bowtie: "h-[9vh] -translate-y-[13vh] -translate-x-18",
+};
+
+  // Extra adjustments ONLY for cats
+const hatCatAdjust = {
+  crown: "!translate-y-[14vh]",    // move crown down slightly
+  cap_blue: "!h-[15vh] !translate-y-[14vh]", // move blue cap down slightly
+};
+
+
 return (
   <div className="absolute w-full h-full flex items-center justify-center">
 <div className={`${getMotionClasses()} flex flex-col items-center relative select-none z-40
                  ${!resolvedItems?.hat ? "translate-y-4" : ""}`}>
       
       {/* Hat */}
-      {getHatImage() && (
-        <img
-          src={getHatImage()}
-          alt="Hat"
-          className={` translate-y-[14vh] -translate-x-20
-            ${petType?.includes("dog") ? "-mb-8" : "-mb-8"} 
-            h-[26vh] z-31`}
-        />
-      )}
+{getHatImage() && (
+  <img
+    src={getHatImage()}
+    alt="Hat"
+    className={`
+      ${hatClasses[resolvedItems.hat] || ""}
+      ${petType?.includes("cat") ? hatCatAdjust[resolvedItems.hat] || "" : ""}
+      ${petType?.includes("dog") ? "-mb-8" : "-mb-8"} 
+      z-31
+    `}
+  />
+)}
 
       {/* Pet */}
       <img
@@ -164,17 +186,17 @@ return (
       />
 
       {/* Collar */}
-      {getCollarImage() && (
-        <img
-          src={getCollarImage()}
-          alt="Collar"
-          onMouseEnter={() => setIsBlinking(true)}
-          onMouseLeave={() => setIsBlinking(false)}
-          className={` -translate-y-[12vh] -translate-x-18 cursor-pointer
-            ${petType?.includes("dog") ? "mt-[-3vh]" : "mt-[-5vh]"} 
-            h-[10vh] z-31`}
-        />
-      )}
+{getCollarImage() && (
+  <img
+    src={getCollarImage()}
+    alt="Collar"
+    className={`
+      ${collarClasses[resolvedItems.collar] || ""}
+      cursor-pointer z-31
+      ${petType?.includes("dog") ? "mt-[-3vh]" : "mt-[-5vh]"}
+    `}
+  />
+)}
 
     </div>
   </div>

@@ -56,9 +56,9 @@ const SLOT_CONFIG = {
 };
 
 const STARTER_INVENTORY_ITEMS = [
-  "hat_party",
-  "collar_red",
-  "breed_graycat",
+  // "hat_party",
+  // "collar_red",
+  // "breed_graycat",
   "wall_basic",
   "floor_wood",
   "decor_plant",
@@ -66,8 +66,8 @@ const STARTER_INVENTORY_ITEMS = [
 
 const STARTER_EQUIPPED = {
   pet: {
-    hat: "hat_party",
-    collar: "collar_red",
+    // hat: "hat_party",
+    // collar: "collar_red",
     breed: "breed_graycat",
   },
   furniture: {
@@ -166,30 +166,6 @@ async function getEquippedSlots(uid) {
   ]);
 
   return buildEquippedResponse(petResult.rows[0], roomResult.rows[0]);
-}
-
-async function seedStarterInventory(uid) {
-  try {
-    const result = await pool.query(
-      `INSERT INTO inventory_items (uid, item_id)
-       SELECT $1, starter.item_id
-       FROM (
-         SELECT DISTINCT ON (category) item_id
-         FROM items
-         WHERE category = ANY($2::text[])
-         ORDER BY category, created_at ASC
-       ) AS starter
-       ON CONFLICT (uid, item_id) DO NOTHING`,
-      [uid, ITEM_CATEGORIES]
-    );
-
-    return result.rowCount > 0;
-  } catch (err) {
-    if (err.code === "42P01") {
-      return false;
-    }
-    throw err;
-  }
 }
 
 router.post("/users", async (req, res) => {
@@ -1183,14 +1159,6 @@ router.get("/inventory/:uid", async (req, res) => {
 
     const inventoryResult = await pool.query(inventoryQuery, [uid]);
     let userItems = inventoryResult.rows;
-
-    if (!userItems.length) {
-      const seeded = await seedStarterInventory(uid);
-      if (seeded) {
-        const seededResult = await pool.query(inventoryQuery, [uid]);
-        userItems = seededResult.rows;
-      }
-    }
 
     const equipped = await getEquippedSlots(uid);
 
