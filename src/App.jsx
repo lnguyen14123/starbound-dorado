@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 import MainPage from "./components/MainPage";
 import Floor from "./components/Floor";
@@ -44,74 +49,73 @@ function App() {
     return unsubscribe;
   }, []);
 
-
   if (loading || isNewUser === null) {
-
     return (
       <div className="h-screen w-screen flex items-center justify-center">
         Loading...
       </div>
     );
   }
-      
-
 
   return (
-      <CurrencyProvider>
+    <CurrencyProvider>
+      <Router>
+        <Routes>
+          {/* Public routes */}
+          <Route
+            path="/login"
+            element={
+              !user ? (
+                <Layout>
+                  <Login />
+                </Layout>
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              !user ? (
+                <Layout>
+                  <Register />
+                </Layout>
+              ) : (
+                <Navigate to="/ChoosePet" />
+              )
+            }
+          />
 
-    <Router>
-      <Routes>
-      {/* Public routes */}
-      <Route path="/login" element={!user ? <Layout><Login /></Layout> : <Navigate to="/" />} />
-      <Route path="/register" element={!user ? <Layout><Register /></Layout> : <Navigate to="/ChoosePet" />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute user={user} loading={loading}>
+                {isNewUser ? (
+                  <Navigate to="/ChoosePet" replace />
+                ) : (
+                  <MainPage />
+                )}
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/"
-  element={
-    <ProtectedRoute user={user} loading={loading}>
-      {isNewUser ? <Navigate to="/ChoosePet" replace /> : <MainPage />}
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/ChoosePet"
+            element={
+              <ProtectedRoute user={user} loading={loading}>
+                {isNewUser ? (
+                    <ChoosePet setIsNewUser={setIsNewUser} />
+                ) : (
+                  <Navigate to="/" replace />
+                )}
+              </ProtectedRoute>
+            }
+          />
 
-  <Route
-    path="/ChoosePet"
-    element={
-      <ProtectedRoute user={user} loading={loading}>
-        {isNewUser ? (
-          <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0]">
-            <ChoosePet setIsNewUser={setIsNewUser} />
-            <Floor />
-          </div>
-        ) : (
-          <Navigate to="/" replace />
-        )}
-      </ProtectedRoute>
-    }
-  />
-
-  <Route
-    path="/tasks"
-    element={
-      <ProtectedRoute user={user} loading={loading}>
-        <TasksPage />
-      </ProtectedRoute>
-    }
-  />
-
-  <Route
-    path="/customize"
-    element={
-      <ProtectedRoute user={user} loading={loading}>
-        {isNewUser ? <Navigate to="/ChoosePet" replace /> : <CustomizePage />}
-      </ProtectedRoute>
-    }
-  />
-
-      </Routes>
+        </Routes>
       </Router>
-        </CurrencyProvider>
-
+    </CurrencyProvider>
   );
 }
 

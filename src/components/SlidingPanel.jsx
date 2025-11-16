@@ -25,7 +25,7 @@ export default function SlidingPanel({
 
   return (
     <div
-      className={`fixed inset-0 z-40 transition-all duration-500 ease-in-out pointer-events-none`}
+      className={`fixed inset-0 z-80 transition-all duration-500 ease-in-out pointer-events-none`}
     >
       {/* Panel */}
       <div

@@ -255,7 +255,7 @@ useEffect(() => {
       />
 
       <div className="w-screen flex justify-center relative">
-        <Floor />
+        <Floor className="-ml-20" />
 
         <div className="absolute top-3 left-[15vw] transform 
                         bg-[#f2be9c] border-3 border-[#7d5c47] 
@@ -351,7 +351,7 @@ useEffect(() => {
 
 {activePanel === "store" && (
   <div
-    className={`absolute top-[15vh] right-[calc(50%-0px)] flex flex-col gap-3 z-35 left-160
+    className={`absolute top-[15vh] right-[calc(50%-0px)] flex flex-col gap-3 z-48 left-160
       transition-transform duration-500 ease-in-out w-60
       ${panelVisible ? "translate-x-0" : "-translate-x-220"}`}
   >
@@ -377,7 +377,7 @@ useEffect(() => {
       
 {/* Overlay */}
 <div
-  className={`absolute inset-0 bg-black z-30 transition-opacity duration-500 ${
+  className={`absolute inset-0 bg-black z-45 transition-opacity duration-500 ${
     panelVisible ? "opacity-20" : "opacity-0 pointer-events-none"
   }`}
   onClick={closePanel}

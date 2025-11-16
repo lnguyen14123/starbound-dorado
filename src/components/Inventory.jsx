@@ -270,7 +270,7 @@ export default function Inventory() {
     <>
       {open && (
         <div
-          className="fixed inset-0 bg-black/30 z-30"
+          className="fixed inset-0 bg-black/30 z-40"
           onClick={() => setOpen(false)}
         />
       )}
@@ -342,7 +342,7 @@ export default function Inventory() {
               <button
                 key={key}
                 type="button"
-                className={`flex-1 font-dongle text-3xl border-2 border-[#c9965e] rounded-full py-1 transition-colors cursor-pointer ${
+                className={`flex-1 font-dongle text-3xl border-2 border-[#c9965e] rounded-full py-1 transition-colors  ${
                   activeGroup === key
                     ? "bg-[#c28554] text-white"
                     : "text-[#9c6b3c] bg-white hover:bg-[#f0d4b7]"
