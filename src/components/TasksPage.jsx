@@ -3,11 +3,25 @@ import "../index.css";
 import toggleTab from "../assets/toggle_tab.svg";
 import AddTaskModal from "./AddTaskForm.jsx";
 
+
+import { useCurrency } from "../context/CurrencyContext.jsx";
+import { useContext } from "react";
+
 export default function TaskPage({ onClose }) {
   const [openId, setOpenId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [checkedTasks, setCheckedTasks] = useState(new Set()); // ✅ store checked task IDs
+
+
+const difficultyValues = {
+  Low: 5,
+  Medium: 7,
+  High: 10,
+};
+
+  const { setCurrency } = useCurrency()
+
 
   useEffect(() => {
     async function fetchTasks() {
@@ -36,32 +50,65 @@ export default function TaskPage({ onClose }) {
     });
   };
 
-  // ✅ finish selected tasks
-  const handleFinishTasks = async () => {
-    if (checkedTasks.size === 0) return;
+const handleFinishTasks = async () => {
+  if (checkedTasks.size === 0) return;
 
-    try {
-      const uid = localStorage.getItem("uid");
+  const uid = localStorage.getItem("uid");
 
-      // Send delete request for checked tasks
-      const response = await fetch(`/api/tasks/delete`, {
-        method: "POST", // or DELETE depending on your backend
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          uid,
-          taskIds: Array.from(checkedTasks),
-        }),
-      });
+  // 🎯 Calculate reward
+  let totalReward = 0;
+  let completedTasks = tasks.filter((t) => checkedTasks.has(t.task_id));
 
-      if (!response.ok) throw new Error("Failed to delete tasks");
+  completedTasks.forEach((task) => {
+    const base = difficultyValues[task.priority] || 5;
+    totalReward += base;
+  });
 
-      // Remove them locally too
-      setTasks((prev) => prev.filter((task) => !checkedTasks.has(task.task_id)));
-      setCheckedTasks(new Set());
-    } catch (error) {
-      console.error("Error finishing tasks:", error);
-    }
-  };
+  // Optional: bonus for doing multiple tasks at once
+  const streakBonus = completedTasks.length * 2;
+  totalReward += streakBonus;
+
+  try {
+    // ⛏️ 1. Remove tasks
+    const response = await fetch(`/api/tasks/delete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uid,
+        taskIds: Array.from(checkedTasks),
+      }),
+    });
+
+    if (!response.ok) throw new Error("Failed to delete tasks");
+
+    // 💰 2. Award currency
+    const rewardResponse = await fetch(`/api/user/reward`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uid,
+        amount: totalReward,
+      }),
+    });
+
+    if (!rewardResponse.ok) throw new Error("Failed to reward user");
+
+    const data = await rewardResponse.json();
+    setCurrency(prev => prev + Number(data.change));
+
+
+    // ✨ 3. Update UI locally
+    setTasks((prev) => prev.filter((task) => !checkedTasks.has(task.task_id)));
+    setCheckedTasks(new Set());
+
+    // Dispatch event to refresh XP and level
+    window.dispatchEvent(new CustomEvent("taskCompleted"));
+
+    console.log("Awarded:", totalReward);
+  } catch (error) {
+    console.error("Error finishing tasks:", error);
+  }
+};
 
   return (
     <div className="flex h-screen">
@@ -81,9 +128,18 @@ export default function TaskPage({ onClose }) {
               </div>
             </div>
 
+            <div className="w-full h-[2px] bg-[#926B51] opacity-60 my-4 rounded-full"></div>
+
+
             {/* Task list */}
             <div className="py-[4vh] flex flex-col gap-8 overflow-y-auto max-h-[60vh]">
-              {tasks.map((task, index) => (
+
+              {tasks.length === 0 ? (
+                <div className="w-full text-center text-3xl text-[#6b4b33] opacity-70 mt-[10vh]">
+                  Add a task item!
+                </div>
+              ) : (
+                tasks.map((task, index) => (
                 <div
                   key={task.task_id || index}
                   className="relative flex items-center justify-between py-3 pl-[2vw] bg-[#e4c8b2] rounded-sm shadow-md overflow-visible"
@@ -149,7 +205,7 @@ export default function TaskPage({ onClose }) {
                     </button>
                   </div>
                 </div>
-              ))}
+              )))}
             </div>
           </div>
 
@@ -165,15 +221,19 @@ export default function TaskPage({ onClose }) {
             </button>
 
             <button
-              onClick={handleFinishTasks}
+              onClick={(e) => {
+                e.preventDefault();
+                console.log("Finish button clicked, checked tasks:", checkedTasks.size);
+                handleFinishTasks();
+              }}
               disabled={checkedTasks.size === 0} // 👈 disable if no tasks checked
               className={`w-60 h-[7vh] text-white font-bold rounded-2xl 
                           shadow-[0_7px_4px_rgba(0,0,0,0.3)] flex items-center justify-center text-4xl pt-2
                           transition-all duration-200
                           ${
                             checkedTasks.size === 0
-                              ? "bg-gray-400 cursor-not-allowed"
-                              : "bg-[#b1d47f] hover:bg-[#7a9456] cursor-pointer"
+                              ? "bg-gray-400 cursor-not-allowed opacity-50"
+                              : "bg-[#b1d47f] hover:bg-[#7a9456] cursor-pointer active:scale-95"
                           }`}
             >
               ✓ Finish Tasks

@@ -9,6 +9,7 @@ import YellowDog1 from "../assets/yellow_dog1.png"
 import Dresser1 from "../assets/items/dresser_1.png"
 import Window1 from "../assets/items/window_1.png"
 import PottedPlant1 from "../assets/items/pottedplant_1.png"
+import Floor from "./Floor";
 
 function ChoosePet({ tabs, currentTab, onTabClick, setIsNewUser}) {
 
@@ -38,7 +39,7 @@ function ChoosePet({ tabs, currentTab, onTabClick, setIsNewUser}) {
         localStorage.setItem("petType", petType);
         localStorage.setItem("isNewUser", "false");
         setIsNewUser(false);
-        navigate('/')
+        navigate('/', {replace:true})
 
       } catch (err) {      
         console.log(err.message);
@@ -50,7 +51,7 @@ function ChoosePet({ tabs, currentTab, onTabClick, setIsNewUser}) {
   
   return (
 
-<div className="relative w-screen h-screen bg-transparent flex flex-col items-center justify-center z-30">
+<div className="relative w-screen h-screen flex flex-col items-center justify-center z-30 bg-[#dbb9a0]">
 
 {/* Title */}
     <div className="bg-[#c49b80] z-10 px-20 h-15 w-auto border-[#b59179] border-3 rounded-3xl flex items-center justify-center">
@@ -104,7 +105,9 @@ function ChoosePet({ tabs, currentTab, onTabClick, setIsNewUser}) {
         />
         </div>
 
-    </div>
+      </div>
+      
+      <Floor></Floor>
 
 </div>
 );

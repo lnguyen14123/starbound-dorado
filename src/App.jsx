@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 import MainPage from "./components/MainPage";
 import Floor from "./components/Floor";
@@ -13,6 +18,10 @@ import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import ChoosePet from "./components/ChoosePet";
 import TasksPage from "./components/TasksPage";
+import CustomizePage from "./components/CustomizePage";
+
+import { CurrencyProvider } from "./context/CurrencyContext";
+import { EquippedProvider } from "./context/EquippedContext";
 
 function App() {
   const tabs = ["Tasks", "Store", "Friends", "Settings"];
@@ -41,65 +50,74 @@ function App() {
     return unsubscribe;
   }, []);
 
-
   if (loading || isNewUser === null) {
-
     return (
       <div className="h-screen w-screen flex items-center justify-center">
         Loading...
       </div>
     );
   }
-      
-
 
   return (
-    <Router>
-      <Routes>
-      {/* Public routes */}
-      <Route path="/login" element={!user ? <Layout><Login /></Layout> : <Navigate to="/" />} />
-      <Route path="/register" element={!user ? <Layout><Register /></Layout> : <Navigate to="/ChoosePet" />} />
-
-  {/* Protected routes */}
-  {user && isNewUser && (
-    <Route
-      path="/*"
-      element={<Navigate to="/ChoosePet" replace />}
-    />
-  )}
+    <EquippedProvider>
+    <CurrencyProvider>
+      <Router>
+        <Routes>
+          {/* Public routes */}
+          <Route
+            path="/login"
+            element={
+              !user ? (
+                <Layout>
+                  <Login />
+                </Layout>
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              !user ? (
+                <Layout>
+                  <Register />
+                </Layout>
+              ) : (
+                <Navigate to="/ChoosePet" />
+              )
+            }
+          />
 
 <Route
   path="/"
   element={
     <ProtectedRoute user={user} loading={loading}>
-      {isNewUser ? <Navigate to="/ChoosePet" replace /> : <MainPage />}
+      {(!user || loading) ? null : (
+        // Check backend/localStorage for pet
+        !localStorage.getItem("petType") ? (
+          <Navigate to="/ChoosePet" replace />
+        ) : (
+          <MainPage />
+        )
+      )}
     </ProtectedRoute>
   }
 />
 
-  <Route
-    path="/ChoosePet"
-    element={
-      <ProtectedRoute user={user} loading={loading}>
-        <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0]">
-          <ChoosePet setIsNewUser={setIsNewUser} />
-          <Floor />
-        </div>
-      </ProtectedRoute>
-    }
-  />
+<Route
+  path="/ChoosePet"
+  element={
+    <ProtectedRoute user={user} loading={loading}>
+      <ChoosePet setIsNewUser={setIsNewUser} />
+    </ProtectedRoute>
+  }
+/>
 
-  <Route
-    path="/tasks"
-    element={
-      <ProtectedRoute user={user} loading={loading}>
-        <TasksPage />
-      </ProtectedRoute>
-    }
-  />
-
-      </Routes>
-    </Router>
+        </Routes>
+      </Router>
+      </CurrencyProvider>
+      </EquippedProvider>
   );
 }
 

@@ -32,12 +32,12 @@ function Sidebar({ tabs, currentTab, onTabClick,
     <div className="relative w-150 h-screen bg-transparent flex items-center justify-start">
       {/* Bottom rectangle */}
       {/* <div className="w-50 h-[85vh] bg-[#dbb9a0] border-8 border-[#524136] border-l-0 rounded-sm -ml-4 z-5"></div> */}
-      <div className="absolute -ml-120 w-170 h-[95vh] z-5 flex items-center justify-center drop-shadow-[5px_5px_5px_rgba(0,0,0,.5)]">
+      <div className="absolute -ml-120 w-170 h-[95vh] z-50 flex items-center justify-center drop-shadow-[5px_5px_5px_rgba(0,0,0,.5)]">
         <img src={TaskbookL} alt="Bottom Rectangle" className="w-full h-full" />
       </div>
 
       {/* Buttons container */}
-      <div className="absolute -left-20 transform z-10 flex flex-col space-y-[5.5vh] ml-4">
+      <div className="absolute -left-20 transform z-60 flex flex-col space-y-[5.5vh] ml-4">
         <button
           className="w-90 h-[10vh] bg-[#fcd68d] border-3 border-[#daa94a] drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
           rounded-sm cursor-pointer flex items-center pl-50 transition-all duration-200 ease-in-out hover:scale-105"
@@ -124,7 +124,7 @@ function Sidebar({ tabs, currentTab, onTabClick,
       <img
         src={BookCover}
         alt="Top Rectangle"
-        className="absolute -ml-23 w-50 h-[95vh] z-20"
+        className="absolute -ml-23 w-50 h-[95vh] z-70"
       />
 
       {/* Top rectangle (overlapping) */}

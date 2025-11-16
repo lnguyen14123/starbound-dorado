@@ -7,6 +7,8 @@ import YellowDogOpen from "../assets/pets/yellowdog/yellowdog_normal.svg";
 import YellowDogBlink from "../assets/pets/yellowdog/yellowdog_blink.svg";
 import YellowDogHappy from "../assets/pets/yellowdog/yellowdog_happy.svg";
 
+import { useEquipped } from "../context/EquippedContext";
+
 // Collars
 import RedCollar from "../assets/pets/clothing/collars/red_collar.svg";
 import BlueCollar from "../assets/pets/clothing/collars/blue_collar.svg";
@@ -17,7 +19,7 @@ import PartyHat from "../assets/pets/clothing/hats/party_hat.svg";
 import Crown from "../assets/pets/clothing/hats/crown.svg";
 import BlueCap from "../assets/pets/clothing/hats/blue_cap.svg";
 
-const Pets = ({ petType, equippedItems }) => {
+const Pets = ({ petType }) => {
   const [isBlinking, setIsBlinking] = useState(false);
   const [isHappy, setIsHappy] = useState(false);
   const [isJumping, setIsJumping] = useState(false);
@@ -26,11 +28,14 @@ const Pets = ({ petType, equippedItems }) => {
   const [hunger, setHunger] = useState(50);
   const [thirst, setThirst] = useState(50);
 
-  const placeholderEquippedItems = {
-    collar: "red_collar",
-    hat: "party_hat",
+  const [equippedItems, setEquippedItems] = useState(null);
+
+  const { equipped } = useEquipped();
+
+  const resolvedItems = {
+    collar: equipped.pet.collar_item,
+    hat: equipped.pet.hat_item,
   };
-  const resolvedItems = equippedItems ?? placeholderEquippedItems;
 
   // 🐾 Blinking effect
 useEffect(() => {
@@ -67,9 +72,9 @@ useEffect(() => {
   const getCollarImage = () => {
     if (!resolvedItems?.collar) return null;
     const collars = {
-      red_collar: RedCollar,
-      blue_collar: BlueCollar,
-      bow_tie: BowTie,
+      collar_red: RedCollar,
+      collar_blue: BlueCollar,
+      bowtie: BowTie,
     };
     return collars[resolvedItems.collar];
   };
@@ -77,9 +82,9 @@ useEffect(() => {
   const getHatImage = () => {
     if (!resolvedItems?.hat) return null;
     const hats = {
-      party_hat: PartyHat,
+      hat_party: PartyHat,
       crown: Crown,
-      blue_cap: BlueCap,
+      cap_blue: BlueCap,
     };
     return hats[resolvedItems.hat];
   };
@@ -112,9 +117,9 @@ useEffect(() => {
   };
 
   const getMotionClasses = () => {
-    let classes = "transition-transform duration-300";
+    let classes = "transition-transform duration-500";
     if (isJumping) {
-      classes += " -translate-y-6";
+      classes += " -translate-y-12";
     } else if (isBlinking) {
       classes += " -translate-y-1";
     }
@@ -122,7 +127,7 @@ useEffect(() => {
   };
 
   const getPetLayoutClasses = () => {
-    let classes = "h-auto w-[34vw]";
+    let classes = "h-[48vh] translate-y-[10vh]";
     if (petType?.toLowerCase().includes("cat")) {
       classes += " translate-x-4";
     } else {
@@ -131,43 +136,72 @@ useEffect(() => {
     return classes;
   };
 
+  const hatClasses = {
+  hat_party: "h-[26vh] translate-y-[14vh] -translate-x-20",
+  crown: "h-[16vh] translate-y-[12vh] -translate-x-21", 
+  cap_blue: "h-[18vh] translate-y-[13vh] -translate-x-20",
+};
 
-  return (
-<div className="absolute w-full h-full flex items-center justify-center">
+const collarClasses = {
+  collar_red: "h-[10vh] -translate-y-[12vh] -translate-x-18",
+  collar_blue: "h-[10vh] -translate-y-[13vh] -translate-x-19",
+  bowtie: "h-[9vh] -translate-y-[13vh] -translate-x-18",
+};
+
+  // Extra adjustments ONLY for cats
+const hatCatAdjust = {
+  crown: "!translate-y-[14vh]",    // move crown down slightly
+  cap_blue: "!h-[15vh] !translate-y-[14vh]", // move blue cap down slightly
+};
+
+
+return (
+  <div className="absolute w-full h-full flex items-center justify-center">
+<div className={`${getMotionClasses()} flex flex-col items-center relative select-none z-40
+                 ${!resolvedItems?.hat ? "translate-y-4" : ""}`}>
+      
       {/* Hat */}
-      {getHatImage() && (
-        <img
-          src={getHatImage()}
-          alt="Hat"
-          className={`${getMotionClasses()} absolute z-30 h-auto w-[12vw] -translate-x-[6vw] ${
-            petType?.toLowerCase().includes("dog") ? "top-[24vh]" : "top-[27vh]"
-          }`}
-        />
-      )}
+{getHatImage() && (
+  <img
+    src={getHatImage()}
+    alt="Hat"
+    className={`
+      ${hatClasses[resolvedItems.hat] || ""}
+      ${petType?.includes("cat") ? hatCatAdjust[resolvedItems.hat] || "" : ""}
+      ${petType?.includes("dog") ? "-mb-8" : "-mb-8"} 
+      z-31
+    `}
+  />
+)}
 
-      {/* Main Pet */}
+      {/* Pet */}
       <img
         src={getPetImage()}
         alt={petType}
         onMouseEnter={() => setIsBlinking(true)}
         onMouseLeave={() => setIsBlinking(false)}
         onClick={handleClick}
-        className={`${getMotionClasses()} ${getPetLayoutClasses()} absolute top-[40vh] cursor-pointer z-10`}
+        className={`${getPetLayoutClasses()} cursor-pointer
+          h-[45vh] z-30`}
       />
 
-      
       {/* Collar */}
-      {getCollarImage() && (
-        <img
-          src={getCollarImage()}
-          alt="Collar"
-          className={`${getMotionClasses()} absolute z-25 h-auto w-[11vw] ${
-            petType?.toLowerCase().includes("dog") ? "top-[63vh] -translate-x-[5.3vw]" : "top-[60vh] -translate-x-[5vw]"
-          }`}
-        />
-      )}
+{getCollarImage() && (
+  <img
+    src={getCollarImage()}
+    alt="Collar"
+    className={`
+      ${collarClasses[resolvedItems.collar] || ""}
+      cursor-pointer z-31
+      ${petType?.includes("dog") ? "mt-[-3vh]" : "mt-[-5vh]"}
+    `}
+  />
+)}
+
     </div>
-  );
+  </div>
+);
+
 };
 
 export default Pets;

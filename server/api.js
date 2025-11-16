@@ -4,6 +4,169 @@ import { pool } from "./db.js";
 
 const router = express.Router();
 
+const PET_CATEGORIES = ["hat", "collar", "breed", "back"];
+const FURNITURE_CATEGORIES = ["wall", "floor", "decor"];
+const ITEM_CATEGORIES = ["hat", "collar", "breed", "wall", "floor", "decor"];
+
+const PET_SLOT_COLUMNS = {
+  hat: "hat_item",
+  collar: "collar_item",
+  breed: "breed_item",
+};
+
+const FURNITURE_SLOT_COLUMNS = {
+  wall: "wall_item",
+  floor: "floor_item",
+  decor: "decor_item",
+};
+
+const SLOT_COLUMN_MAP = {
+  pet: PET_SLOT_COLUMNS,
+  furniture: FURNITURE_SLOT_COLUMNS,
+};
+
+const CATEGORY_FILTERS = {
+  pet: PET_CATEGORIES,
+  furniture: FURNITURE_CATEGORIES,
+};
+
+const DEFAULT_PET_SLOTS = {
+  hat_item: null,
+  collar_item: null,
+  breed_item: null,
+};
+
+const DEFAULT_ROOM_SLOTS = {
+  wall_item: null,
+  floor_item: null,
+  decor_item: null,
+};
+
+const SLOT_CONFIG = {
+  pet: {
+    table: "equipped_pet_slots",
+    columns: Object.keys(DEFAULT_PET_SLOTS),
+    validCategories: ["hat", "collar", "breed"],
+  },
+  room: {
+    table: "equipped_room_slots",
+    columns: Object.keys(DEFAULT_ROOM_SLOTS),
+    validCategories: ["wall", "floor", "decor"],
+  },
+};
+
+const STARTER_INVENTORY_ITEMS = [
+  // "hat_party",
+  // "collar_red",
+  // "breed_graycat",
+  "wall_basic",
+  "floor_wood",
+  "decor_plant",
+];
+
+const STARTER_EQUIPPED = {
+  pet: {
+    // hat: "hat_party",
+    // collar: "collar_red",
+    breed: "breed_graycat",
+  },
+  furniture: {
+    wall: "wall_basic",
+    floor: "floor_wood",
+    decor: "decor_plant",
+  },
+};
+
+const PET_TYPE_TO_BREED_ITEM = {
+  graycat: "breed_graycat",
+  yellowdog: "breed_yellowdog",
+};
+
+const ITEM_SELECT_FIELDS = `
+  i.item_id,
+  i.category AS slot,
+  i.display_name AS name,
+  i.asset_path
+`;
+
+const buildEquippedResponse = (petRow = {}, roomRow = {}) => ({
+  pet: { ...DEFAULT_PET_SLOTS, ...petRow },
+  room: { ...DEFAULT_ROOM_SLOTS, ...roomRow },
+});
+
+async function getExistingItemIds(client, itemIds) {
+  if (!itemIds?.length) {
+    return [];
+  }
+  const { rows } = await client.query(
+    "SELECT item_id FROM items WHERE item_id = ANY($1)",
+    [itemIds]
+  );
+  return rows.map((row) => row.item_id);
+}
+
+async function fetchItemById(itemId) {
+  if (!itemId) return null;
+  const { rows } = await pool.query(
+    `SELECT ${ITEM_SELECT_FIELDS}
+     FROM items i
+     WHERE i.item_id = $1`,
+    [itemId]
+  );
+  return rows[0] || null;
+}
+
+async function fetchEquippedSlots(uid, type, itemMap = new Map()) {
+  const slotColumns = SLOT_COLUMN_MAP[type];
+  if (!slotColumns) return {};
+
+  const table =
+    type === "furniture" ? "equipped_room_slots" : "equipped_pet_slots";
+  const columnList = Object.values(slotColumns);
+  if (columnList.length === 0) {
+    return {};
+  }
+
+  const { rows } = await pool.query(
+    `SELECT ${columnList.join(", ")} FROM ${table} WHERE uid = $1`,
+    [uid]
+  );
+
+  if (!rows.length) {
+    return {};
+  }
+
+  const equipped = {};
+  const record = rows[0];
+
+  for (const [slot, column] of Object.entries(slotColumns)) {
+    const itemId = record[column];
+    if (!itemId) continue;
+
+    const cached = itemMap.get(itemId);
+    const itemData = cached || (await fetchItemById(itemId));
+    if (itemData) {
+      equipped[slot] = itemData;
+    }
+  }
+
+  return equipped;
+}
+
+async function getEquippedSlots(uid) {
+  const [petResult, roomResult] = await Promise.all([
+    pool.query(
+      `SELECT ${SLOT_CONFIG.pet.columns.join(", ")} FROM ${SLOT_CONFIG.pet.table} WHERE uid = $1`,
+      [uid]
+    ),
+    pool.query(
+      `SELECT ${SLOT_CONFIG.room.columns.join(", ")} FROM ${SLOT_CONFIG.room.table} WHERE uid = $1`,
+      [uid]
+    ),
+  ]);
+
+  return buildEquippedResponse(petResult.rows[0], roomResult.rows[0]);
+}
 
 router.post("/users", async (req, res) => {
   const { uid, email, username } = req.body;
@@ -12,13 +175,111 @@ router.post("/users", async (req, res) => {
     return res.status(400).json({ error: "Missing required fields: uid, email, or username" });
   }
 
+  const client = await pool.connect();
   try {
-    await pool.query(
+    await client.query("BEGIN");
+    await client.query(
       "INSERT INTO users (uid, email, username) VALUES ($1, $2, $3)",
       [uid, email, username]
     );
-    res.status(201).json({ message: "User created" });
+
+    const starterUniverse = Array.from(
+      new Set(
+        [
+          ...STARTER_INVENTORY_ITEMS,
+          ...Object.values(STARTER_EQUIPPED.pet || {}),
+          ...Object.values(STARTER_EQUIPPED.furniture || {}),
+        ].filter(Boolean)
+      )
+    );
+    const existingItemIds = new Set(
+      await getExistingItemIds(client, starterUniverse)
+    );
+
+    const starterInventoryList = STARTER_INVENTORY_ITEMS.filter((itemId) =>
+      existingItemIds.has(itemId)
+    );
+
+    if (starterInventoryList.length) {
+      const values = starterInventoryList
+        .map((_, idx) => `($1, $${idx + 2})`)
+        .join(", ");
+
+      await client.query(
+        `INSERT INTO inventory_items (uid, item_id)
+         VALUES ${values}
+         ON CONFLICT (uid, item_id) DO NOTHING`,
+        [uid, ...starterInventoryList]
+      );
+    }
+
+    const petSlotEntries = Object.entries(STARTER_EQUIPPED.pet || {}).filter(
+      ([, itemId]) => existingItemIds.has(itemId)
+    );
+    if (petSlotEntries.length) {
+      const petColumns = petSlotEntries.map(([slot]) => slot);
+      const columnList = [
+        "uid",
+        ...petColumns.map((slot) => PET_SLOT_COLUMNS[slot]),
+      ];
+      const valuePlaceholders = columnList
+        .map((_, idx) => `$${idx + 1}`)
+        .join(", ");
+
+      const params = [uid, ...petSlotEntries.map(([, itemId]) => itemId)];
+
+      await client.query(
+        `INSERT INTO equipped_pet_slots (${columnList.join(", ")})
+         VALUES (${valuePlaceholders})
+         ON CONFLICT (uid)
+         DO UPDATE SET ${petColumns
+           .map(
+             (slot) =>
+               `${PET_SLOT_COLUMNS[slot]} = EXCLUDED.${PET_SLOT_COLUMNS[slot]}`
+           )
+           .join(", ")}`,
+        params
+      );
+    }
+
+    const furnitureSlotEntries = Object.entries(
+      STARTER_EQUIPPED.furniture || {}
+    ).filter(([, itemId]) => existingItemIds.has(itemId));
+    if (furnitureSlotEntries.length) {
+      const furnitureColumns = furnitureSlotEntries.map(([slot]) => slot);
+      const columnList = [
+        "uid",
+        ...furnitureColumns.map((slot) => FURNITURE_SLOT_COLUMNS[slot]),
+      ];
+      const valuePlaceholders = columnList
+        .map((_, idx) => `$${idx + 1}`)
+        .join(", ");
+      const params = [
+        uid,
+        ...furnitureSlotEntries.map(([, itemId]) => itemId),
+      ];
+
+      await client.query(
+        `INSERT INTO equipped_room_slots (${columnList.join(", ")})
+         VALUES (${valuePlaceholders})
+         ON CONFLICT (uid)
+         DO UPDATE SET ${furnitureColumns
+           .map(
+             (slot) =>
+               `${FURNITURE_SLOT_COLUMNS[slot]} = EXCLUDED.${FURNITURE_SLOT_COLUMNS[slot]}`
+           )
+           .join(", ")}`,
+        params
+      );
+    }
+
+    await client.query("COMMIT");
+    client.release();
+
+    res.status(201).json({ message: "User created with starter inventory" });
   } catch (err) {
+    await client.query("ROLLBACK");
+    client.release();
     
     if (err.code === '23505') { 
       try {
@@ -41,17 +302,44 @@ router.post("/choosePet", async (req, res) => {
 
   console.log(req.body)
   
+  const breedItemId = PET_TYPE_TO_BREED_ITEM[petType];
+  const client = await pool.connect();
+
   try {
-    await pool.query(
-      "UPDATE users SET pet_type = $1 WHERE uid = $2",
-      [petType, uid]
-    );
+    await client.query("BEGIN");
+
+    await client.query("UPDATE users SET pet_type = $1 WHERE uid = $2", [
+      petType,
+      uid,
+    ]);
+
+    const [existingBreedId] = await getExistingItemIds(client, [breedItemId]);
+
+    if (existingBreedId) {
+      await client.query(
+        `INSERT INTO inventory_items (uid, item_id)
+         VALUES ($1, $2)
+         ON CONFLICT (uid, item_id) DO NOTHING`,
+        [uid, existingBreedId]
+      );
+
+      await client.query(
+        `INSERT INTO equipped_pet_slots (uid, breed_item)
+         VALUES ($1, $2)
+         ON CONFLICT (uid)
+         DO UPDATE SET breed_item = EXCLUDED.breed_item`,
+        [uid, existingBreedId]
+      );
+    }
+
+    await client.query("COMMIT");
 
     res.status(200).json({ message: "Pet choice saved successfully" });
-
   } catch (err) {
-
+    await client.query("ROLLBACK");
     res.status(500).json({ error: "Database error" });
+  } finally {
+    client.release();
   }
 });
 
@@ -77,21 +365,85 @@ router.post("/user/pet", async (req, res) => {
   }
 });
 
+router.post("/inventory/equip", async (req, res) => {
+  const { uid, type, slot, itemId } = req.body;
+
+  if (!uid || !type || !slot || !itemId) {
+    return res.status(400).json({ error: "Missing equip payload fields" });
+  }
+
+  const slotColumns = SLOT_COLUMN_MAP[type];
+  const column = slotColumns?.[slot];
+
+  if (!column) {
+    return res.status(400).json({ error: "Unsupported slot" });
+  }
+
+  const table =
+    type === "furniture" ? "equipped_room_slots" : "equipped_pet_slots";
+
+  try {
+    await pool.query(
+      `INSERT INTO ${table} (uid, ${column})
+       VALUES ($1, $2)
+       ON CONFLICT (uid)
+       DO UPDATE SET ${column} = EXCLUDED.${column}`,
+      [uid, itemId]
+    );
+
+    const equipped = await fetchEquippedSlots(uid, type);
+
+    return res.json({ equipped });
+  } catch (err) {
+    console.error("Error equipping item:", err);
+    return res.status(500).json({ error: "Failed to equip item" });
+  }
+});
+
 // Task CRUD api routes
 router.post("/tasks", async (req, res) => {
   const { uid, name, date, priority, difficulty} = req.body;
 
+  if (!uid || !name) {
+    return res.status(400).json({ error: "Missing required fields: uid or name" });
+  }
+
   try {
+    // Check if user exists, if not create a basic user record
+    const userCheck = await pool.query(
+      "SELECT uid FROM users WHERE uid = $1",
+      [uid]
+    );
+
+    if (userCheck.rows.length === 0) {
+      try {
+        await pool.query(
+          "INSERT INTO users (uid, email, username) VALUES ($1, $2, $3) ON CONFLICT (uid) DO NOTHING",
+          [uid, `${uid}@temp.com`, `User_${uid.substring(0, 8)}`]
+        );
+      } catch (userErr) {
+        console.error("Error creating user:", userErr);
+      }
+    }
+
     const result = await pool.query(
       `INSERT INTO tasks (user_id, title, priority, due_date, difficulty) 
        VALUES ($1, $2, $3, $4, $5) 
        RETURNING *`,
-      [uid, name, priority, date, difficulty]
+      [uid, name, priority, date || null, difficulty]
     );
     res.status(201).json({ task: result.rows[0] });
   } catch (err) {
-
-    res.status(500).json({ error: "Database error" });
+    console.error("Error creating task:", err);
+    
+    // Handle foreign key constraint violation specifically
+    if (err.code === '23503') {
+      return res.status(400).json({ 
+        error: "User not found. Please log out and log back in to sync your account." 
+      });
+    }
+    
+    res.status(500).json({ error: "Database error", details: err.message });
   }
 });
 
@@ -109,6 +461,28 @@ router.get("/tasks", async (req, res) => {
   }
 });
 
+// Calculate XP based on priority and difficulty
+function calculateXP(priority, difficulty) {
+  // Priority multipliers
+  const priorityMultipliers = {
+    Low: 1,
+    Medium: 1.5,
+    High: 2
+  };
+  
+  // Base XP by difficulty
+  const baseXP = {
+    Easy: 5,
+    Moderate: 10,
+    Hard: 15
+  };
+  
+  const multiplier = priorityMultipliers[priority] || 1;
+  const base = baseXP[difficulty] || 5;
+  
+  return Math.round(base * multiplier);
+}
+
 router.post("/tasks/delete", async (req, res) => {
   const { uid, taskIds } = req.body;
 
@@ -116,19 +490,344 @@ router.post("/tasks/delete", async (req, res) => {
     return res.status(400).json({ error: "No tasks to delete" });
   }
 
-
+  const client = await pool.connect();
 
   try {
+    await client.query("BEGIN");
 
+    // Get tasks before deleting to calculate XP
     const placeholders = taskIds.map((_, i) => `$${i + 2}`).join(", ");
-    const query = `DELETE FROM tasks WHERE user_id = $1 AND task_id IN (${placeholders})`;
+    const getTasksQuery = `SELECT task_id, priority, difficulty FROM tasks WHERE user_id = $1 AND task_id IN (${placeholders})`;
+    const tasksResult = await client.query(getTasksQuery, [uid, ...taskIds]);
+    
+    console.log(`[Task Completion] Found ${tasksResult.rows.length} tasks to complete for user ${uid}`);
+    
+    // Calculate total XP earned and create a map of task_id to task data
+    let totalXP = 0;
+    const taskMap = new Map();
+    tasksResult.rows.forEach(task => {
+      const xp = calculateXP(task.priority, task.difficulty);
+      totalXP += xp;
+      taskMap.set(task.task_id, task);
+      console.log(`[Task Completion] Task ${task.task_id}: ${task.priority}/${task.difficulty} = ${xp} XP`);
+    });
 
-    await pool.query(query, [uid, ...taskIds]);
+    // Delete the tasks
+    const deleteQuery = `DELETE FROM tasks WHERE user_id = $1 AND task_id IN (${placeholders})`;
+    const deleteResult = await client.query(deleteQuery, [uid, ...taskIds]);
+    console.log(`[Task Completion] Deleted ${deleteResult.rowCount} tasks`);
+    
+    // Update user XP using user_xp_totals and user_xp_events tables
+    if (totalXP > 0) {
+      try {
+        // Get current XP totals
+        const xpResult = await client.query(
+          `SELECT total_xp, level FROM user_xp_totals WHERE uid = $1`,
+          [uid]
+        );
+        
+        const currentTotalXP = xpResult.rows.length > 0 ? (xpResult.rows[0].total_xp || 0) : 0;
+        const currentLevel = xpResult.rows.length > 0 ? (xpResult.rows[0].level || 1) : 1;
+        const newTotalXP = currentTotalXP + totalXP;
+        const newLevel = Math.floor(newTotalXP / 100) + 1;
+        
+        // Update or insert XP totals
+        if (xpResult.rows.length === 0) {
+          // Create new XP record
+          await client.query(
+            `INSERT INTO user_xp_totals (uid, total_xp, level, last_event_at, updated_at) 
+             VALUES ($1, $2, $3, NOW(), NOW())`,
+            [uid, newTotalXP, newLevel]
+          );
+        } else {
+          // Update existing XP record
+          await client.query(
+            `UPDATE user_xp_totals 
+             SET total_xp = $1, 
+                 level = $2,
+                 last_event_at = NOW(),
+                 updated_at = NOW()
+             WHERE uid = $3`,
+            [newTotalXP, newLevel, uid]
+          );
+        }
+        
+        // Record XP events for each task completed
+        for (const taskId of taskIds) {
+          const task = taskMap.get(taskId);
+          if (task) {
+            const taskXP = calculateXP(task.priority, task.difficulty);
+            
+            // Map difficulty to lowercase for the constraint
+            let difficultyLabel = null;
+            if (task.difficulty) {
+              const lower = task.difficulty.toLowerCase();
+              if (lower === 'easy') difficultyLabel = 'low';
+              else if (lower === 'moderate') difficultyLabel = 'medium';
+              else if (lower === 'hard') difficultyLabel = 'hard';
+            }
+            
+            await client.query(
+              `INSERT INTO user_xp_events (uid, task_id, xp_amount, reason, difficulty_label, created_at)
+               VALUES ($1, $2, $3, $4, $5, NOW())`,
+              [uid, taskId, taskXP, 'task_completion', difficultyLabel]
+            );
+          }
+        }
+        
+        console.log(`[Task Completion] Updated XP: ${currentTotalXP} -> ${newTotalXP}, Level: ${currentLevel} -> ${newLevel}`);
+      } catch (xpErr) {
+        if (xpErr.code === '42P01') {
+          console.warn("user_xp_totals or user_xp_events table doesn't exist yet. XP tracking skipped.");
+        } else {
+          console.error("XP update error:", xpErr);
+          throw xpErr;
+        }
+      }
+    }
 
-    res.json({ success: true });
+    // Track task completions and update streak 
+    const today = new Date().toISOString().split('T')[0]; 
+    
+    // Record task completions
+    try {
+      await client.query(
+        `INSERT INTO task_completions (uid, completion_date, tasks_completed_count)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (uid, completion_date)
+         DO UPDATE SET tasks_completed_count = task_completions.tasks_completed_count + $3`,
+        [uid, today, taskIds.length]
+      );
+      
+      await client.query(
+        `INSERT INTO user_task_stats (uid, lifetime_tasks_completed, last_updated)
+         VALUES ($1, $2, NOW())
+         ON CONFLICT (uid)
+         DO UPDATE SET 
+           lifetime_tasks_completed = user_task_stats.lifetime_tasks_completed + $2,
+           last_updated = NOW()`,
+        [uid, taskIds.length]
+      );
+    } catch (statsErr) {
+      if (statsErr.code === '42P01') {
+        console.warn("task_completions or user_task_stats table doesn't exist yet. Stats tracking skipped.");
+      } else {
+        console.error("Error updating task stats:", statsErr);
+      }
+    }
+    
+    // Update user streak 
+    const streakResult = await client.query(
+      `SELECT * FROM user_streaks WHERE uid = $1`,
+      [uid]
+    );
+
+    if (streakResult.rows.length === 0) {
+      // Create new streak record - today is the first completion
+      await client.query(
+        `INSERT INTO user_streaks (uid, streak_days, longest_streak_days, streak_start_date, last_completed_date, updated_at)
+         VALUES ($1, 1, 1, $2, $2, NOW())`,
+        [uid, today]
+      );
+    } else {
+      const streak = streakResult.rows[0];
+      const lastCompletedDate = streak.last_completed_date 
+        ? new Date(streak.last_completed_date).toISOString().split('T')[0]
+        : null;
+      
+      // Calculate days difference
+      const todayDate = new Date(today);
+      const lastDate = lastCompletedDate ? new Date(lastCompletedDate) : null;
+      const daysDiff = lastDate 
+        ? Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24))
+        : null;
+
+      let newStreakDays = 1;
+      let newStreakStartDate = today;
+
+      console.log(`[Task Completion] uid: ${uid}, current streak: ${streak.streak_days}, daysDiff: ${daysDiff}, lastCompleted: ${lastCompletedDate}, today: ${today}`);
+      
+      if (lastCompletedDate && daysDiff === 1) {
+        // Consecutive day - increment streak
+        newStreakDays = streak.streak_days + 1;
+        newStreakStartDate = streak.streak_start_date || today;
+        console.log(`[Task Completion] Consecutive day - incrementing streak to ${newStreakDays}`);
+      } else if (lastCompletedDate && daysDiff === 0) {
+        // Same day - keep current streak 
+        newStreakDays = streak.streak_days;
+        newStreakStartDate = streak.streak_start_date || today;
+        console.log(`[Task Completion] Same day - keeping streak at ${newStreakDays}`);
+      } else if (lastCompletedDate && daysDiff > 1) {
+        // If streak is broken - start new streak
+        newStreakDays = 1;
+        newStreakStartDate = today;
+        console.log(`[Task Completion] Streak broken (${daysDiff} day gap) - resetting to 1`);
+      } else {
+        // First completion - start new streak
+        newStreakDays = 1;
+        newStreakStartDate = today;
+        console.log(`[Task Completion] First completion - starting streak at 1`);
+      }
+
+      // Update longest streak if current streak is longer
+      const newLongestStreak = Math.max(streak.longest_streak_days || 0, newStreakDays);
+
+      await client.query(
+        `UPDATE user_streaks 
+         SET streak_days = $1, 
+             longest_streak_days = $2,
+             streak_start_date = $3,
+             last_completed_date = $4,
+             updated_at = NOW()
+         WHERE uid = $5`,
+        [newStreakDays, newLongestStreak, newStreakStartDate, today, uid]
+      );
+    }
+
+    await client.query("COMMIT");
+
+    res.json({ success: true, xpEarned: totalXP });
   } catch (err) {
+    await client.query("ROLLBACK");
+    console.error("Error completing tasks:", err);
+    console.error("Error details:", {
+      message: err.message,
+      code: err.code,
+      detail: err.detail,
+      stack: err.stack
+    });
+    res.status(500).json({ 
+      error: "Failed to delete tasks", 
+      details: err.message,
+      code: err.code
+    });
+  } finally {
+    client.release();
+  }
+});
 
-    res.status(500).json({ error: "Failed to delete tasks" });
+// Get user's current streak
+router.get("/tasks/streak", async (req, res) => {
+  const { uid } = req.query;
+
+  if (!uid) {
+    return res.status(400).json({ error: "Missing uid" });
+  }
+
+  try {
+    // Get user streak from user_streaks table
+    const result = await pool.query(
+      `SELECT streak_days, longest_streak_days, last_completed_date, streak_start_date, updated_at
+       FROM user_streaks 
+       WHERE uid = $1`,
+      [uid]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({ 
+        streak: 0, 
+        longestStreak: 0,
+        lastCompletionDate: null 
+      });
+    }
+
+    const streakData = result.rows[0];
+    const today = new Date().toISOString().split('T')[0]; // Today's date
+    const lastCompletedDate = streakData.last_completed_date 
+      ? new Date(streakData.last_completed_date).toISOString().split('T')[0]
+      : null;
+
+    // Check if streak is still valid (completed today or yesterday)
+    let currentStreak = 0;
+    if (lastCompletedDate) {
+      const todayDate = new Date(today);
+      const lastDate = new Date(lastCompletedDate);
+      const daysDiff = Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      console.log(`[Streak API] uid: ${uid}, streak_days: ${streakData.streak_days}, daysDiff: ${daysDiff}, lastCompleted: ${lastCompletedDate}, today: ${today}`);
+      
+      // Streak is valid if last completion was today or yesterday (daysDiff <= 1)
+      if (daysDiff <= 1) {
+        currentStreak = streakData.streak_days || 0;
+        console.log(`[Streak API] Streak is valid: ${currentStreak}`);
+      } else {
+        // Streak broken (more than 1 day ago) - reset to 0
+        currentStreak = 0;
+        console.log(`[Streak API] Streak broken (${daysDiff} days ago)`);
+      }
+    } else {
+      console.log(`[Streak API] uid: ${uid}, no last_completed_date`);
+    }
+
+    res.json({ 
+      streak: currentStreak,
+      longestStreak: streakData.longest_streak_days || 0,
+      lastCompletionDate: streakData.last_completed_date
+    });
+  } catch (err) {
+    // If table doesn't exist yet, return 0 streak
+    if (err.code === '42P01') {
+      return res.json({ 
+        streak: 0, 
+        longestStreak: 0,
+        lastCompletionDate: null 
+      });
+    }
+    console.error("Error fetching streak:", err);
+    res.status(500).json({ error: "Failed to fetch streak" });
+  }
+});
+
+// Get user's current XP
+router.get("/user/xp", async (req, res) => {
+  const { uid } = req.query;
+
+  if (!uid) {
+    return res.status(400).json({ error: "Missing uid" });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT total_xp, level 
+       FROM user_xp_totals 
+       WHERE uid = $1`,
+      [uid]
+    );
+
+    if (result.rows.length === 0) {
+      // Return default values if no XP record exists
+      return res.json({ 
+        currentXP: 0,
+        totalXP: 0,
+        level: 1,
+        progress: 0
+      });
+    }
+
+    const xpData = result.rows[0];
+    const totalXP = xpData.total_xp || 0;
+    const level = xpData.level || 1;
+    // Progress is the remainder of total_xp / 100 (current level progress)
+    const progress = totalXP % 100;
+
+    res.json({ 
+      currentXP: progress,
+      totalXP: totalXP,
+      level: level,
+      progress: progress
+    });
+  } catch (err) {
+    // If table doesn't exist yet, return default values
+    if (err.code === '42P01') {
+      return res.json({ 
+        currentXP: 0,
+        totalXP: 0,
+        level: 1,
+        progress: 0
+      });
+    }
+    console.error("Error fetching XP:", err);
+    res.status(500).json({ error: "Failed to fetch XP" });
   }
 });
 
@@ -267,7 +966,7 @@ router.get("/friends/:uid", async (req, res) => {
   }
 
   try {
-    // Get all friendships where the user is either user1 or user2
+    // Get all friendships where the user is either user1 or user2, including task completion stats
     const result = await pool.query(
       `SELECT 
         CASE 
@@ -281,10 +980,20 @@ router.get("/friends/:uid", async (req, res) => {
         CASE 
           WHEN f.user1_uid = $1 THEN u2.email
           ELSE u1.email
-        END as email
+        END as email,
+        COALESCE(uts.lifetime_tasks_completed, 0) as lifetime_tasks_completed,
+        COALESCE(us.streak_days, 0) as streak_days
        FROM friendships f
        LEFT JOIN users u1 ON f.user1_uid = u1.uid
        LEFT JOIN users u2 ON f.user2_uid = u2.uid
+       LEFT JOIN user_task_stats uts ON uts.uid = CASE 
+         WHEN f.user1_uid = $1 THEN f.user2_uid
+         ELSE f.user1_uid
+       END
+       LEFT JOIN user_streaks us ON us.uid = CASE 
+         WHEN f.user1_uid = $1 THEN f.user2_uid
+         ELSE f.user1_uid
+        END
        WHERE f.user1_uid = $1 OR f.user2_uid = $1
        ORDER BY f.created_at DESC`,
       [uid]
@@ -292,7 +1001,8 @@ router.get("/friends/:uid", async (req, res) => {
 
     res.json({ friends: result.rows });
   } catch (err) {
-    res.status(500).json({ error: "Database error" });
+    console.error("Error fetching friends:", err);
+    res.status(500).json({ error: "Database error", details: err.message });
   }
 });
 
@@ -410,6 +1120,232 @@ router.put("/friends/requests/:requestId", async (req, res) => {
     res.status(500).json({ error: "Database error" });
   }
 });
+
+
+router.get("/inventory/catalog", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT item_id, category, display_name, asset_path, created_at 
+       FROM items
+       ORDER BY category, display_name`
+    );
+    res.json({ items: result.rows });
+  } catch (err) {
+    if (err.code === "42P01") {
+      return res.json({ items: [] });
+    }
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+router.get("/inventory/:uid", async (req, res) => {
+  const { uid } = req.params;
+
+  if (!uid) {
+    return res.status(400).json({ error: "Missing uid" });
+  }
+
+  try {
+    const inventoryQuery = `SELECT 
+        ii.item_id,
+        ii.acquired_at,
+        i.category,
+        i.display_name,
+        i.asset_path
+       FROM inventory_items ii
+       INNER JOIN items i ON i.item_id = ii.item_id
+       WHERE ii.uid = $1
+       ORDER BY i.category, ii.acquired_at DESC`;
+
+    const inventoryResult = await pool.query(inventoryQuery, [uid]);
+    let userItems = inventoryResult.rows;
+
+    const equipped = await getEquippedSlots(uid);
+
+    res.json({
+      items: userItems,
+      equipped,
+    });
+  } catch (err) {
+    if (err.code === "42P01") {
+      return res.json({
+        items: [],
+        equipped: buildEquippedResponse(),
+      });
+    }
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+router.put("/inventory/:uid/equipped", async (req, res) => {
+  const { uid } = req.params;
+  const { type, slots } = req.body || {};
+
+  if (!uid) {
+    return res.status(400).json({ error: "Missing uid" });
+  }
+
+  if (!type || !SLOT_CONFIG[type]) {
+    return res.status(400).json({ error: "Type must be either 'pet' or 'room'" });
+  }
+
+  if (!slots || typeof slots !== "object") {
+    return res.status(400).json({ error: "Provide a slots object to update" });
+  }
+
+  const config = SLOT_CONFIG[type];
+  const slotEntries = Object.entries(slots).filter(([slot]) => config.columns.includes(slot));
+
+  if (!slotEntries.length) {
+    return res.status(400).json({ error: "No valid slots provided" });
+  }
+
+  const values = slotEntries.map(([, value]) => value ?? null);
+  const distinctItems = [...new Set(values.filter((value) => value !== null))];
+
+  try {
+    if (distinctItems.length) {
+      const ownershipResult = await pool.query(
+        `SELECT item_id 
+         FROM inventory_items 
+         WHERE uid = $1 AND item_id = ANY($2::text[])`,
+        [uid, distinctItems]
+      );
+
+      if (ownershipResult.rows.length !== distinctItems.length) {
+        return res.status(400).json({ error: "You can only equip items that belong to you" });
+      }
+
+      const categoryResult = await pool.query(
+        `SELECT item_id, category 
+         FROM items 
+         WHERE item_id = ANY($1::text[])`,
+        [distinctItems]
+      );
+
+      const invalidCategory = categoryResult.rows.find(
+        (row) => !config.validCategories.includes(row.category)
+      );
+
+      if (invalidCategory) {
+        return res.status(400).json({
+          error: `Item ${invalidCategory.item_id} cannot be equipped in ${type} slots`,
+        });
+      }
+    }
+
+    const columnNames = slotEntries.map(([slot]) => slot);
+    const valuePlaceholders = columnNames.map((_, idx) => `$${idx + 2}`).join(", ");
+
+    await pool.query(
+      `INSERT INTO ${config.table} (uid, ${columnNames.join(", ")})
+       VALUES ($1, ${valuePlaceholders})
+       ON CONFLICT (uid)
+       DO UPDATE SET ${columnNames.map((col) => `${col} = EXCLUDED.${col}`).join(", ")}, updated_at = now()`,
+      [uid, ...values]
+    );
+
+    const equipped = await getEquippedSlots(uid);
+
+    res.json({ message: "Equipped items updated", equipped });
+  } catch (err) {
+    if (err.code === "42P01") {
+      return res.status(400).json({ error: "Inventory tables are not configured" });
+    }
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+// Get user's currency total
+router.post("/user/currency", async (req, res) => {
+  const { uid } = req.body;
+
+  if (!uid) return res.status(400).json({ error: "Missing UID" });
+
+  try {
+    const result = await pool.query(
+      "SELECT currency_total FROM users WHERE uid = $1",
+      [uid]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ currency: result.rows[0].currency_total });
+  } catch (err) {
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+router.post("/user/reward", async (req, res) => {
+  const { uid, amount } = req.body;
+
+  if (!uid || amount === undefined)
+    return res.status(400).json({ error: "Missing uid or amount" });
+
+  try {
+    // Update coins (add or subtract)
+    await pool.query(
+      `UPDATE users 
+       SET currency_total = currency_total + $1 
+       WHERE uid = $2`,
+      [amount, uid] // if amount < 0, it subtracts
+    );
+
+    res.json({ success: true, change: amount });
+  } catch (err) {
+    console.error("Currency update error:", err);
+    res.status(500).json({ error: "Failed to update currency" });
+  }
+});
+
+router.get('/inventory/pet_equipped/:uid', async (req, res) => {
+    const { uid } = req.params;
+    
+    if (!uid)
+      return res.status(400).json({ error: "Missing uid" });
+
+  try {
+      
+        const result = await pool.query(
+          `SELECT *
+          FROM equipped_pet_slots
+          WHERE uid = $1`,
+          [uid] 
+        );
+            
+      res.json({ data: result.rows });
+    
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+router.post('/inventory/add', async (req, res) => {
+    const { uid, item } = req.body;
+
+    if (!uid || !item) {
+        return res.status(400).json({ error: "Missing uid or item" });
+    }
+
+    try {
+        const result = await pool.query(
+            `INSERT INTO inventory_items (uid, item_id)
+             VALUES ($1, $2)
+             RETURNING *`,
+            [uid, item]
+        );
+
+        res.json({ success: true, data: result.rows[0] });
+    } catch (err) {
+        console.error("Inventory insert error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+
 
 
 export default router;

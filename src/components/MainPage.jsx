@@ -1,5 +1,6 @@
 // MainPage.jsx
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Floor from "./Floor";
 
@@ -14,7 +15,14 @@ import BadgePage from "./BadgePage";
 import FriendsPage from "./FriendsPage";
 import TasksPage from "./TasksPage";
 import StorePage from "./StorePage";
+import Inventory from "./Inventory";
 
+
+import HatIcon from "../assets/pets/clothing/hats/blue_cap.svg";
+import CollarIcon from "../assets/pets/clothing/collars/red_collar.svg";
+import FurnitureIcon from "../assets/furniture/Dresser.png";
+import PetInventory from "../assets/icons/petInventory.svg";
+import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
 
 
 //import GrayCat1 from "../assets/gray_cat1.png";
@@ -24,11 +32,20 @@ import Pets from "./Pets";
 import Checkmark from "../assets/checkmark.png";
 import StreakFire from "../assets/streak_fire.png";
 
+import { useCurrency } from "../context/CurrencyContext";
+
 export default function MainPage() {
+  const navigate = useNavigate();
   const [petType, setPetType] = useState(null);
   const [activePanel, setActivePanel] = useState(null);
   const [panelVisible, setPanelVisible] = useState(false);
   const [pendingFriendRequests, setPendingFriendRequests] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [xp, setXp] = useState(0);
+  const [level, setLevel] = useState(1);
+  const { currency, setCurrency } = useCurrency();
+
+  const [storeCategory, setStoreCategory] = useState("Hats");
 
   const openPanel = (panelName) => {
     setActivePanel(panelName);
@@ -53,7 +70,23 @@ export default function MainPage() {
   return () => window.removeEventListener("openPanel", handleOpenPanel);
 }, []);
 
+useEffect(() => {
+  async function fetchCurrency() {
+    const uid = localStorage.getItem("uid");
+    const res = await fetch("api/user/currency", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid }),
+    });
 
+    const data = await res.json();
+    setCurrency(data.currency);   // store it
+  }
+
+  fetchCurrency();
+}, []);
+
+  
   useEffect(() => {
     const cachedPet = localStorage.getItem("petType");
     if (cachedPet) setPetType(cachedPet);
@@ -95,6 +128,57 @@ export default function MainPage() {
     return () => clearInterval(interval);
   }, []);
 
+  // Fetch user streak
+  const fetchStreak = async () => {
+    try {
+      const uid = localStorage.getItem("uid");
+      if (uid) {
+        const response = await fetch(`/api/tasks/streak?uid=${uid}`);
+        const data = await response.json();
+        console.log("Streak data:", data); 
+        setStreak(data.streak || 0);
+      }
+    } catch (err) {
+      console.error("Error fetching streak:", err);
+    }
+  };
+
+  // Fetch user XP and level
+  const fetchXP = async () => {
+    try {
+      const uid = localStorage.getItem("uid");
+      if (uid) {
+        const response = await fetch(`/api/user/xp?uid=${uid}`);
+        const data = await response.json();
+        setXp(data.progress || 0);
+        setLevel(data.level || 1);
+      }
+    } catch (err) {
+      console.error("Error fetching XP:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchStreak();
+    fetchXP();
+    const interval = setInterval(() => {
+      fetchStreak();
+      fetchXP();
+    }, 86400000);
+    
+    // Listen for task completion events to refresh streak and XP immediately
+    const handleTaskCompleted = () => {
+      fetchStreak();
+      fetchXP();
+    };
+    window.addEventListener("taskCompleted", handleTaskCompleted);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("taskCompleted", handleTaskCompleted);
+    };
+  }, []);
+
   function ProgressBar({ progress }) {
     return (
 <div className="relative w-full h-[6vh] bg-[#ECF0A4] border-4 border-[#86A445] rounded-full overflow-hidden will-change-transform">
@@ -113,6 +197,52 @@ export default function MainPage() {
     );
   }
 
+  const titleMap = {
+    settings: "Settings",
+    store: "Store",
+    tasks: "Tasks",
+    friends: "Friends",
+    badges: "Badges",
+  };
+
+  const renderInventoryButtons = (anchorClass = "") => (
+    <div className={`absolute ${anchorClass} flex flex-col gap-[2vh] z-40 pointer-events-none`}>
+      <div className="flex items-center gap-3 pointer-events-auto">
+        <span className="text-4xl font-dongle text-[#4b3b2f]"></span>
+        <button
+          className="
+            w-[11vw] h-[10vh]
+            bg-[#FFBAC5] border-[5px] border-[#FE8693]
+            shadow-md cursor-pointer pl-4 pr-2
+            transition-transform duration-200 ease-in-out
+            hover:-translate-x-1
+            flex items-center justify-between rounded-sm
+          "
+          onClick={() => navigate("/customize?mode=pet")}
+        >
+          <img src={PetInventory} alt="Pet Inventory" className="w-10" />
+        </button>
+      </div>
+
+      <div className="flex items-center gap-3 pointer-events-auto">
+        <span className="text-4xl font-dongle text-[#4b3b2f]"></span>
+        <button
+          className="
+            w-[11vw] h-[10vh]
+            bg-[#FCD68D] border-[5px] border-[#DAA94B]
+            shadow-md cursor-pointer pl-4 pr-2
+            transition-transform duration-200 ease-in-out
+            hover:-translate-x-1 
+            flex items-center justify-between rounded-sm
+          "
+          onClick={() => navigate("/customize?mode=furniture")}
+        >
+          <img src={FurnitureInventory} alt="Furniture Inventory" className="w-10" />
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0] relative overflow-hidden">
       <Sidebar
@@ -124,35 +254,51 @@ export default function MainPage() {
         pendingFriendRequests={pendingFriendRequests}
       />
 
-      <div className="w-screen flex justify-center">
-        <Floor />
+      <div className="w-screen flex justify-center relative">
+        <Floor className="-ml-20" />
 
-        <div className="absolute flex top-3 left-[23vw] transform 
+        <div className="absolute top-3 left-[15vw] transform 
                         bg-[#f2be9c] border-3 border-[#7d5c47] 
                         rounded-full shadow-lg z-30
-                        w-6/12 h-[10vh] items-center px-4">
+                        w-7/12 h-[10vh] flex items-center px-6 gap-8">
         
-          <img
-            src={StreakFire}
-            className="w-13 ml-[1vw] h-auto"
-          />
-          <span className="translate-y-[2px] ml-1 text-[#41521b] font-dongle text-6xl font-bold">
-            3x
+          {/* Streak Section */}
+          <div className="flex items-center gap-3">
+            <img src={StreakFire} className="w-14 h-auto" />
+            <span className="text-[#41521b] font-dongle text-6xl font-bold">
+              {streak > 0 ? `${streak}x` : '0x'}
+            </span>
+          </div>
+
+          {/* Divider */}
+          <div className="w-[3px] h-[65%] bg-[#7d5c47] opacity-50"></div>
+
+          {/* Level Section */}
+          <span className="text-[#41521b] font-dongle text-6xl font-bold">
+            Lvl&nbsp;{level}
           </span>
 
-          <span className="translate-y-[2px] ml-[4vw] mr-2 text-[#41521b] font-dongle text-5xl font-bold">
-            XP
-          </span>
+          {/* Divider */}
+          <div className="w-[3px] h-[65%] bg-[#7d5c47] opacity-50"></div>
 
-          <ProgressBar progress={65} />
+          {/* XP + Bar Section */}
+          <div className="flex items-center gap-3 grow">
+            <span className="text-[#41521b] font-dongle text-6xl font-bold">
+              XP
+            </span>
+
+            <div className="flex-1">
+              <ProgressBar progress={xp} />
+            </div>
+          </div>
 
           <div
-            className="absolute top-[0vh] -right-[25vw] 
+            className="absolute top-[0vh] -right-[19vw] 
                         bg-[#b1d47f] border-3 border-[#5a7435] 
-                        rounded-full px-8 py-1 
+                        rounded-full px-5 py-1 
                         text-white font-dongle text-6xl 
                         shadow-2xl z-30
-                        w-[22vw] h-[10vh] font-bold
+                        w-[16vw] h-[10vh] font-bold
                         flex items-center justify-center gap-3
                         [text-shadow:_2px_2px_0_#000,_-2px_2px_0_#000,_2px_-2px_0_#000,_-2px_-2px_0_#000]"
           >
@@ -161,15 +307,13 @@ export default function MainPage() {
               className="w-12 h-auto drop-shadow-[2px_2px_2px_rgba(0,0,0,.3)]"
               alt="Checkmark"
             />
-            <span className="translate-y-[2px]">100</span>
+<span className="translate-y-[2px]">{currency}</span>
           </div>
         </div>
 
         <Window />
         <Dresser/>
         <Plant />
-
-
 
         <Pets petType={petType} />
       </div>
@@ -181,9 +325,7 @@ export default function MainPage() {
       show={panelVisible}
       onClose={closePanel}
       title={
-        activePanel === "store"
-          ? "Store"
-          : activePanel === "friends"
+          activePanel === "friends"
           ? "Friends"
           : activePanel === "badges"
           ? "Badges"
@@ -197,11 +339,53 @@ export default function MainPage() {
       {activePanel === "badges" && <BadgePage onClose={closePanel} />}
       {activePanel === "settings" && <SettingsPage onClose={closePanel} />}
       {activePanel === "tasks" && <TasksPage onClose={closePanel} />}
-      {activePanel === "store" && <StorePage onClose={closePanel} />}
       {activePanel === "friends" && <FriendsPage onClose={closePanel} />}
     </SlidingPanel>
-  )}
+        )}
+      
+      {activePanel === "store" && (
+      <SlidingPanel show={panelVisible} onClose={closePanel} title="Store">
+        <StorePage onClose={closePanel} selectedCategory={storeCategory} />
+      </SlidingPanel>
+)}
 
+{activePanel === "store" && (
+  <div
+    className={`absolute top-[15vh] right-[calc(50%-0px)] flex flex-col gap-3 z-48 left-160
+      transition-transform duration-500 ease-in-out w-60
+      ${panelVisible ? "translate-x-0" : "-translate-x-220"}`}
+  >
+    {[
+      { name: "Hats", icon: HatIcon },
+      { name: "Collars", icon: CollarIcon },
+      { name: "Furniture", icon: FurnitureIcon },
+    ].map((cat) => (
+      <button
+        key={cat.name}
+        onClick={() => setStoreCategory(cat.name)}
+        className={`flex items-center justify-center bg-[#E4CFBD] rounded-lg shadow-md
+          w-28 h-[10vh] transition-transform duration-500 ease-in-out
+          hover:bg-[#d8bfa8] cursor-pointer pl-8 hover:translate-x-3
+          ${storeCategory === cat.name ? "bg-[#b1d47f]" : ""}`}
+      >
+        <img src={cat.icon} alt={cat.name} className="w-2/3 object-contain pointer-events-none" />
+      </button>
+    ))}
+  </div>
+)}
+
+      
+{/* Overlay */}
+<div
+  className={`absolute inset-0 bg-black z-45 transition-opacity duration-500 ${
+    panelVisible ? "opacity-20" : "opacity-0 pointer-events-none"
+  }`}
+  onClick={closePanel}
+/>
+
+
+
+      <Inventory />
     </div>
   );
 }

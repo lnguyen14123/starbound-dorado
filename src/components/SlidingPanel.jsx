@@ -2,7 +2,14 @@ import React, { useEffect } from "react";
 import TaskbookL from "../assets/L_TaskBook.png";
 import "../index.css";
 
-export default function SlidingPanel({ show, onClose, title, children }) {
+export default function SlidingPanel({
+  show,
+  onClose,
+  title,
+  children,
+  from = "left",
+  dimBackground = true,
+}) {
   const isTasksPage = title === "Tasks";
 
   useEffect(() => {
@@ -13,23 +20,16 @@ export default function SlidingPanel({ show, onClose, title, children }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [show, onClose]);
 
+  const hiddenTransform = from === "right" ? "translate-x-full" : "-translate-x-full";
+  const anchorClass = from === "right" ? "right-0" : "left-0";
+
   return (
     <div
-      className={`fixed inset-0 z-40 transition-all duration-500 ease-in-out ${
-        show ? "pointer-events-auto" : "pointer-events-none"
-      }`}
+      className={`fixed inset-0 z-80 transition-all duration-500 ease-in-out pointer-events-none`}
     >
-      {/* Background overlay */}
-      <div
-        onClick={onClose}
-        className={`absolute inset-0 bg-black transition-opacity duration-500 ${
-          show ? "opacity-20" : "opacity-0"
-        }`}
-      ></div>
-
       {/* Panel */}
       <div
-        className={`absolute top-0 w-170 left-0 h-full transition-transform duration-500 ease-in-out ${
+        className={`absolute top-0 w-170 left-0 h-full transition-transform duration-500 ease-in-out pointer-events-auto ${
           show ? "translate-x-0" : "-translate-x-full"
         }`}
       >

@@ -82,3 +82,4 @@ export default function RightSlidingPanel({ show, onClose, title, children }) {
     </>
   );
 }
+
