@@ -17,7 +17,7 @@ import PartyHat from "../assets/pets/clothing/hats/party_hat.svg";
 import Crown from "../assets/pets/clothing/hats/crown.svg";
 import BlueCap from "../assets/pets/clothing/hats/blue_cap.svg";
 
-const Pets = ({ petType, equippedItems }) => {
+const Pets = ({ petType, equippedItems, focusMode = false }) => {
   const [isBlinking, setIsBlinking] = useState(false);
   const [isHappy, setIsHappy] = useState(false);
   const [isJumping, setIsJumping] = useState(false);
@@ -65,6 +65,9 @@ useEffect(() => {
 
   // 🧢 Clothing helpers
   const getCollarImage = () => {
+    if (equippedItems?.collar?.asset_path) {
+      return equippedItems.collar.asset_path;
+    }
     if (!resolvedItems?.collar) return null;
     const collars = {
       red_collar: RedCollar,
@@ -75,6 +78,9 @@ useEffect(() => {
   };
 
   const getHatImage = () => {
+    if (equippedItems?.hat?.asset_path) {
+      return equippedItems.hat.asset_path;
+    }
     if (!resolvedItems?.hat) return null;
     const hats = {
       party_hat: PartyHat,
@@ -111,61 +117,66 @@ useEffect(() => {
     return null;
   };
 
-  const getMotionClasses = () => {
-    let classes = "transition-transform duration-300";
-    if (isJumping) {
-      classes += " -translate-y-6";
-    } else if (isBlinking) {
-      classes += " -translate-y-1";
+  const getPetStyles = () => {
+    if (focusMode) {
+      return `relative w-[35vw] max-w-[400px] ${isJumping ? "-translate-y-3" : ""}`;
     }
-    return classes;
-  };
-
-  const getPetLayoutClasses = () => {
-    let classes = "h-auto w-[34vw]";
+    let classes = "h-auto w-[34vw] transition-transform duration-300";
+    if (isJumping) classes += " -translate-y-6";
+    
     if (petType?.toLowerCase().includes("cat")) {
       classes += " translate-x-4";
     } else {
-      classes += " -translate-x-30";
+      classes += " -translate-x-8";
     }
-    return classes;
+    return `${classes} absolute top-[40vh] cursor-pointer z-10`;
   };
 
+  const containerClass = focusMode
+    ? "relative w-full h-full flex flex-col items-center justify-center gap-6"
+    : "absolute w-full h-full flex items-center justify-center";
+
+  const hatClass = focusMode
+    ? "absolute -top-12 w-[21vw] max-w-[315px]"
+    : "absolute z-30 h-auto w-[15vw] top-[30vh] -translate-x-[5vw]";
+
+  const collarClass = focusMode
+    ? "absolute top-[65%] w-[31vw] max-w-[400px]"
+    : "absolute z-25 h-auto w-[25vw] top-[65vh] -translate-x-[5vw]";
+
+  const handlePetClick = () => {
+    if (!focusMode) {
+      handleClick();
+    }
+  };
 
   return (
-<div className="absolute w-full h-full flex items-center justify-center">
-      {/* Hat */}
+    <div className={containerClass}>
       {getHatImage() && (
         <img
           src={getHatImage()}
           alt="Hat"
-          className={`${getMotionClasses()} absolute z-30 h-auto w-[12vw] -translate-x-[6vw] ${
-            petType?.toLowerCase().includes("dog") ? "top-[24vh]" : "top-[27vh]"
-          }`}
+          className={hatClass}
         />
       )}
 
-      {/* Main Pet */}
       <img
         src={getPetImage()}
         alt={petType}
         onMouseEnter={() => setIsBlinking(true)}
         onMouseLeave={() => setIsBlinking(false)}
-        onClick={handleClick}
-        className={`${getMotionClasses()} ${getPetLayoutClasses()} absolute top-[40vh] cursor-pointer z-10`}
+        onClick={handlePetClick}
+        className={getPetStyles()}
       />
 
-      
-      {/* Collar */}
       {getCollarImage() && (
         <img
           src={getCollarImage()}
           alt="Collar"
-                  onMouseEnter={() => setIsBlinking(true)}
-        onMouseLeave={() => setIsBlinking(false)}
-
-          className={`${getMotionClasses()} absolute z-25 h-auto w-[11vw] cursor-pointer ${
-            petType?.toLowerCase().includes("dog") ? "top-[63vh] -translate-x-[5.3vw]" : "top-[60vh] -translate-x-[5vw] cursor-pointer"
+          onMouseEnter={() => setIsBlinking(true)}
+          onMouseLeave={() => setIsBlinking(false)}
+          className={`absolute z-25 h-auto w-[11vw] cursor-pointer ${
+            petType?.toLowerCase().includes("dog") ? "top-[63vh] -translate-x-[5.3vw]" : "top-[60vh] -translate-x-[5vw]"
           }`}
         />
       )}

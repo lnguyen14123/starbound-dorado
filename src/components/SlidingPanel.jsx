@@ -2,7 +2,14 @@ import React, { useEffect } from "react";
 import TaskbookL from "../assets/L_TaskBook.png";
 import "../index.css";
 
-export default function SlidingPanel({ show, onClose, title, children }) {
+export default function SlidingPanel({
+  show,
+  onClose,
+  title,
+  children,
+  from = "left",
+  dimBackground = true,
+}) {
   const isTasksPage = title === "Tasks";
 
   useEffect(() => {
@@ -12,6 +19,9 @@ export default function SlidingPanel({ show, onClose, title, children }) {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [show, onClose]);
+
+  const hiddenTransform = from === "right" ? "translate-x-full" : "-translate-x-full";
+  const anchorClass = from === "right" ? "right-0" : "left-0";
 
   return (
     <div

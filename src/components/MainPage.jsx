@@ -1,5 +1,6 @@
 // MainPage.jsx
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Floor from "./Floor";
 
@@ -20,6 +21,8 @@ import Inventory from "./Inventory";
 import HatIcon from "../assets/pets/clothing/hats/blue_cap.svg";
 import CollarIcon from "../assets/pets/clothing/collars/red_collar.svg";
 import FurnitureIcon from "../assets/furniture/Dresser.png";
+import PetInventory from "../assets/icons/petInventory.svg";
+import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
 
 
 //import GrayCat1 from "../assets/gray_cat1.png";
@@ -32,10 +35,14 @@ import StreakFire from "../assets/streak_fire.png";
 import { useCurrency } from "../context/CurrencyContext";
 
 export default function MainPage() {
+  const navigate = useNavigate();
   const [petType, setPetType] = useState(null);
   const [activePanel, setActivePanel] = useState(null);
   const [panelVisible, setPanelVisible] = useState(false);
   const [pendingFriendRequests, setPendingFriendRequests] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [xp, setXp] = useState(0);
+  const [level, setLevel] = useState(1);
   const { currency, setCurrency } = useCurrency();
 
   const [storeCategory, setStoreCategory] = useState("Hats");
@@ -121,6 +128,57 @@ useEffect(() => {
     return () => clearInterval(interval);
   }, []);
 
+  // Fetch user streak
+  const fetchStreak = async () => {
+    try {
+      const uid = localStorage.getItem("uid");
+      if (uid) {
+        const response = await fetch(`/api/tasks/streak?uid=${uid}`);
+        const data = await response.json();
+        console.log("Streak data:", data); 
+        setStreak(data.streak || 0);
+      }
+    } catch (err) {
+      console.error("Error fetching streak:", err);
+    }
+  };
+
+  // Fetch user XP and level
+  const fetchXP = async () => {
+    try {
+      const uid = localStorage.getItem("uid");
+      if (uid) {
+        const response = await fetch(`/api/user/xp?uid=${uid}`);
+        const data = await response.json();
+        setXp(data.progress || 0);
+        setLevel(data.level || 1);
+      }
+    } catch (err) {
+      console.error("Error fetching XP:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchStreak();
+    fetchXP();
+    const interval = setInterval(() => {
+      fetchStreak();
+      fetchXP();
+    }, 86400000);
+    
+    // Listen for task completion events to refresh streak and XP immediately
+    const handleTaskCompleted = () => {
+      fetchStreak();
+      fetchXP();
+    };
+    window.addEventListener("taskCompleted", handleTaskCompleted);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("taskCompleted", handleTaskCompleted);
+    };
+  }, []);
+
   function ProgressBar({ progress }) {
     return (
 <div className="relative w-full h-[6vh] bg-[#ECF0A4] border-4 border-[#86A445] rounded-full overflow-hidden will-change-transform">
@@ -139,6 +197,52 @@ useEffect(() => {
     );
   }
 
+  const titleMap = {
+    settings: "Settings",
+    store: "Store",
+    tasks: "Tasks",
+    friends: "Friends",
+    badges: "Badges",
+  };
+
+  const renderInventoryButtons = (anchorClass = "") => (
+    <div className={`absolute ${anchorClass} flex flex-col gap-[2vh] z-40 pointer-events-none`}>
+      <div className="flex items-center gap-3 pointer-events-auto">
+        <span className="text-4xl font-dongle text-[#4b3b2f]"></span>
+        <button
+          className="
+            w-[11vw] h-[10vh]
+            bg-[#FFBAC5] border-[5px] border-[#FE8693]
+            shadow-md cursor-pointer pl-4 pr-2
+            transition-transform duration-200 ease-in-out
+            hover:-translate-x-1
+            flex items-center justify-between rounded-sm
+          "
+          onClick={() => navigate("/customize?mode=pet")}
+        >
+          <img src={PetInventory} alt="Pet Inventory" className="w-10" />
+        </button>
+      </div>
+
+      <div className="flex items-center gap-3 pointer-events-auto">
+        <span className="text-4xl font-dongle text-[#4b3b2f]"></span>
+        <button
+          className="
+            w-[11vw] h-[10vh]
+            bg-[#FCD68D] border-[5px] border-[#DAA94B]
+            shadow-md cursor-pointer pl-4 pr-2
+            transition-transform duration-200 ease-in-out
+            hover:-translate-x-1 
+            flex items-center justify-between rounded-sm
+          "
+          onClick={() => navigate("/customize?mode=furniture")}
+        >
+          <img src={FurnitureInventory} alt="Furniture Inventory" className="w-10" />
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0] relative overflow-hidden">
       <Sidebar
@@ -150,45 +254,43 @@ useEffect(() => {
         pendingFriendRequests={pendingFriendRequests}
       />
 
-<div className="w-screen flex justify-center relative">
-  <Floor />
+      <div className="w-screen flex justify-center relative">
+        <Floor />
 
-  <div
-    className="absolute top-3 left-[15vw] transform 
-               bg-[#f2be9c] border-3 border-[#7d5c47]
-               rounded-full shadow-lg z-30
-               w-7/12 h-[10vh] flex items-center px-6 gap-8"
-  >
+        <div className="absolute top-3 left-[15vw] transform 
+                        bg-[#f2be9c] border-3 border-[#7d5c47] 
+                        rounded-full shadow-lg z-30
+                        w-7/12 h-[10vh] flex items-center px-6 gap-8">
+        
+          {/* Streak Section */}
+          <div className="flex items-center gap-3">
+            <img src={StreakFire} className="w-14 h-auto" />
+            <span className="text-[#41521b] font-dongle text-6xl font-bold">
+              {streak > 0 ? `${streak}x` : '0x'}
+            </span>
+          </div>
 
-    {/* Streak Section */}
-    <div className="flex items-center gap-3">
-      <img src={StreakFire} className="w-14 h-auto" />
-      <span className="text-[#41521b] font-dongle text-6xl font-bold">
-        3x
-      </span>
-    </div>
+          {/* Divider */}
+          <div className="w-[3px] h-[65%] bg-[#7d5c47] opacity-50"></div>
 
-    {/* Divider */}
-    <div className="w-[3px] h-[65%] bg-[#7d5c47] opacity-50"></div>
+          {/* Level Section */}
+          <span className="text-[#41521b] font-dongle text-6xl font-bold">
+            Lvl&nbsp;{level}
+          </span>
 
-    {/* Level Section */}
-    <span className="text-[#41521b] font-dongle text-6xl font-bold">
-      Lvl&nbsp;1
-    </span>
+          {/* Divider */}
+          <div className="w-[3px] h-[65%] bg-[#7d5c47] opacity-50"></div>
 
-    {/* Divider */}
-    <div className="w-[3px] h-[65%] bg-[#7d5c47] opacity-50"></div>
+          {/* XP + Bar Section */}
+          <div className="flex items-center gap-3 grow">
+            <span className="text-[#41521b] font-dongle text-6xl font-bold">
+              XP
+            </span>
 
-    {/* XP + Bar Section */}
-    <div className="flex items-center gap-3 grow">
-      <span className="text-[#41521b] font-dongle text-6xl font-bold">
-        XP
-      </span>
-
-      <div className="flex-1">
-        <ProgressBar progress={65} />
-      </div>
-    </div>
+            <div className="flex-1">
+              <ProgressBar progress={xp} />
+            </div>
+          </div>
 
           <div
             className="absolute top-[0vh] -right-[19vw] 

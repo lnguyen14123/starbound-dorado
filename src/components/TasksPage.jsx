@@ -101,6 +101,9 @@ const handleFinishTasks = async () => {
     setTasks((prev) => prev.filter((task) => !checkedTasks.has(task.task_id)));
     setCheckedTasks(new Set());
 
+    // Dispatch event to refresh XP and level
+    window.dispatchEvent(new CustomEvent("taskCompleted"));
+
     console.log("Awarded:", totalReward);
   } catch (error) {
     console.error("Error finishing tasks:", error);
@@ -218,15 +221,19 @@ const handleFinishTasks = async () => {
             </button>
 
             <button
-              onClick={handleFinishTasks}
+              onClick={(e) => {
+                e.preventDefault();
+                console.log("Finish button clicked, checked tasks:", checkedTasks.size);
+                handleFinishTasks();
+              }}
               disabled={checkedTasks.size === 0} // 👈 disable if no tasks checked
               className={`w-60 h-[7vh] text-white font-bold rounded-2xl 
                           shadow-[0_7px_4px_rgba(0,0,0,0.3)] flex items-center justify-center text-4xl pt-2
                           transition-all duration-200
                           ${
                             checkedTasks.size === 0
-                              ? "bg-gray-400 cursor-not-allowed"
-                              : "bg-[#b1d47f] hover:bg-[#7a9456] cursor-pointer"
+                              ? "bg-gray-400 cursor-not-allowed opacity-50"
+                              : "bg-[#b1d47f] hover:bg-[#7a9456] cursor-pointer active:scale-95"
                           }`}
             >
               ✓ Finish Tasks
