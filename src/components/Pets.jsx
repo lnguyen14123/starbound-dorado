@@ -96,7 +96,7 @@ useEffect(() => {
 
   // 🐱 Pet image selection (you might already have a helper)
   const getPetImage = () => {
-    if (petType === "graycat")
+    if (petType === "cat")
       return isHappy
         ? GrayCatHappy
         : isBlinking
