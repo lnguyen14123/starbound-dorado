@@ -94,7 +94,7 @@ const handleFinishTasks = async () => {
     if (!rewardResponse.ok) throw new Error("Failed to reward user");
 
     const data = await rewardResponse.json();
-    setCurrency(prev => prev + data.rewardGiven);
+    setCurrency(prev => prev + Number(data.change));
 
 
     // ✨ 3. Update UI locally

@@ -32,24 +32,6 @@ const Pets = ({ petType }) => {
 
   const { equipped } = useEquipped();
 
-
-//   useEffect(() => {
-//   const uid = localStorage.getItem("uid"); // replace with actual uid
-//   fetch(`api/inventory/pet_equipped/${uid}`)
-//     .then((res) => res.json())
-//     .then((data) => {
-//       console.log(data.data[0]);
-
-//       const equip_data = data.data[0];
-
-//         setEquippedItems({
-//           collar: equip_data.collar_item,
-//           hat: equip_data.hat_item,
-//         });
-//     })
-//     .catch((err) => console.error(err));
-// }, []);
-
   const resolvedItems = {
     collar: equipped.pet.collar_item,
     hat: equipped.pet.hat_item,
@@ -91,8 +73,8 @@ useEffect(() => {
     if (!resolvedItems?.collar) return null;
     const collars = {
       collar_red: RedCollar,
-      blue_collar: BlueCollar,
-      bow_tie: BowTie,
+      collar_blue: BlueCollar,
+      bowtie: BowTie,
     };
     return collars[resolvedItems.collar];
   };
@@ -102,7 +84,7 @@ useEffect(() => {
     const hats = {
       hat_party: PartyHat,
       crown: Crown,
-      blue_cap: BlueCap,
+      cap_blue: BlueCap,
     };
     return hats[resolvedItems.hat];
   };

@@ -1355,5 +1355,29 @@ router.get('/inventory/pet_equipped/:uid', async (req, res) => {
     }
 });
 
+router.post('/inventory/add', async (req, res) => {
+    const { uid, item } = req.body;
+
+    if (!uid || !item) {
+        return res.status(400).json({ error: "Missing uid or item" });
+    }
+
+    try {
+        const result = await pool.query(
+            `INSERT INTO inventory_items (uid, item_id)
+             VALUES ($1, $2)
+             RETURNING *`,
+            [uid, item]
+        );
+
+        res.json({ success: true, data: result.rows[0] });
+    } catch (err) {
+        console.error("Inventory insert error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+
+
 
 export default router;
