@@ -7,6 +7,8 @@ import YellowDogOpen from "../assets/pets/yellowdog/yellowdog_normal.svg";
 import YellowDogBlink from "../assets/pets/yellowdog/yellowdog_blink.svg";
 import YellowDogHappy from "../assets/pets/yellowdog/yellowdog_happy.svg";
 
+import { useEquipped } from "../context/EquippedContext";
+
 // Collars
 import RedCollar from "../assets/pets/clothing/collars/red_collar.svg";
 import BlueCollar from "../assets/pets/clothing/collars/blue_collar.svg";
@@ -17,7 +19,7 @@ import PartyHat from "../assets/pets/clothing/hats/party_hat.svg";
 import Crown from "../assets/pets/clothing/hats/crown.svg";
 import BlueCap from "../assets/pets/clothing/hats/blue_cap.svg";
 
-const Pets = ({ petType, equippedItems }) => {
+const Pets = ({ petType }) => {
   const [isBlinking, setIsBlinking] = useState(false);
   const [isHappy, setIsHappy] = useState(false);
   const [isJumping, setIsJumping] = useState(false);
@@ -26,11 +28,32 @@ const Pets = ({ petType, equippedItems }) => {
   const [hunger, setHunger] = useState(50);
   const [thirst, setThirst] = useState(50);
 
-  const placeholderEquippedItems = {
-    collar: "red_collar",
-    hat: "party_hat",
+  const [equippedItems, setEquippedItems] = useState(null);
+
+  const { equipped } = useEquipped();
+
+
+//   useEffect(() => {
+//   const uid = localStorage.getItem("uid"); // replace with actual uid
+//   fetch(`api/inventory/pet_equipped/${uid}`)
+//     .then((res) => res.json())
+//     .then((data) => {
+//       console.log(data.data[0]);
+
+//       const equip_data = data.data[0];
+
+//         setEquippedItems({
+//           collar: equip_data.collar_item,
+//           hat: equip_data.hat_item,
+//         });
+//     })
+//     .catch((err) => console.error(err));
+// }, []);
+
+  const resolvedItems = {
+    collar: equipped.pet.collar_item,
+    hat: equipped.pet.hat_item,
   };
-  const resolvedItems = equippedItems ?? placeholderEquippedItems;
 
   // 🐾 Blinking effect
 useEffect(() => {
@@ -67,7 +90,7 @@ useEffect(() => {
   const getCollarImage = () => {
     if (!resolvedItems?.collar) return null;
     const collars = {
-      red_collar: RedCollar,
+      collar_red: RedCollar,
       blue_collar: BlueCollar,
       bow_tie: BowTie,
     };
@@ -77,7 +100,7 @@ useEffect(() => {
   const getHatImage = () => {
     if (!resolvedItems?.hat) return null;
     const hats = {
-      party_hat: PartyHat,
+      hat_party: PartyHat,
       crown: Crown,
       blue_cap: BlueCap,
     };
@@ -133,7 +156,8 @@ useEffect(() => {
 
 return (
   <div className="absolute w-full h-full flex items-center justify-center">
-    <div className={`${getMotionClasses()} flex flex-col items-center relative select-none z-40`}>
+<div className={`${getMotionClasses()} flex flex-col items-center relative select-none z-40
+                 ${!resolvedItems?.hat ? "translate-y-4" : ""}`}>
       
       {/* Hat */}
       {getHatImage() && (

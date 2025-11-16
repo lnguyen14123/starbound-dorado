@@ -1332,5 +1332,28 @@ router.post("/user/reward", async (req, res) => {
   }
 });
 
+router.get('/inventory/pet_equipped/:uid', async (req, res) => {
+    const { uid } = req.params;
+    
+    if (!uid)
+      return res.status(400).json({ error: "Missing uid" });
+
+  try {
+      
+        const result = await pool.query(
+          `SELECT *
+          FROM equipped_pet_slots
+          WHERE uid = $1`,
+          [uid] 
+        );
+            
+      res.json({ data: result.rows });
+    
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 
 export default router;

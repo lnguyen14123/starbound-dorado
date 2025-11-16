@@ -3,6 +3,7 @@ import "../index.css";
 import FurnitureIcon from '../assets/icons/furnitureInventory.svg';
 import PetIcon from '../assets/icons/petInventory.svg';
 
+import { useEquipped } from "../context/EquippedContext";
 
 
 const assetImports = import.meta.glob("../assets/**/*", {
@@ -87,18 +88,21 @@ const formatDate = (value) => {
   }
 };
 
+
+
 export default function Inventory() {
   const [userId] = useState(getInitialUid);
   const [open, setOpen] = useState(false);
   const [activeGroup, setActiveGroup] = useState("pet");
   const [items, setItems] = useState([]);
-  const [equipped, setEquipped] = useState(DEFAULT_EQUIPPED);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [pendingSlot, setPendingSlot] = useState("");
   const [lastSynced, setLastSynced] = useState(null);
 
+  const { equipped, setEquipped } = useEquipped();
+  
   const groupedItems = useMemo(() => {
     const groups = Object.keys(CATEGORY_CONFIG).reduce((acc, key) => {
       acc[key] = [];
@@ -128,12 +132,12 @@ export default function Inventory() {
     [activeGroup]
   );
 
-  const setEquippedState = useCallback((nextEquipped) => {
-    setEquipped({
-      pet: { ...DEFAULT_EQUIPPED.pet, ...(nextEquipped?.pet || {}) },
-      room: { ...DEFAULT_EQUIPPED.room, ...(nextEquipped?.room || {}) },
-    });
-  }, []);
+const setEquippedState = useCallback((nextEquipped) => {
+  setEquipped({
+    pet: { ...DEFAULT_EQUIPPED.pet, ...(nextEquipped?.pet || {}) },
+    room: { ...DEFAULT_EQUIPPED.room, ...(nextEquipped?.room || {}) },
+  });
+}, [setEquipped]);
 
   const fetchInventory = useCallback(
     async ({ silent = false } = {}) => {
@@ -406,7 +410,7 @@ export default function Inventory() {
                     {equippedItem && (
                       <button
                         type="button"
-                        className="text-2xl font-dongle text-[#a15a35] underline decoration-dotted hover:text-[#7d3f1d]"
+                        className="text-2xl font-dongle text-[#a15a35] underline decoration-dotted hover:text-[#7d3f1d] cursor-pointer"
                         onClick={() => handleUnequip(categoryKey)}
                         disabled={
                           pendingSlot === CATEGORY_CONFIG[categoryKey].slot
@@ -464,7 +468,7 @@ export default function Inventory() {
 
                             <button
                               type="button"
-                              className={`font-dongle text-3xl rounded-2xl py-1 transition-colors ${
+                              className={`font-dongle text-3xl rounded-2xl py-1 transition-colors cursor-pointer ${
                                 equippedCurrent
                                   ? "bg-[#b1d47f] text-[#425b24]"
                                   : "bg-[#f2d2b1] text-[#7d4b29] hover:bg-[#edc49b]"
