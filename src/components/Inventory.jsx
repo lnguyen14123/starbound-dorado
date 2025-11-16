@@ -315,7 +315,7 @@ export default function Inventory() {
 </div>
 
       <div
-        className={`fixed top-0 h-full z-40 transition-transform duration-500 ease-in-out ${
+        className={`fixed top-0 h-full z-70 transition-transform duration-500 ease-in-out ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{ width: "", left: "0px" }}
@@ -342,7 +342,7 @@ export default function Inventory() {
               <button
                 key={key}
                 type="button"
-                className={`flex-1 font-dongle text-3xl border-2 border-[#c9965e] rounded-full py-1 transition-colors  ${
+                className={`flex-1 font-dongle text-3xl border-2 border-[#c9965e] rounded-full py-1 transition-colors  cursor-pointer ${
                   activeGroup === key
                     ? "bg-[#c28554] text-white"
                     : "text-[#9c6b3c] bg-white hover:bg-[#f0d4b7]"

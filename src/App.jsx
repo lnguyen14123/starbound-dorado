@@ -87,31 +87,30 @@ function App() {
             }
           />
 
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute user={user} loading={loading}>
-                {isNewUser ? (
-                  <Navigate to="/ChoosePet" replace />
-                ) : (
-                  <MainPage />
-                )}
-              </ProtectedRoute>
-            }
-          />
+<Route
+  path="/"
+  element={
+    <ProtectedRoute user={user} loading={loading}>
+      {(!user || loading) ? null : (
+        // Check backend/localStorage for pet
+        !localStorage.getItem("petType") ? (
+          <Navigate to="/ChoosePet" replace />
+        ) : (
+          <MainPage />
+        )
+      )}
+    </ProtectedRoute>
+  }
+/>
 
-          <Route
-            path="/ChoosePet"
-            element={
-              <ProtectedRoute user={user} loading={loading}>
-                {isNewUser ? (
-                    <ChoosePet setIsNewUser={setIsNewUser} />
-                ) : (
-                  <Navigate to="/" replace />
-                )}
-              </ProtectedRoute>
-            }
-          />
+<Route
+  path="/ChoosePet"
+  element={
+    <ProtectedRoute user={user} loading={loading}>
+      <ChoosePet setIsNewUser={setIsNewUser} />
+    </ProtectedRoute>
+  }
+/>
 
         </Routes>
       </Router>
