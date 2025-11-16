@@ -125,9 +125,18 @@ const handleFinishTasks = async () => {
               </div>
             </div>
 
+            <div className="w-full h-[2px] bg-[#926B51] opacity-60 my-4 rounded-full"></div>
+
+
             {/* Task list */}
             <div className="py-[4vh] flex flex-col gap-8 overflow-y-auto max-h-[60vh]">
-              {tasks.map((task, index) => (
+
+              {tasks.length === 0 ? (
+                <div className="w-full text-center text-3xl text-[#6b4b33] opacity-70 mt-[10vh]">
+                  Add a task item!
+                </div>
+              ) : (
+                tasks.map((task, index) => (
                 <div
                   key={task.task_id || index}
                   className="relative flex items-center justify-between py-3 pl-[2vw] bg-[#e4c8b2] rounded-sm shadow-md overflow-visible"
@@ -193,7 +202,7 @@ const handleFinishTasks = async () => {
                     </button>
                   </div>
                 </div>
-              ))}
+              )))}
             </div>
           </div>
 

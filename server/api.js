@@ -650,21 +650,21 @@ router.post("/user/currency", async (req, res) => {
 router.post("/user/reward", async (req, res) => {
   const { uid, amount } = req.body;
 
-  if (!uid || !amount)
+  if (!uid || amount === undefined)
     return res.status(400).json({ error: "Missing uid or amount" });
 
   try {
-    // Add coins
-await pool.query(
-  `UPDATE users 
-   SET currency_total = currency_total + $1 
-   WHERE uid = $2`,
-  [amount, uid]
-);
+    // Update coins (add or subtract)
+    await pool.query(
+      `UPDATE users 
+       SET currency_total = currency_total + $1 
+       WHERE uid = $2`,
+      [amount, uid] // if amount < 0, it subtracts
+    );
 
-    res.json({ success: true, rewardGiven: amount });
+    res.json({ success: true, change: amount });
   } catch (err) {
-    console.error("Reward error:", err);
+    console.error("Currency update error:", err);
     res.status(500).json({ error: "Failed to update currency" });
   }
 });
