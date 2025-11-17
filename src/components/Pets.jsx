@@ -233,8 +233,8 @@ useEffect(() => {
     setHappiness((prev) => Math.min(100, prev + 5));
     setIsHappy(true);
     setIsJumping(true);
-    setTimeout(() => setIsJumping(false), 200);
-    setTimeout(() => setIsHappy(false), 500);
+    setTimeout(() => setIsJumping(false), 600);
+    setTimeout(() => setIsHappy(false), 1000);
   };
 
   // 🐱 Pet image selection (you might already have a helper)
@@ -255,9 +255,9 @@ useEffect(() => {
   };
 
   const getMotionClasses = () => {
-    let classes = "transition-transform duration-100";
+    let classes = "transition-transform duration-700";
     if (isJumping) {
-      classes += " -translate-y-5";
+      classes += " -translate-y-8";
     } else if (isBlinking) {
       classes += " -translate-y-1";
     }
@@ -318,15 +318,20 @@ useEffect(() => {
         )}
       </div>
 
-      {/* Pet */}
-      <img
-        src={getPetImage()}
-        alt={petType}
-        onClick={handleClick}
-        className={`${getPetLayoutClasses()} cursor-pointer
-          h-[45vh] z-30`}
-      />
+{/* Pet */}
+<img
+  src={getPetImage()}
+  alt={petType}
+  onClick={handleClick}
 
+onMouseEnter={() => {
+  setIsBlinking(true);
+  setTimeout(() => setIsBlinking(false), 150); // blink lasts 150ms
+}}
+
+  className={`${getPetLayoutClasses()} cursor-pointer
+    h-[45vh] z-30`}
+ />
       {/* Collar */}
       <div
         className="flex items-start justify-center w-full"
