@@ -1,10 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import Floor from "./Floor";
 
 import GrayCat1 from "../assets/gray_cat1.png"
 import YellowDog1 from "../assets/yellow_dog1.png"
+import TitleScreen from "./TitleScreen";
 
 function Layout({ children }) {
+  const [showTitleScreen, setShowTitleScreen] = useState(true);
+
+  const dismissTitleScreen = () => setShowTitleScreen(false);
+
   return (
 
 <div className="relative h-screen w-screen overflow-hidden bg-[#dbb9a0]">
@@ -39,6 +44,7 @@ function Layout({ children }) {
             {children}
             <Floor />
         </div>
+        <TitleScreen show={showTitleScreen} onDismiss={dismissTitleScreen} />
 </div>
 
   );
