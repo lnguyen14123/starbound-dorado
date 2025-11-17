@@ -29,8 +29,8 @@ import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
 //import YellowDog1 from "../assets/yellow_dog1.png";
 import Pets from "./Pets";
 
-import Checkmark from "../assets/checkmark.png";
-import StreakFire from "../assets/streak_fire.png";
+import Checkmark from "../assets/icons/checkmark.png";
+import StreakFire from "../assets/icons/streak_fire.png";
 
 import { useCurrency } from "../context/CurrencyContext";
 

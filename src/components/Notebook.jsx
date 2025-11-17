@@ -1,6 +1,5 @@
 import React from "react";
-import Taskbook from '../assets/taskbook.png';
-import TaskbookL from '../assets/L_TaskBook.png';
+import TaskbookL from '../assets/ui/L_TaskBook.png';
 
 function Notebook({ children }) {
   return (

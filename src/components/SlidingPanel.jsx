@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import TaskbookL from "../assets/L_TaskBook.png";
+import TaskbookL from '../assets/ui/L_TaskBook.png';
 import "../index.css";
 
 export default function SlidingPanel({

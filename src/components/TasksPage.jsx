@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../index.css";
-import toggleTab from "../assets/toggle_tab.svg";
+import toggleTab from "../assets/ui/toggle_tab.svg";
 import AddTaskModal from "./AddTaskForm.jsx";
 
 

@@ -2,13 +2,13 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase"; // make sure this points to your Firebase config
-import TaskbookL from "../assets/L_TaskBook.png";
-import BookCover from "../assets/book_cover.png";
-import Checkmark from "../assets/checkmark.png";
-import ShoppingCart from "../assets/shopping_cart.png";
-import Friends from "../assets/friends.png";
-import Badges from "../assets/badges.png";
-import SettingsIcon from "../assets/settings.png";
+import TaskbookL from '../assets/ui/L_TaskBook.png';
+import BookCover from "../assets/ui/book_cover.png";
+import Checkmark from "../assets/icons/checkmark.png";
+import ShoppingCart from "../assets/icons/shopping_cart.png";
+import Friends from "../assets/icons/friends.png";
+import Badges from "../assets/icons/badges.png";
+import SettingsIcon from "../assets/icons/settings.png";
 
 function Sidebar({ tabs, currentTab, onTabClick, 
   onSettingsClick,

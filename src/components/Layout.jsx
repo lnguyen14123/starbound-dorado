@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import Floor from "./Floor";
 
-import GrayCat1 from "../assets/gray_cat1.png"
-import YellowDog1 from "../assets/yellow_dog1.png"
+import GrayCat1 from "../assets/ui/gray_cat1.png"
+import YellowDog1 from "../assets/ui/yellow_dog1.png"
 
 import Window from "../assets/items/window_1.png"
 import Dresser from "../assets/items/dresser_1.png"

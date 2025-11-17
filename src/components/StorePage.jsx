@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import Checkmark from "../assets/checkmark.png";
+import Checkmark from "../assets/icons/checkmark.png";
 
 import BlueCollar from "../assets/pets/clothing/collars/blue_collar.svg";
 import Bowtie from "../assets/pets/clothing/collars/bowtie.svg";
@@ -13,6 +13,7 @@ import PartyHat from "../assets/pets/clothing/hats/party_hat.svg";
 
 import FloorWood from "../assets/floors/floor_wooden.svg";
 import FloorGray from "../assets/floors/floor_gray.svg";
+import TilesPink from "../assets/floors/tiles_pink.svg";
 
 import { useCurrency } from "../context/CurrencyContext";
 
@@ -94,6 +95,14 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
     image: FloorGray,
     category: "Floors",
     db_name: "floor_gray",
+  },
+  {
+    id: 32,
+    name: "Pink Tiles",
+    price: 150,
+    image: TilesPink,
+    category: "Floors",
+    db_name: "tiles_pink",
   },
 
   ];

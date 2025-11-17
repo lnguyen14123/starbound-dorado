@@ -5,7 +5,7 @@ import { auth } from "../firebase";
 import "../index.css";
 
 import { useTheme } from "../context/ThemeContext";
-import toggleTab from "../assets/toggle_tab.svg";
+import toggleTab from "../assets/ui/toggle_tab.svg";
 import userIc from "../assets/icons/User.svg";
 import musicIc from "../assets/icons/Music.svg";
 import bellIc from "../assets/icons/Bell.svg";

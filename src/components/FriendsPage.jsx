@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "../index.css";
 import user_icon from "../assets/icons/User.svg"
-import Checkmark from "../assets/checkmark.png";
-import StreakFire from "../assets/streak_fire.png";
+import Checkmark from "../assets/icons/checkmark.png";
+import StreakFire from "../assets/icons/streak_fire.png";
 import achievements from "../assets/icons/achievements.svg"
 import { auth } from "../firebase";
 

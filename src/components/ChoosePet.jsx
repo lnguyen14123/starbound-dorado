@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase"; // make sure this points to your Firebase config
 
-import GrayCat1 from "../assets/gray_cat1.png"
-import YellowDog1 from "../assets/yellow_dog1.png"
+import GrayCat1 from "../assets/ui/gray_cat1.png"
+import YellowDog1 from "../assets/ui/yellow_dog1.png"
 import Dresser1 from "../assets/items/dresser_1.png"
 import Window1 from "../assets/items/window_1.png"
 import PottedPlant1 from "../assets/items/pottedplant_1.png"
