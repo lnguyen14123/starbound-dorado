@@ -19,10 +19,126 @@ import PartyHat from "../assets/pets/clothing/hats/party_hat.svg";
 import Crown from "../assets/pets/clothing/hats/crown.svg";
 import BlueCap from "../assets/pets/clothing/hats/blue_cap.svg";
 
+const DEFAULT_REM_IN_PX = 16;
+const BASE_PET_SHIFT_REM = 1; // cat artwork offset
+const PET_HORIZONTAL_SHIFT_REM = {
+  cat: BASE_PET_SHIFT_REM,
+  dog: -7.5,
+};
+
+const DEFAULT_HAT_BASE = { height: "18vh", xRem: -4.45 };
+const DEFAULT_HAT_VARIANTS = {
+  cat: { yVh: 18, xVh: -12 },
+  dog: { yVh: 17, xVh: 6 },
+};
+
+const HAT_POSITION_PRESETS = {
+  hat_party: {
+    base: DEFAULT_HAT_BASE,
+    ...DEFAULT_HAT_VARIANTS,
+  },
+  crown: {
+    base: DEFAULT_HAT_BASE,
+    ...DEFAULT_HAT_VARIANTS,
+  },
+  cap_blue: {
+    base: DEFAULT_HAT_BASE,
+    ...DEFAULT_HAT_VARIANTS,
+  },
+};
+
+
+const DEFAULT_COLLAR_BASE = { height: "10vh", xRem: -4.45 };
+const DEFAULT_COLLAR_VARIANTS = {
+  cat: { yVh: -17, xVh: -10.5 },
+  dog: { yVh: -16, xVh: 7.5 },
+};
+
+const COLLAR_POSITION_PRESETS = {
+  collar_red: {
+    base: DEFAULT_COLLAR_BASE,
+    ...DEFAULT_COLLAR_VARIANTS,
+  },
+  collar_blue: {
+    base: DEFAULT_COLLAR_BASE,
+    ...DEFAULT_COLLAR_VARIANTS,
+  },
+  bowtie: {
+    base: DEFAULT_COLLAR_BASE,
+    ...DEFAULT_COLLAR_VARIANTS,
+  },
+};
+
+const getPetVariant = (petType) => {
+  if (!petType) return "dog";
+  const normalized = petType.toLowerCase();
+  if (normalized.includes("cat")) return "cat";
+  if (normalized.includes("dog")) return "dog";
+  return "dog";
+};
+
+const convertRemOffsetToVh = (remValue, viewport) => {
+  if (typeof remValue !== "number") return null;
+  const { height, rem } = viewport || {};
+  if (!height || !rem) return null;
+  const px = remValue * rem;
+  return (px / height) * 100;
+};
+
+const resolveClothingStyle = (
+  itemKey,
+  presets,
+  petVariant,
+  viewport,
+  horizontalDeltaRem = 0
+) => {
+  if (!itemKey || !presets[itemKey]) return null;
+
+  const preset = presets[itemKey];
+  const resolved = { ...(preset.base || {}), ...(preset[petVariant] || {}) };
+  const netXRem = (resolved.xRem ?? 0) + horizontalDeltaRem;
+  const convertedYRem =
+    typeof resolved.yRem === "number"
+      ? convertRemOffsetToVh(resolved.yRem, viewport)
+      : null;
+
+  const deltaXVh =
+    horizontalDeltaRem !== 0
+      ? convertRemOffsetToVh(horizontalDeltaRem, viewport)
+      : 0;
+
+  const computedXVh =
+    resolved.xVh !== undefined
+      ? deltaXVh !== null
+        ? (resolved.xVh ?? 0) + deltaXVh
+        : resolved.xVh
+      : convertRemOffsetToVh(netXRem, viewport) ?? null;
+  const computedYVh =
+    resolved.yVh !== undefined || convertedYRem !== null
+      ? (resolved.yVh ?? 0) + (convertedYRem ?? 0)
+      : null;
+
+  const style = {
+    transform: `translate(${
+      computedXVh !== null ? `${computedXVh}vh` : `${netXRem}rem`
+    }, ${computedYVh !== null ? `${computedYVh}vh` : "0"})`,
+  };
+
+  if (resolved.height) {
+    style.height = resolved.height;
+  }
+
+  return style;
+};
+
 const Pets = ({ petType }) => {
   const [isBlinking, setIsBlinking] = useState(false);
   const [isHappy, setIsHappy] = useState(false);
   const [isJumping, setIsJumping] = useState(false);
+  const [viewport, setViewport] = useState({
+    height: 0,
+    rem: DEFAULT_REM_IN_PX,
+  });
 
   const [happiness, setHappiness] = useState(50);
   const [hunger, setHunger] = useState(50);
@@ -36,6 +152,28 @@ const Pets = ({ petType }) => {
     collar: equipped.pet.collar_item,
     hat: equipped.pet.hat_item,
   };
+
+  const petVariant = getPetVariant(petType);
+  const horizontalShiftDelta =
+    (PET_HORIZONTAL_SHIFT_REM[petVariant] ?? BASE_PET_SHIFT_REM) -
+    BASE_PET_SHIFT_REM;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleResize = () => {
+      const height = window.innerHeight || 0;
+      const rem =
+        parseFloat(
+          getComputedStyle(document.documentElement).fontSize || "16"
+        ) || DEFAULT_REM_IN_PX;
+      setViewport({ height, rem });
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // 🐾 Blinking effect
 useEffect(() => {
@@ -95,13 +233,13 @@ useEffect(() => {
     setHappiness((prev) => Math.min(100, prev + 5));
     setIsHappy(true);
     setIsJumping(true);
-    setTimeout(() => setIsJumping(false), 500);
-    setTimeout(() => setIsHappy(false), 2000);
+    setTimeout(() => setIsJumping(false), 200);
+    setTimeout(() => setIsHappy(false), 500);
   };
 
   // 🐱 Pet image selection (you might already have a helper)
   const getPetImage = () => {
-    if (petType === "cat")
+    if (petType === "graycat")
       return isHappy
         ? GrayCatHappy
         : isBlinking
@@ -117,9 +255,9 @@ useEffect(() => {
   };
 
   const getMotionClasses = () => {
-    let classes = "transition-transform duration-500";
+    let classes = "transition-transform duration-100";
     if (isJumping) {
-      classes += " -translate-y-12";
+      classes += " -translate-y-5";
     } else if (isBlinking) {
       classes += " -translate-y-1";
     }
@@ -128,7 +266,7 @@ useEffect(() => {
 
   const getPetLayoutClasses = () => {
     let classes = "h-[48vh] translate-y-[10vh]";
-    if (petType?.toLowerCase().includes("cat")) {
+    if (petVariant === "cat") {
       classes += " translate-x-4";
     } else {
       classes += " -translate-x-30";
@@ -136,72 +274,77 @@ useEffect(() => {
     return classes;
   };
 
-  const hatClasses = {
-  hat_party: "h-[26vh] translate-y-[14vh] -translate-x-20",
-  crown: "h-[16vh] translate-y-[12vh] -translate-x-21", 
-  cap_blue: "h-[18vh] translate-y-[13vh] -translate-x-20",
-};
+  const hatStyle = resolveClothingStyle(
+    resolvedItems.hat,
+    HAT_POSITION_PRESETS,
+    petVariant,
+    viewport,
+    horizontalShiftDelta
+  );
 
-const collarClasses = {
-  collar_red: "h-[10vh] -translate-y-[12vh] -translate-x-18",
-  collar_blue: "h-[10vh] -translate-y-[13vh] -translate-x-19",
-  bowtie: "h-[9vh] -translate-y-[13vh] -translate-x-18",
-};
+  const collarStyle = resolveClothingStyle(
+    resolvedItems.collar,
+    COLLAR_POSITION_PRESETS,
+    petVariant,
+    viewport,
+    horizontalShiftDelta
+  );
 
-  // Extra adjustments ONLY for cats
-const hatCatAdjust = {
-  crown: "!translate-y-[14vh]",    // move crown down slightly
-  cap_blue: "!h-[15vh] !translate-y-[14vh]", // move blue cap down slightly
-};
+  const hatSlotStyle = DEFAULT_HAT_BASE.height
+    ? { height: DEFAULT_HAT_BASE.height }
+    : undefined;
+  const collarSlotStyle = DEFAULT_COLLAR_BASE.height
+    ? { height: DEFAULT_COLLAR_BASE.height }
+    : undefined;
 
+  return (
+    <div className="absolute w-full h-full flex items-center justify-center">
+      <div
+        className={`${getMotionClasses()} flex flex-col items-center relative select-none z-40`}
+      >
 
-return (
-  <div className="absolute w-full h-full flex items-center justify-center">
-<div className={`${getMotionClasses()} flex flex-col items-center relative select-none z-40
-                 ${!resolvedItems?.hat ? "translate-y-4" : ""}`}>
-      
       {/* Hat */}
-{getHatImage() && (
-  <img
-    src={getHatImage()}
-    alt="Hat"
-    className={`
-      ${hatClasses[resolvedItems.hat] || ""}
-      ${petType?.includes("cat") ? hatCatAdjust[resolvedItems.hat] || "" : ""}
-      ${petType?.includes("dog") ? "-mb-8" : "-mb-8"} 
-      z-31
-    `}
-  />
-)}
+      <div
+        className="flex items-end justify-center w-full"
+        style={hatSlotStyle}
+      >
+        {getHatImage() && (
+          <img
+            src={getHatImage()}
+            alt="Hat"
+            style={hatStyle || undefined}
+            className="z-31"
+          />
+        )}
+      </div>
 
       {/* Pet */}
       <img
         src={getPetImage()}
         alt={petType}
-        onMouseEnter={() => setIsBlinking(true)}
-        onMouseLeave={() => setIsBlinking(false)}
         onClick={handleClick}
         className={`${getPetLayoutClasses()} cursor-pointer
           h-[45vh] z-30`}
       />
 
       {/* Collar */}
-{getCollarImage() && (
-  <img
-    src={getCollarImage()}
-    alt="Collar"
-    className={`
-      ${collarClasses[resolvedItems.collar] || ""}
-      cursor-pointer z-31
-      ${petType?.includes("dog") ? "mt-[-3vh]" : "mt-[-5vh]"}
-    `}
-  />
-)}
-
+      <div
+        className="flex items-start justify-center w-full"
+        style={collarSlotStyle}
+      >
+        {getCollarImage() && (
+          <img
+            src={getCollarImage()}
+            alt="Collar"
+            style={collarStyle || undefined}
+            className="cursor-pointer z-31"
+          />
+        )}
+      </div>
+      </div>
     </div>
-  </div>
-);
-
+  );
 };
 
 export default Pets;
+

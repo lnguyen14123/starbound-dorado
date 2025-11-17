@@ -22,6 +22,7 @@ import CustomizePage from "./components/CustomizePage";
 
 import { CurrencyProvider } from "./context/CurrencyContext";
 import { EquippedProvider } from "./context/EquippedContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
 function App() {
   const tabs = ["Tasks", "Store", "Friends", "Settings"];
@@ -59,6 +60,7 @@ function App() {
   }
 
   return (
+    <ThemeProvider>
     <EquippedProvider>
     <CurrencyProvider>
       <Router>
@@ -118,6 +120,7 @@ function App() {
       </Router>
       </CurrencyProvider>
       </EquippedProvider>
+      </ThemeProvider>
   );
 }
 

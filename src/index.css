@@ -23,6 +23,22 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --color-bg: #f9f2e6;
+  --color-surface: #f1dfcc;
+  --color-text: #2c1708;
+  --color-muted: #7d5c47;
+  --color-accent: #a2c93b;
+  --color-on-accent: #1c260c;
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #080b12;
+  --color-surface: #111727;
+  --color-text: #f2ece4;
+  --color-muted: #bda48c;
+  --color-accent: #c9eb6b;
+  --color-on-accent: #0b1003;
 }
 
 a {
@@ -40,6 +56,9 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
 html,
@@ -76,6 +95,79 @@ input[type="range"] {
 
 input[type="checkbox"] {
   @apply accent-[#a2c93b] dark:accent-[#c9eb6b];
+}
+
+.title-screen-overlay {
+  animation: title-screen-fade 0.5s ease-out forwards;
+}
+
+.title-screen-ambient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.5), transparent 45%),
+    radial-gradient(circle at 80% 0%, rgba(255, 222, 173, 0.8), transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(255, 245, 225, 0.9), transparent 35%);
+  opacity: 0.7;
+  mix-blend-mode: screen;
+  animation: title-screen-pulse 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.title-screen-heading {
+  letter-spacing: 0.04em;
+  animation: title-screen-pop 0.9s ease-out;
+}
+
+.title-screen-stars {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.6) 0.5px, transparent 0.5px),
+    radial-gradient(rgba(255, 240, 219, 0.7) 0.5px, transparent 0.5px);
+  background-size: 120px 120px, 200px 200px;
+  animation: title-screen-stars 16s linear infinite;
+}
+
+@keyframes title-screen-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes title-screen-pop {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes title-screen-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes title-screen-stars {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-40px);
+  }
 }
 
 /* button {

@@ -4,10 +4,12 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import "../index.css";
 
+import { useTheme } from "../context/ThemeContext";
 import toggleTab from "../assets/toggle_tab.svg";
 import userIc from "../assets/icons/User.svg";
 import musicIc from "../assets/icons/Music.svg";
 import bellIc from "../assets/icons/Bell.svg";
+import eyeIc from "../assets/icons/Eye.svg";
 
 {/* General Settings Item */}
 function AccordionItem({ id, title, icon, openId, setOpenId, children}) {
@@ -43,6 +45,7 @@ function AccordionItem({ id, title, icon, openId, setOpenId, children}) {
 }
 
 export default function SettingsPage({ onClose }) {
+  const { theme, toggleTheme, setTheme } = useTheme();
   const [openId, setOpenId] = useState(null);
 
   const handleSignOut = async () => {
@@ -103,6 +106,20 @@ export default function SettingsPage({ onClose }) {
         </div>
       ),
     },
+
+    {
+      id: "appearance",
+      title: "Appearance",
+      icon: eyeIc,
+      content: (
+        <div className="flex items-center justify-between text-3xl">
+          <span>Dark mode</span>
+          <button onClick={toggleTheme} className="…">
+            {theme === "dark" ? "On" : "Off"}
+          </button>
+        </div>
+      ),
+    }
   ];
 
   return (

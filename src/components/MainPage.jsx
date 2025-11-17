@@ -17,7 +17,6 @@ import TasksPage from "./TasksPage";
 import StorePage from "./StorePage";
 import Inventory from "./Inventory";
 
-
 import HatIcon from "../assets/pets/clothing/hats/blue_cap.svg";
 import CollarIcon from "../assets/pets/clothing/collars/red_collar.svg";
 import FurnitureIcon from "../assets/furniture/Dresser.png";
@@ -59,16 +58,16 @@ export default function MainPage() {
   };
 
   useEffect(() => {
-  const handleOpenPanel = (e) => {
-    const panelName = e.detail;
-    setActivePanel(panelName);
-    requestAnimationFrame(() => setPanelVisible(true));
-  };
+    const handleOpenPanel = (e) => {
+      const panelName = e.detail;
+      setActivePanel(panelName);
+      requestAnimationFrame(() => setPanelVisible(true));
+    };
 
-  window.addEventListener("openPanel", handleOpenPanel);
+    window.addEventListener("openPanel", handleOpenPanel);
 
-  return () => window.removeEventListener("openPanel", handleOpenPanel);
-}, []);
+    return () => window.removeEventListener("openPanel", handleOpenPanel);
+  }, []);
 
 useEffect(() => {
   async function fetchCurrency() {
@@ -315,7 +314,7 @@ useEffect(() => {
         <Dresser/>
         <Plant />
 
-        <Pets petType={petType} />
+        <Pets petType={petType}/>
       </div>
 
 {/* Left-side panel (Store, Friends, Badges, etc.) */}
