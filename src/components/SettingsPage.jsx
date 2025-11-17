@@ -12,31 +12,37 @@ import bellIc from "../assets/icons/Bell.svg";
 import eyeIc from "../assets/icons/Eye.svg";
 
 {/* General Settings Item */}
-function AccordionItem({ id, title, icon, openId, setOpenId, children}) {
+function AccordionItem({ id, title, icon, openId, setOpenId, children }) {
   const isOpen = openId === id;
+
   return (
     <div className="panel-card">
-      <div className="flex justify-between items-center">
+
+      {/* Make the entire header clickable */}
+      <div
+        className="flex justify-between items-center cursor-pointer"
+        onClick={() => setOpenId(isOpen ? null : id)}
+      >
         <div className="p-1 flex items-center gap-3 text-4xl font-semibold">
           {icon && <img src={icon} alt="" className="w-8" />}
           {title}
         </div>
 
-        <button
-          aria-expanded={isOpen}
-          aria-controls={`sect-${id}`}
-          onClick={() => setOpenId(isOpen ? null : id)}
-          className={`transition-transform duration-200 cursor-pointer ${isOpen ? "rotate-0" : "rotate-180"}`}
+        {/* Icon still rotates, but no longer handles the click logic */}
+        <div
+          className={`transition-transform duration-200 ${
+            isOpen ? "rotate-0" : "rotate-180"
+          }`}
         >
-          <img src={toggleTab} alt="toggle selection" className="w-8 h-8"/>
-        </button>
-
+          <img src={toggleTab} alt="toggle selection" className="w-8 h-8" />
+        </div>
       </div>
 
+      {/* Content section */}
       <div
         id={`sect-${id}`}
         className={`overflow-hidden transition-all duration-500 ease-in-out
-        ${isOpen ? "max-h-96 mt-4" : "max-h-0"}`}
+          ${isOpen ? "max-h-96 mt-4" : "max-h-0"}`}
       >
         {children}
       </div>

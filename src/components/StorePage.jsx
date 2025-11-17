@@ -7,7 +7,12 @@ import RedCollar from "../assets/pets/clothing/collars/red_collar.svg";
 
 import BlueCap from "../assets/pets/clothing/hats/blue_cap.svg";
 import Crown from "../assets/pets/clothing/hats/crown.svg";
+import PurpleCrown from "../assets/pets/clothing/hats/purple_crown.svg";
 import PartyHat from "../assets/pets/clothing/hats/party_hat.svg";
+
+
+import FloorWood from "../assets/floors/floor_wooden.svg";
+import FloorGray from "../assets/floors/floor_gray.svg";
 
 import { useCurrency } from "../context/CurrencyContext";
 
@@ -23,20 +28,21 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
     },
     {
       id: 2,
-      name: "Bow tie",
-      price: 75,
-      image: Bowtie,
-      category: "Collars",
-      db_name: "bowtie",
-    },
-    {
-      id: 3,
       name: "Red Collar",
       price: 50,
       image: RedCollar,
       category: "Collars",
       db_name: "collar_red",
     },
+        {
+      id: 3,
+      name: "Bow tie",
+      price: 75,
+      image: Bowtie,
+      category: "Collars",
+      db_name: "bowtie",
+    },
+
     {
       id: 4,
       name: "Blue Cap",
@@ -45,8 +51,17 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
       category: "Hats",
       db_name: "cap_blue",
     },
-    {
+        {
       id: 5,
+      name: "Party Hat",
+      price: 50,
+      image: PartyHat,
+      category: "Hats",
+      db_name: "hat_party",
+    },
+
+    {
+      id: 6,
       name: "Crown",
       price: 75,
       image: Crown,
@@ -54,13 +69,33 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
       db_name: "crown",
     },
     {
-      id: 6,
-      name: "Party Hat",
-      price: 50,
-      image: PartyHat,
+      id: 7,
+      name: "Purple Crown",
+      price: 100,
+      image: PurpleCrown,
       category: "Hats",
-      db_name: "hat_party",
+      db_name: "crown_purple",
     },
+
+
+      // ---------------- Floors ----------------
+  {
+    id: 30,
+    name: "Wooden Floor",
+    price: 150,
+    image: FloorWood,
+    category: "Floors",
+    db_name: "floor_wood",
+  },
+  {
+    id: 31,
+    name: "Gray Floor",
+    price: 150,
+    image: FloorGray,
+    category: "Floors",
+    db_name: "floor_gray",
+  },
+
   ];
 
   const { currency, setCurrency } = useCurrency();

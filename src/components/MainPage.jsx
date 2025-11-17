@@ -20,6 +20,7 @@ import Inventory from "./Inventory";
 import HatIcon from "../assets/pets/clothing/hats/blue_cap.svg";
 import CollarIcon from "../assets/pets/clothing/collars/red_collar.svg";
 import FurnitureIcon from "../assets/furniture/Dresser.png";
+import FloorIcon from "../assets/floors/floor_wooden.svg";
 import PetInventory from "../assets/icons/petInventory.svg";
 import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
 
@@ -354,11 +355,12 @@ useEffect(() => {
       transition-transform duration-500 ease-in-out w-60
       ${panelVisible ? "translate-x-0" : "-translate-x-220"}`}
   >
-    {[
-      { name: "Hats", icon: HatIcon },
-      { name: "Collars", icon: CollarIcon },
-      { name: "Furniture", icon: FurnitureIcon },
-    ].map((cat) => (
+{[
+  { name: "Hats", icon: HatIcon },
+  { name: "Collars", icon: CollarIcon },
+  { name: "Furniture", icon: FurnitureIcon },
+  { name: "Floors", icon: FloorIcon }, // NEW FLOOR TAB
+].map((cat) => (
       <button
         key={cat.name}
         onClick={() => setStoreCategory(cat.name)}

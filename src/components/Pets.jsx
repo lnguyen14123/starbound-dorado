@@ -17,6 +17,7 @@ import BowTie from "../assets/pets/clothing/collars/bowtie.svg";
 // Hats
 import PartyHat from "../assets/pets/clothing/hats/party_hat.svg";
 import Crown from "../assets/pets/clothing/hats/crown.svg";
+import PurpleCrown from "../assets/pets/clothing/hats/purple_crown.svg";
 import BlueCap from "../assets/pets/clothing/hats/blue_cap.svg";
 
 const DEFAULT_REM_IN_PX = 16;
@@ -38,6 +39,10 @@ const HAT_POSITION_PRESETS = {
     ...DEFAULT_HAT_VARIANTS,
   },
   crown: {
+    base: DEFAULT_HAT_BASE,
+    ...DEFAULT_HAT_VARIANTS,
+  },
+  crown_purple: {
     base: DEFAULT_HAT_BASE,
     ...DEFAULT_HAT_VARIANTS,
   },
@@ -222,6 +227,7 @@ useEffect(() => {
     const hats = {
       hat_party: PartyHat,
       crown: Crown,
+      crown_purple: PurpleCrown,
       cap_blue: BlueCap,
     };
     return hats[resolvedItems.hat];
@@ -233,8 +239,8 @@ useEffect(() => {
     setHappiness((prev) => Math.min(100, prev + 5));
     setIsHappy(true);
     setIsJumping(true);
-    setTimeout(() => setIsJumping(false), 200);
-    setTimeout(() => setIsHappy(false), 500);
+    setTimeout(() => setIsJumping(false), 600);
+    setTimeout(() => setIsHappy(false), 1000);
   };
 
   // 🐱 Pet image selection (you might already have a helper)
@@ -255,7 +261,7 @@ useEffect(() => {
   };
 
   const getMotionClasses = () => {
-    let classes = "transition-transform duration-100";
+    let classes = "transition-transform duration-700";
     if (isJumping) {
       classes += " -translate-y-5";
     } else if (isBlinking) {
@@ -322,7 +328,12 @@ useEffect(() => {
       <img
         src={getPetImage()}
         alt={petType}
-        onClick={handleClick}
+          onClick={handleClick}
+          onMouseEnter={() => {
+  setIsBlinking(true);
+  setTimeout(() => setIsBlinking(false), 150);
+}}
+
         className={`${getPetLayoutClasses()} cursor-pointer
           h-[45vh] z-30`}
       />

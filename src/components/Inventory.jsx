@@ -445,12 +445,12 @@ const setEquippedState = useCallback((nextEquipped) => {
                             }`}
                           >
                             {hasImage ? (
-                              <img
-                                src={resolvedImage}
-                                alt={item.display_name}
-                                className="h-24 object-contain rounded-xl w-full bg-[#f5e7d6]"
-                                loading="lazy"
-                              />
+<img
+  src={resolvedImage}
+  alt={item.display_name}
+  className="h-24 max-w-40 object-contain rounded-xl mx-auto bg-[#f5e7d6]"
+  loading="lazy"
+/>
                             ) : (
                               <div className="h-24 rounded-xl bg-[#f5e7d6] flex items-center justify-center text-[#a47b5f] font-dongle text-3xl">
                                 No preview

@@ -3,6 +3,10 @@ import Floor from "./Floor";
 
 import GrayCat1 from "../assets/gray_cat1.png"
 import YellowDog1 from "../assets/yellow_dog1.png"
+
+import Window from "../assets/items/window_1.png"
+import Dresser from "../assets/items/dresser_1.png"
+
 import TitleScreen from "./TitleScreen";
 
 function Layout({ children }) {
@@ -15,6 +19,19 @@ function Layout({ children }) {
 <div className="relative h-screen w-screen overflow-hidden bg-[#dbb9a0]">
   {/* Background images */}
         
+      
+            <img
+        src={Window}
+        className="absolute top-[12vh] left-[11vw] h-[20vw] z-0 opacity-100"
+        alt="Window"
+      />
+
+      <img
+        src={Dresser}
+        className="absolute bottom-[17vh] right-[12vw] h-[35vh] z-10 opacity-100"
+        alt="Dresser"
+      />
+
   <img
             src={GrayCat1}
             className="absolute bottom-1/20 left-1/20 w-2/6 h-auto z-10"
@@ -26,18 +43,6 @@ function Layout({ children }) {
             className="absolute bottom-1/20 right-1/27 w-1/4 h-auto z-10"
             alt="Gray Cat"
         />
-
-
-{/* 
-        <div
-            className="absolute top-10 left-20 h-1/2 w-1/2 bg-cover opacity-50"
-            style={{ backgroundImage: `url(${BG2})` }}
-        ></div>
-
-        <div
-            className="absolute bottom-0 right-0 h-1/3 w-1/3 bg-cover opacity-40"
-            style={{ backgroundImage: `url(${BG3})` }}
-        ></div>  */}
 
         {/* Foreground content */}
         <div className="relative grid grid-cols-[80px_1fr] h-full w-full">
