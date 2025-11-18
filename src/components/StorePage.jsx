@@ -14,10 +14,12 @@ import PartyHat from "../assets/pets/clothing/hats/party_hat.svg";
 import FloorWood from "../assets/floors/floor_wooden.svg";
 import FloorGray from "../assets/floors/floor_gray.svg";
 import TilesPink from "../assets/floors/tiles_pink.svg";
+import TilesBlack from "../assets/floors/tiles_black.svg";
 
 import WallBasic from "../assets/walls/basic_wall.svg";
 import WallLight from "../assets/walls/light_wall.svg";
 import WallDark from "../assets/walls/dark_wall.svg";
+import WallBrick from "../assets/walls/brick_wall.svg";
 
 import { useCurrency } from "../context/CurrencyContext";
 
@@ -108,6 +110,14 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
     category: "Floors",
     db_name: "tiles_pink",
     },
+  {
+    id: 33,
+    name: "Black Tiles",
+    price: 150,
+    image: TilesBlack,
+    category: "Floors",
+    db_name: "tiles_black",
+    },
   // ---------------- Walls ----------------
 {
   id: 50,
@@ -132,6 +142,14 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
   image: WallDark,
   category: "Walls",
   db_name: "wall_dark",
+},
+{
+  id: 53,
+  name: "Brick Wall",
+  price: 150,
+  image: WallBrick,
+  category: "Walls",
+  db_name: "wall_brick",
 },
 
   ];
@@ -205,6 +223,7 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
 
       const data = await res.json();
       // Update local state
+      window.dispatchEvent(new Event("inventoryRefresh"));
       setCurrency((prev) => prev - item.price);
       closePopup();
       console.log("Purchase successful", data);

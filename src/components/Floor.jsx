@@ -5,12 +5,14 @@ import { useEquipped } from "../context/EquippedContext";
 import FloorWooden from "../assets/floors/floor_wooden.svg";
 import FloorGray from "../assets/floors/floor_gray.svg";
 import TilesPink from "../assets/floors/tiles_pink.svg";
+import TilesBlack from "../assets/floors/tiles_black.svg";
 
 // Map your floor IDs to assets
 const FLOOR_ASSETS = {
   floor_wood: FloorWooden,
   floor_gray: FloorGray,
   tiles_pink: TilesPink,
+  tiles_black: TilesBlack,
 };
 
 const Floor = ({ className = "" }) => {

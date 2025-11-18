@@ -136,34 +136,66 @@ const setEquippedState = useCallback((nextEquipped) => {
     room: { ...DEFAULT_EQUIPPED.room, ...(nextEquipped?.room || {}) },
   });
 }, [setEquipped]);
+const fetchInventory = useCallback(
+  async ({ silent = false } = {}) => {
+    if (!userId) {
+      setError("Missing UID. Sign in to manage your closet.");
+      return;
+    }
 
-  const fetchInventory = useCallback(
-    async ({ silent = false } = {}) => {
-      if (!userId) {
-        setError("Missing UID. Sign in to manage your closet.");
-        return;
-      }
+    if (!silent) setLoading(true);
 
-      if (!silent) setLoading(true);
+    try {
+      const response = await fetch(`/api/inventory/${userId}`);
+      if (!response.ok) throw new Error("Unable to load inventory right now.");
 
-      try {
-        const response = await fetch(`/api/inventory/${userId}`);
-        if (!response.ok) {
-          throw new Error("Unable to load inventory right now.");
-        }
-        const data = await response.json();
-        setItems(data.items || []);
-        setEquippedState(data.equipped);
-        setError("");
-        setLastSynced(new Date());
-      } catch (err) {
-        setError(err.message || "Unable to load inventory.");
-      } finally {
-        if (!silent) setLoading(false);
-      }
-    },
-    [setEquippedState, userId]
-  );
+      const data = await response.json();
+
+      // ✅ Merge new items instead of overwriting
+      setItems((prev) => {
+        const existingIds = new Set(prev.map(i => i.item_id));
+        const merged = [
+          ...prev,
+          ...(data.items || []).filter(i => !existingIds.has(i.item_id))
+        ];
+        return merged;
+      });
+
+      setEquippedState(data.equipped);
+      setError("");
+      setLastSynced(new Date());
+    } catch (err) {
+      setError(err.message || "Unable to load inventory.");
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  },
+  [setEquippedState, userId]
+);
+  
+  useEffect(() => {
+  const handleRefresh = () => fetchInventory({ silent: true });
+  window.addEventListener("inventoryRefresh", handleRefresh);
+  return () => window.removeEventListener("inventoryRefresh", handleRefresh);
+}, [fetchInventory]);
+
+
+  useEffect(() => {
+  const handleInventoryUpdate = (event) => {
+    const newItem = event.detail?.item;
+    if (newItem) {
+      setItems((prev) => [...prev, {
+        ...newItem,
+        item_id: newItem.db_name, // or however your backend IDs it
+        acquired_at: new Date().toISOString(),
+      }]);
+    }
+  };
+
+  window.addEventListener("inventoryUpdated", handleInventoryUpdate);
+  return () => window.removeEventListener("inventoryUpdated", handleInventoryUpdate);
+}, []);
+
 
   useEffect(() => {
     if (!userId) {
