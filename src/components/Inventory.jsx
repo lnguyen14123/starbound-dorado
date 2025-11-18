@@ -88,8 +88,6 @@ const formatDate = (value) => {
   }
 };
 
-
-
 export default function Inventory() {
   const [userId] = useState(getInitialUid);
   const [open, setOpen] = useState(false);

@@ -21,6 +21,7 @@ import HatIcon from "../assets/pets/clothing/hats/blue_cap.svg";
 import CollarIcon from "../assets/pets/clothing/collars/red_collar.svg";
 import FurnitureIcon from "../assets/furniture/Dresser.png";
 import FloorIcon from "../assets/floors/floor_wooden.svg";
+import WallsIcon from "../assets/walls/basic_wall.svg";
 import PetInventory from "../assets/icons/petInventory.svg";
 import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
 
@@ -33,6 +34,7 @@ import Checkmark from "../assets/icons/checkmark.png";
 import StreakFire from "../assets/icons/streak_fire.png";
 
 import { useCurrency } from "../context/CurrencyContext";
+import Wall from "./Wall";
 
 export default function MainPage() {
   const navigate = useNavigate();
@@ -244,7 +246,7 @@ useEffect(() => {
   );
 
   return (
-    <div className="grid grid-cols-[80px_1fr] h-screen w-screen bg-[#dbb9a0] relative overflow-hidden">
+    <div className="grid grid-cols-[80px_1fr] h-screen w-screen relative overflow-hidden">
       <Sidebar
         onSettingsClick={() => openPanel("settings")}
         onStoreClick={() => openPanel("store")}
@@ -255,6 +257,7 @@ useEffect(() => {
       />
 
       <div className="w-screen flex justify-center relative">
+        <Wall className="-ml-20"></Wall>
         <Floor className="-ml-20" />
 
         <div className="absolute top-3 left-[15vw] transform 
@@ -360,6 +363,7 @@ useEffect(() => {
   { name: "Collars", icon: CollarIcon },
   { name: "Furniture", icon: FurnitureIcon },
   { name: "Floors", icon: FloorIcon }, // NEW FLOOR TAB
+  { name: "Walls", icon: WallsIcon }, // NEW FLOOR TAB
 ].map((cat) => (
       <button
         key={cat.name}

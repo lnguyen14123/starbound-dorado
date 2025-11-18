@@ -15,6 +15,10 @@ import FloorWood from "../assets/floors/floor_wooden.svg";
 import FloorGray from "../assets/floors/floor_gray.svg";
 import TilesPink from "../assets/floors/tiles_pink.svg";
 
+import WallBasic from "../assets/walls/basic_wall.svg";
+import WallLight from "../assets/walls/light_wall.svg";
+import WallDark from "../assets/walls/dark_wall.svg";
+
 import { useCurrency } from "../context/CurrencyContext";
 
 export default function StorePage({ onClose, panelVisible, selectedCategory }) {
@@ -103,7 +107,32 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
     image: TilesPink,
     category: "Floors",
     db_name: "tiles_pink",
-  },
+    },
+  // ---------------- Walls ----------------
+{
+  id: 50,
+  name: "Basic Wall",
+  price: 150,
+  image: WallBasic,
+  category: "Walls",
+  db_name: "wall_basic",
+},
+{
+  id: 51,
+  name: "Light Wall",
+  price: 150,
+  image: WallLight,
+  category: "Walls",
+  db_name: "wall_light",
+},
+{
+  id: 52,
+  name: "Dark Wall",
+  price: 150,
+  image: WallDark,
+  category: "Walls",
+  db_name: "wall_dark",
+},
 
   ];
 
