@@ -172,6 +172,13 @@ const fetchInventory = useCallback(
   },
   [setEquippedState, userId]
 );
+  
+  useEffect(() => {
+  const handleRefresh = () => fetchInventory({ silent: true });
+  window.addEventListener("inventoryRefresh", handleRefresh);
+  return () => window.removeEventListener("inventoryRefresh", handleRefresh);
+}, [fetchInventory]);
+
 
   useEffect(() => {
   const handleInventoryUpdate = (event) => {

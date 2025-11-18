@@ -223,6 +223,7 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
 
       const data = await res.json();
       // Update local state
+      window.dispatchEvent(new Event("inventoryRefresh"));
       setCurrency((prev) => prev - item.price);
       closePopup();
       console.log("Purchase successful", data);
