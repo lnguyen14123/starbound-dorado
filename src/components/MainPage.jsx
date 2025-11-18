@@ -21,7 +21,7 @@ import HatIcon from "../assets/pets/clothing/hats/blue_cap.svg";
 import CollarIcon from "../assets/pets/clothing/collars/red_collar.svg";
 import FurnitureIcon from "../assets/furniture/Dresser.png";
 import FloorIcon from "../assets/floors/floor_wooden.svg";
-import WallsIcon from "../assets/walls/basic_wall.svg";
+import WallsIcon from "../assets/walls/brick_wall.svg";
 import PetInventory from "../assets/icons/petInventory.svg";
 import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
 
