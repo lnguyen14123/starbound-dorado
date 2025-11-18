@@ -4,11 +4,19 @@ import Checkmark from "../assets/icons/checkmark.png";
 import BlueCollar from "../assets/pets/clothing/collars/blue_collar.svg";
 import Bowtie from "../assets/pets/clothing/collars/bowtie.svg";
 import RedCollar from "../assets/pets/clothing/collars/red_collar.svg";
+import LeatherCollar from "../assets/pets/clothing/collars/leather_collar.svg";
+import SpikyCollar from "../assets/pets/clothing/collars/spiky_collar.svg";
 
 import BlueCap from "../assets/pets/clothing/hats/blue_cap.svg";
 import Crown from "../assets/pets/clothing/hats/crown.svg";
 import PurpleCrown from "../assets/pets/clothing/hats/purple_crown.svg";
 import PartyHat from "../assets/pets/clothing/hats/party_hat.svg";
+import TopHat from "../assets/pets/clothing/hats/top_hat.svg";
+import ConductorHat from "../assets/pets/clothing/hats/conductor_hat.svg";
+import TennisHat from "../assets/pets/clothing/hats/tennis_hat.svg";
+import RedBeanie from "../assets/pets/clothing/hats/red_beanie.svg";
+import CowboyHat from "../assets/pets/clothing/hats/cowboy_hat.svg";
+import BucketHat from "../assets/pets/clothing/hats/bucket_hat.svg";
 
 
 import FloorWood from "../assets/floors/floor_wooden.svg";
@@ -49,9 +57,25 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
       category: "Collars",
       db_name: "bowtie",
     },
+        {
+      id: 4,
+      name: "Leather Collar",
+      price: 75,
+      image: LeatherCollar,
+      category: "Collars",
+      db_name: "collar_leather",
+    },
+        {
+      id: 5,
+      name: "Spiky Collar",
+      price: 75,
+      image: SpikyCollar,
+      category: "Collars",
+      db_name: "collar_spiky",
+    },
 
     {
-      id: 4,
+      id: 20,
       name: "Blue Cap",
       price: 50,
       image: BlueCap,
@@ -59,7 +83,7 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
       db_name: "cap_blue",
     },
         {
-      id: 5,
+      id: 21,
       name: "Party Hat",
       price: 50,
       image: PartyHat,
@@ -68,7 +92,7 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
     },
 
     {
-      id: 6,
+      id: 22,
       name: "Crown",
       price: 75,
       image: Crown,
@@ -76,7 +100,7 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
       db_name: "crown",
     },
     {
-      id: 7,
+      id: 23,
       name: "Purple Crown",
       price: 100,
       image: PurpleCrown,
@@ -84,6 +108,54 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
       db_name: "crown_purple",
     },
 
+    {
+      id: 24,
+      name: "Top Hat",
+      price: 100,
+      image: TopHat,
+      category: "Hats",
+      db_name: "hat_top",
+    },
+    {
+      id: 25,
+      name: "Conductor Hat",
+      price: 100,
+      image: ConductorHat,
+      category: "Hats",
+      db_name: "hat_conductor",
+    },
+    {
+      id: 26,
+      name: "Tennis Hat",
+      price: 100,
+      image: TennisHat,
+      category: "Hats",
+      db_name: "hat_tennis",
+    },
+    {
+      id: 27,
+      name: "Red Beanie",
+      price: 100,
+      image: RedBeanie,
+      category: "Hats",
+      db_name: "beanie_red",
+    },
+    {
+      id: 28,
+      name: "Cowboy Hat",
+      price: 100,
+      image: CowboyHat,
+      category: "Hats",
+      db_name: "hat_cowboy",
+    },
+    {
+      id: 29,
+      name: "Bucket Hat",
+      price: 100,
+      image: BucketHat,
+      category: "Hats",
+      db_name: "hat_bucket",
+    },
 
       // ---------------- Floors ----------------
   {

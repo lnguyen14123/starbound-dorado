@@ -13,12 +13,20 @@ import { useEquipped } from "../context/EquippedContext";
 import RedCollar from "../assets/pets/clothing/collars/red_collar.svg";
 import BlueCollar from "../assets/pets/clothing/collars/blue_collar.svg";
 import BowTie from "../assets/pets/clothing/collars/bowtie.svg";
+import LeatherCollar from "../assets/pets/clothing/collars/leather_collar.svg";
+import SpikyCollar from "../assets/pets/clothing/collars/spiky_collar.svg";
 
 // Hats
 import PartyHat from "../assets/pets/clothing/hats/party_hat.svg";
 import Crown from "../assets/pets/clothing/hats/crown.svg";
 import PurpleCrown from "../assets/pets/clothing/hats/purple_crown.svg";
 import BlueCap from "../assets/pets/clothing/hats/blue_cap.svg";
+import TopHat from "../assets/pets/clothing/hats/top_hat.svg";
+import ConductorHat from "../assets/pets/clothing/hats/conductor_hat.svg";
+import TennisHat from "../assets/pets/clothing/hats/tennis_hat.svg";
+import RedBeanie from "../assets/pets/clothing/hats/red_beanie.svg";
+import CowboyHat from "../assets/pets/clothing/hats/cowboy_hat.svg";
+import BucketHat from "../assets/pets/clothing/hats/bucket_hat.svg";
 
 const DEFAULT_REM_IN_PX = 16;
 const BASE_PET_SHIFT_REM = 1; // cat artwork offset
@@ -50,8 +58,31 @@ const HAT_POSITION_PRESETS = {
     base: DEFAULT_HAT_BASE,
     ...DEFAULT_HAT_VARIANTS,
   },
+  hat_top: {
+    base: DEFAULT_HAT_BASE,
+    ...DEFAULT_HAT_VARIANTS,
+  },
+  hat_conductor: {
+    base: DEFAULT_HAT_BASE,
+    ...DEFAULT_HAT_VARIANTS,
+  },
+  hat_tennis: {
+    base: DEFAULT_HAT_BASE,
+    ...DEFAULT_HAT_VARIANTS,
+  },
+  beanie_red: {
+    base: DEFAULT_HAT_BASE,
+    ...DEFAULT_HAT_VARIANTS,
+  },
+  hat_cowboy: {
+    base: DEFAULT_HAT_BASE,
+    ...DEFAULT_HAT_VARIANTS,
+  },
+  hat_bucket: {
+    base: DEFAULT_HAT_BASE,
+    ...DEFAULT_HAT_VARIANTS,
+  },
 };
-
 
 const DEFAULT_COLLAR_BASE = { height: "10vh", xRem: -4.45 };
 const DEFAULT_COLLAR_VARIANTS = {
@@ -69,6 +100,14 @@ const COLLAR_POSITION_PRESETS = {
     ...DEFAULT_COLLAR_VARIANTS,
   },
   bowtie: {
+    base: DEFAULT_COLLAR_BASE,
+    ...DEFAULT_COLLAR_VARIANTS,
+  },
+  collar_leather: {
+    base: DEFAULT_COLLAR_BASE,
+    ...DEFAULT_COLLAR_VARIANTS,
+  },
+  collar_spiky: {
     base: DEFAULT_COLLAR_BASE,
     ...DEFAULT_COLLAR_VARIANTS,
   },
@@ -218,6 +257,9 @@ useEffect(() => {
       collar_red: RedCollar,
       collar_blue: BlueCollar,
       bowtie: BowTie,
+      collar_leather: LeatherCollar,
+      collar_spiky: SpikyCollar,
+
     };
     return collars[resolvedItems.collar];
   };
@@ -229,6 +271,12 @@ useEffect(() => {
       crown: Crown,
       crown_purple: PurpleCrown,
       cap_blue: BlueCap,
+      hat_top: TopHat,
+      hat_conductor: ConductorHat,
+      hat_tennis: TennisHat,
+      beanie_red: RedBeanie,
+      hat_cowboy: CowboyHat,
+      hat_bucket: BucketHat,
     };
     return hats[resolvedItems.hat];
   };
