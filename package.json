@@ -8,7 +8,10 @@
     "build": "vite build",
     "lint": "eslint .",
     "server": "node server/index.js",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node server/index.js",
+    "postinstall": "npm run build"
+
   },
   "dependencies": {
     "@stackframe/react": "^2.8.41",
