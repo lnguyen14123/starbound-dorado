@@ -42,6 +42,7 @@ export default function MainPage() {
   const [activePanel, setActivePanel] = useState(null);
   const [panelVisible, setPanelVisible] = useState(false);
   const [pendingFriendRequests, setPendingFriendRequests] = useState(0);
+  const [newBadgesCount, setNewBadgesCount] = useState(0);
   const [streak, setStreak] = useState(0);
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
@@ -127,6 +128,49 @@ useEffect(() => {
 
     // Poll for new friend requests every 30 seconds
     const interval = setInterval(fetchPendingRequests, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch new badges count
+  const fetchNewBadgesCount = async () => {
+    try {
+      const uid = localStorage.getItem("uid");
+      if (!uid) return;
+
+      // Get current badge count
+      const response = await fetch(`/api/badges/${uid}`);
+      if (response.ok) {
+        const data = await response.json();
+        const acquiredBadges = (data.badges || []).filter(badge => badge.acquired);
+        const currentCount = acquiredBadges.length;
+
+        // Get last viewed count from localStorage
+        const lastViewedKey = `lastViewedBadgeCount_${uid}`;
+        const lastViewedCount = parseInt(localStorage.getItem(lastViewedKey) || "0");
+
+        // Calculate new badges
+        const newCount = Math.max(0, currentCount - lastViewedCount);
+        setNewBadgesCount(newCount);
+      }
+    } catch (err) {
+      console.error("Error fetching new badges count:", err);
+    }
+  };
+// Fetch new badges count for notification badge
+  useEffect(() => {
+    const uid = localStorage.getItem("uid");
+    if (uid) {
+      const lastViewedKey = `lastViewedBadgeCount_${uid}`;
+      if (!localStorage.getItem(lastViewedKey)) {
+        fetch(`/api/badges/${uid}`).then(res => res.json()).then(data => {
+          const acquiredBadges = (data.badges || []).filter(badge => badge.acquired);
+          localStorage.setItem(lastViewedKey, acquiredBadges.length.toString());
+        });
+      }
+    }
+    
+    fetchNewBadgesCount();
+    const interval = setInterval(fetchNewBadgesCount, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -254,6 +298,7 @@ useEffect(() => {
         onFriendsClick={() => openPanel("friends")}
         onBadgesClick={() => openPanel("badges")}
         pendingFriendRequests={pendingFriendRequests}
+        newBadgesCount={newBadgesCount}
       />
 
       <div className="w-screen flex justify-center relative">
@@ -339,7 +384,20 @@ useEffect(() => {
           : ""
       }
     >
-      {activePanel === "badges" && <BadgePage onClose={closePanel} />}
+      {activePanel === "badges" && <BadgePage onClose={closePanel} onBadgesViewed={() => {
+        // Clear notification when badges page is opened
+        const uid = localStorage.getItem("uid");
+        if (uid) {
+          fetchNewBadgesCount().then(() => {
+            // Update last viewed count after fetching current count
+            fetch(`/api/badges/${uid}`).then(res => res.json()).then(data => {
+              const acquiredBadges = (data.badges || []).filter(badge => badge.acquired);
+              localStorage.setItem(`lastViewedBadgeCount_${uid}`, acquiredBadges.length.toString());
+              setNewBadgesCount(0);
+            });
+          });
+        }
+      }} />}
       {activePanel === "settings" && <SettingsPage onClose={closePanel} />}
       {activePanel === "tasks" && <TasksPage onClose={closePanel} />}
       {activePanel === "friends" && <FriendsPage onClose={closePanel} />}

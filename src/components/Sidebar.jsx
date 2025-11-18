@@ -16,7 +16,8 @@ function Sidebar({ tabs, currentTab, onTabClick,
   onTasksClick,
   onFriendsClick,
   onBadgesClick,
-  pendingFriendRequests = 0
+  pendingFriendRequests = 0,
+  newBadgesCount = 0
 }) {
   const navigate = useNavigate();
 
@@ -91,7 +92,7 @@ function Sidebar({ tabs, currentTab, onTabClick,
 
         <button
           className="w-90 h-[10vh] bg-[#fff49e] border-3 border-[#fde957]  drop-shadow-[4px_4px_5px_rgba(0,0,0,.4)]
-          rounded-sm cursor-pointer flex items-center pl-40 transition-all duration-200 ease-in-out hover:scale-105"
+          rounded-sm cursor-pointer flex items-center pl-40 transition-all duration-200 ease-in-out hover:scale-105 relative"
           onClick={onBadgesClick}
 
         >
@@ -102,6 +103,11 @@ function Sidebar({ tabs, currentTab, onTabClick,
             src={Badges}
             className="w-18 h-auto drop-shadow-[2px_2px_2px_rgba(0,0,0,.3)]"
           />
+          {newBadgesCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-3xl font-bold font-dongle rounded-full w-12 h-12 flex items-center justify-center border-3 border-white drop-shadow-[2px_2px_2px_rgba(0,0,0,.5)]">
+              {newBadgesCount > 9 ? '9+' : newBadgesCount}
+            </span>
+          )}
         </button>
 
         <button

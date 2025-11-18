@@ -13,7 +13,7 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [showSearch, setShowSearch] = useState(false);
   const [currentUid, setCurrentUid] = useState(null);
-
+  const [friendBadgeCounts, setFriendBadgeCounts] = useState({});
   useEffect(() => {
     const uid = localStorage.getItem("uid");
     setCurrentUid(uid);
@@ -27,7 +27,28 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
     try {
       const response = await fetch(`/api/friends/${uid}`);
       const data = await response.json();
-      setFriends(data.friends || []);
+      const friendsList = data.friends || [];
+      setFriends(friendsList);
+      
+      // Fetch badge counts for each friend
+      const badgeCountsMap = {};
+      for (const friend of friendsList) {
+        try {
+          const badgesResponse = await fetch(`/api/badges/${friend.friend_uid}`);
+          if (badgesResponse.ok) {
+            const badgesData = await badgesResponse.json();
+            // Count only acquired badges
+            const acquiredCount = (badgesData.badges || []).filter(badge => badge.acquired).length;
+            badgeCountsMap[friend.friend_uid] = acquiredCount;
+          } else {
+            badgeCountsMap[friend.friend_uid] = 0;
+          }
+        } catch (err) {
+          console.error(`Error fetching badges for friend ${friend.friend_uid}:`, err);
+          badgeCountsMap[friend.friend_uid] = 0;
+        }
+      }
+      setFriendBadgeCounts(badgeCountsMap);
     } catch (err) {
       console.error("Error fetching friends:", err);
     }
@@ -262,6 +283,9 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
                         </div>
                         <div className="flex items-center gap-2">
                           <img src={achievements} alt="trophies" className="w-10"/>
+                          <p className="text-3xl font-dongle text-[#4b3b2f] font-semibold">
+                            {friendBadgeCounts[friend.friend_uid] || 0}
+                          </p>
                         </div>
                       </div>
                     </div>
