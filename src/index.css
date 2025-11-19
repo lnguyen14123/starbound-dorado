@@ -90,6 +90,9 @@
   --color-equip-inactive-bg: #f2d2b1;
   --color-equip-inactive-text: #7d4b29;
   --color-equip-inactive-hover: #edc49b;
+  --scrollbar-track: #ead4c3;
+  --scrollbar-thumb: #c28554;
+  --scrollbar-thumb-hover: #a56b3e;
 }
 
 :root[data-theme="dark"] {
@@ -158,6 +161,36 @@
   --color-equip-inactive-bg: #2a3445;
   --color-equip-inactive-text: #f5d7ba;
   --color-equip-inactive-hover: #354057;
+  --scrollbar-track: #1f2434;
+  --scrollbar-thumb: #4c6d3d;
+  --scrollbar-thumb-hover: #6b8e57;
+}
+
+/* Universal scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 999px;
+  border: 2px solid var(--scrollbar-track);
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.15);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
 }
 
 a {
