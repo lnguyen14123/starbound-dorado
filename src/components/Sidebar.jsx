@@ -11,14 +11,17 @@ import Badges from "../assets/icons/badges.png";
 import SettingsIcon from "../assets/icons/settings.png";
 import { useTheme } from "../context/ThemeContext";
 
-function Sidebar({ tabs, currentTab, onTabClick, 
+function Sidebar({
+  tabs,
+  currentTab,
+  onTabClick,
   onSettingsClick,
   onStoreClick,
   onTasksClick,
   onFriendsClick,
   onBadgesClick,
   pendingFriendRequests = 0,
-  newBadgesCount = 0
+  newBadgesCount = 0,
 }) {
   const navigate = useNavigate();
   const { theme = "light" } = useTheme() || {};
@@ -56,7 +59,7 @@ function Sidebar({ tabs, currentTab, onTabClick,
       lightClass: "bg-[#ffbac5] border-3 border-[#ff8395]",
       darkClass: "bg-[#3e2530]/95 border border-[#c47389] text-white",
       iconClass: "w-22",
-      showFriendBadge: true,
+      notificationCount: pendingFriendRequests,
     },
     {
       key: "badges",
@@ -68,6 +71,7 @@ function Sidebar({ tabs, currentTab, onTabClick,
       lightClass: "bg-[#fff49e] border-3 border-[#fde957]",
       darkClass: "bg-[#3d3319]/95 border border-[#b89b44] text-white",
       iconClass: "w-18",
+      notificationCount: newBadgesCount,
     },
     {
       key: "settings",
@@ -115,7 +119,7 @@ function Sidebar({ tabs, currentTab, onTabClick,
             lightClass,
             darkClass,
             iconClass,
-            showFriendBadge,
+            notificationCount = 0,
           }) => (
             <button
               key={key}
@@ -138,9 +142,9 @@ function Sidebar({ tabs, currentTab, onTabClick,
                 }`}
                 alt={`${label} icon`}
               />
-              {showFriendBadge && pendingFriendRequests > 0 && (
+              {notificationCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-3xl font-bold font-dongle rounded-full w-12 h-12 flex items-center justify-center border-3 border-white drop-shadow-[2px_2px_2px_rgba(0,0,0,.5)]">
-                  {pendingFriendRequests > 9 ? "9+" : pendingFriendRequests}
+                  {notificationCount > 9 ? "9+" : notificationCount}
                 </span>
               )}
             </button>

@@ -507,12 +507,13 @@ router.post("/tasks/delete", async (req, res) => {
       const xp = calculateXP(task.priority, task.difficulty);
       totalXP += xp;
       taskMap.set(task.task_id, task);
+
     });
 
     // Delete the tasks
     const deleteQuery = `DELETE FROM tasks WHERE user_id = $1 AND task_id IN (${placeholders})`;
-    const deleteResult = await client.query(deleteQuery, [uid, ...taskIds]);
-    
+    const deleteResult = await client.query(deleteQuery, [uid, ...taskIds]);    
+
     // Update user XP using user_xp_totals and user_xp_events tables
     if (totalXP > 0) {
       try {
@@ -580,6 +581,7 @@ router.post("/tasks/delete", async (req, res) => {
           }
         }
         
+
       } catch (xpErr) {
         if (xpErr.code === '42P01') {
           console.warn("user_xp_totals or user_xp_events table doesn't exist yet. XP tracking skipped.");
@@ -613,7 +615,7 @@ router.post("/tasks/delete", async (req, res) => {
         [uid, taskIds.length]
       );
       
-      // Get updated task count for badge checking
+      // Get updated task count for badges 
       const statsResult = await client.query(
         `SELECT lifetime_tasks_completed FROM user_task_stats WHERE uid = $1`,
         [uid]
@@ -627,7 +629,6 @@ router.post("/tasks/delete", async (req, res) => {
         await checkAndAwardMilestoneBadges(uid, "tasks_completed", totalTasksCompleted);
       } catch (badgeErr) {
         console.error("Error awarding task completion badges:", badgeErr);
-        // Don't fail the request if badge awarding fails
       }
     } catch (statsErr) {
       if (statsErr.code === '42P01') {
@@ -1155,7 +1156,6 @@ router.put("/friends/requests/:requestId", async (req, res) => {
           await checkAndAwardMilestoneBadges(user2, "friends_added", friendCount2);
         } catch (badgeErr) {
           console.error("Error awarding friend badges:", badgeErr);
-          // Don't fail the request if badge awarding fails
         }
       }
     }
@@ -1393,7 +1393,7 @@ router.post('/inventory/add', async (req, res) => {
 
 
 
-//  BADGE SYSTEM 
+//  Routing for Badges System
 async function awardBadge(uid, badgeId) {
   try {
     await pool.query(
@@ -1454,7 +1454,7 @@ async function checkAndAwardMilestoneBadges(uid, milestoneType, currentValue) {
   }
 }
 
-// Get all available badges (catalog)
+// Get all available badges for the badges page
 router.get("/badges/catalog", async (req, res) => {
   try {
     const result = await pool.query(
@@ -1471,7 +1471,7 @@ router.get("/badges/catalog", async (req, res) => {
   }
 });
 
-// Get user's badges
+// Get the user's badges
 router.get("/badges/:uid", async (req, res) => {
   const { uid } = req.params;
 
@@ -1480,7 +1480,7 @@ router.get("/badges/:uid", async (req, res) => {
   }
 
   try {
-    // Get all badges with user's acquisition status
+    // Get all badges in the database
     const result = await pool.query(
       `SELECT 
          b.badge_id,
@@ -1496,7 +1496,12 @@ router.get("/badges/:uid", async (req, res) => {
       [uid]
     );
 
-    res.json({ badges: result.rows });
+    const badges = result.rows.map((badge) => ({
+      ...badge,
+      acquired: badge.acquired === true || badge.acquired === "t",
+    }));
+
+    res.json({ badges });
   } catch (err) {
     if (err.code === "42P01") {
       return res.json({ badges: [] });
@@ -1505,7 +1510,7 @@ router.get("/badges/:uid", async (req, res) => {
   }
 });
 
-// Award a badge (internal use, can also be called directly if needed)
+// Award a badge to the user
 router.post("/badges/award", async (req, res) => {
   const { uid, badgeId } = req.body;
 
@@ -1525,7 +1530,6 @@ router.post("/badges/award", async (req, res) => {
   }
 });
 
-// Get user stats for badge progress tracking
 router.get("/user/stats/:uid", async (req, res) => {
   const { uid } = req.params;
 

@@ -154,8 +154,9 @@ const handleFinishTasks = async () => {
     setTasks((prev) => prev.filter((task) => !checkedTasks.has(task.task_id)));
     setCheckedTasks(new Set());
 
-    // Dispatch event to refresh XP and level
+    // Dispatch event to refresh XP, level, and badge notifications
     window.dispatchEvent(new CustomEvent("taskCompleted"));
+    window.dispatchEvent(new CustomEvent("badgesUpdated"));
 
     console.log("Awarded:", totalReward);
   } catch (error) {
