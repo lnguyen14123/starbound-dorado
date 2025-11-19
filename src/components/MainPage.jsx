@@ -1,5 +1,5 @@
 // MainPage.jsx
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 
 import { useNavigate } from "react-router-dom";
@@ -21,9 +21,9 @@ import Inventory from "./Inventory";
 
 import HatIcon from "../assets/pets/clothing/hats/blue_cap.svg";
 import CollarIcon from "../assets/pets/clothing/collars/red_collar.svg";
-import FurnitureIcon from "../assets/furniture/Dresser.png";
+import FurnitureIcon from "../assets/furniture/dresser.png";
 import FloorIcon from "../assets/floors/floor_wooden.svg";
-import WallsIcon from "../assets/walls/basic_wall.svg";
+import WallsIcon from "../assets/walls/brick_wall.svg";
 import PetInventory from "../assets/icons/petInventory.svg";
 import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
 
@@ -52,8 +52,8 @@ export default function MainPage() {
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
   const { currency, setCurrency } = useCurrency();
-  const latestBadgeCountRef = useRef(0);
   const { theme = "light", toggleTheme = () => {} } = useTheme() || {};
+  const latestBadgeCountRef = useRef(0);
 
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(location.state?.showLoading || true);
@@ -333,7 +333,9 @@ useEffect(() => {
         : "bg-gradient-to-r from-[#86A445] via-[#A2C93B] to-[#7ccf73]";
 
     return (
-<div className={`relative w-full h-[6vh] rounded-full overflow-hidden will-change-transform ${trackClass}`}>
+      <div
+        className={`relative w-full h-[6vh] rounded-full overflow-hidden will-change-transform ${trackClass}`}
+      >
         <div
           className={`h-full rounded-full transition-all duration-500 ${fillClass}`}
           style={{
@@ -441,9 +443,11 @@ useEffect(() => {
         <Wall className="-ml-20"></Wall>
         <Floor className="-ml-20" />
 
-        <div className={`absolute top-3 left-[15vw] transform 
+        <div
+          className={`absolute top-3 left-[15vw] transform 
                         rounded-full shadow-lg z-30
-                        w-7/12 h-[10vh] flex items-center px-6 gap-8 ${statsCardClass}`}>
+                        w-7/12 h-[10vh] flex items-center px-6 gap-8 ${statsCardClass}`}
+        >
         
           {/* Streak Section */}
           <div className="flex items-center gap-3">
@@ -458,10 +462,10 @@ useEffect(() => {
             </span>
           </div>
 
-           {/* Divider */}
+          {/* Divider */}
           <div className={`w-[3px] h-[65%] opacity-50 ${dividerColorClass}`}></div>
 
-           {/* Level Section */}
+          {/* Level Section */}
           <span className={`${statsTextClass} font-dongle text-6xl font-bold`}>
             Lvl&nbsp;{level}
           </span>

@@ -140,12 +140,26 @@ const handleFinishTasks = async () => {
     fetch(`/api/user/reward`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uid, amount: totalReward }),
-    }).then(res => {
-      if (!res.ok) console.error("Failed to reward user");
+      body: JSON.stringify({
+        uid,
+        amount: totalReward,
+      }),
     });
 
-    console.log("Awarded (optimistic):", totalReward);
+    if (!rewardResponse.ok) throw new Error("Failed to reward user");
+
+    const data = await rewardResponse.json();
+    setCurrency(prev => prev + Number(data.change));
+
+
+    // ✨ 3. Update UI locally
+    setTasks((prev) => prev.filter((task) => !checkedTasks.has(task.task_id)));
+    setCheckedTasks(new Set());
+
+    // Dispatch event to refresh XP and level
+    window.dispatchEvent(new CustomEvent("taskCompleted"));
+
+    console.log("Awarded:", totalReward);
   } catch (error) {
     console.error("Error finishing tasks:", error);
   } finally {
