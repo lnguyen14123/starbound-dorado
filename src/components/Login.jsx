@@ -39,7 +39,8 @@ export default function Login() {
       }
       
       // Navigate to home page after successful login
-      navigate("/");
+      // After successful login
+      navigate("/", { state: { showLoading: true } });
     } catch (err) {
       setError(err.message);
     }

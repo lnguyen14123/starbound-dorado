@@ -41,9 +41,7 @@ const handleChoosePet = async (petType) => {
     setIsNewUser(false);
 
     // Give React a tick to process state before navigating
-    setTimeout(() => {
-      navigate("/", { replace: true });
-    }, 0);
+    navigate("/", { state: { showLoading: true } });
 
   } catch (err) {
     console.error(err.message);

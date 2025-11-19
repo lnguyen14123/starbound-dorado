@@ -24,9 +24,10 @@ import { CurrencyProvider } from "./context/CurrencyContext";
 import { EquippedProvider } from "./context/EquippedContext";
 import { ThemeProvider } from "./context/ThemeContext";
 
+import LoadingScreen from "./components/LoadingScreen";
+
+
 function App() {
-  const tabs = ["Tasks", "Store", "Friends", "Settings"];
-  const [currentTab, setCurrentTab] = useState("Tasks");
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // new
   const [isNewUser, setIsNewUser] = useState(null); // start as null
@@ -52,13 +53,7 @@ function App() {
   }, []);
 
   if (loading || isNewUser === null) {
-    return (
-      <div className="h-screen w-screen flex flex-col items-center justify-center gap-6 bg-[var(--color-loading-bg)]">
-        <div className="bg-[var(--color-loading-surface)] text-[var(--color-loading-text)] font-dongle text-6xl font-bold rounded-3xl px-10 py-6 shadow-lg">
-          Loading...
-        </div>
-      </div>
-    );
+      return <LoadingScreen />;
   }
 
   return (

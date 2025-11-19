@@ -25,7 +25,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --color-bg: #f9f2e6;
+  --color-bg: #f7e4cb;
   --color-surface: #f1dfcc;
   --color-text: #2c1708;
   --color-muted: #7d5c47;
@@ -102,7 +102,7 @@
 }
 
 :root[data-theme="dark"] {
-  --color-bg: #080b12;
+  --color-bg: #b4a590;
   --color-surface: #111727;
   --color-text: #f2ece4;
   --color-muted: #bda48c;
