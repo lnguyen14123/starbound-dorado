@@ -55,7 +55,7 @@ const TitleScreen = ({ show, onDismiss }) => {
           }}
           className="absolute top-4 right-4 flex items-center gap-2 rounded-full
                      bg-white/70 dark:bg-white/10 backdrop-blur-md
-                     px-5 py-2 shadow-md text-base font-dongle text-[#5f4637] dark:text-white/90
+                     px-5 py-2 shadow-md text-base font-dongle text-[#5f4637] dark:text-white/90 cursor-pointer
                      hover:-translate-y-0.5 transition"
         >
           <span aria-hidden="true" className="text-lg font-semibold tracking-wide">
@@ -99,7 +99,7 @@ const TitleScreen = ({ show, onDismiss }) => {
         <button
           onClick={handleDismiss}
           className="px-8 sm:px-12 py-3 rounded-full bg-[#e6cfb3]
-                     text-[#7f5d34] font-dongle shadow-lg hover:shadow-xl
+                     text-[#7f5d34] font-dongle shadow-lg hover:shadow-xl cursor-pointer
                      transition-transform duration-200 hover:-translate-y-0.5"
           style={{ fontSize: "clamp(2rem, 2vw, 2rem)" }}
         >
