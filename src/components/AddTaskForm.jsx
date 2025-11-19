@@ -97,6 +97,7 @@ export default function AddTaskForm({ onClose, onSave }) {
       ref={dateRef}
       type="date"
       value={date}
+      min={today} // ✅ prevents selecting past dates
       onChange={(e) => setDate(e.target.value)}
       className="w-full bg-transparent outline-none cursor-pointer text-[var(--color-task-input-text)]"
     />
