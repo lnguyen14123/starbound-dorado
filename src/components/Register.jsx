@@ -10,15 +10,41 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const [justRegistered, setJustRegistered] = useState(false);
 
+  const friendlyErrorMessages = {
+    "auth/email-already-in-use": "That email already has an account.",
+    "auth/invalid-email": "Please enter a valid email address.",
+    "auth/weak-password": "Password must be at least 6 characters.",
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
+    if (isSubmitting) return;
+
+    if (!userName.trim() || !email.trim()) {
+      setError("Username and email are required.");
       return;
     }
+
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setIsSubmitting(true);
     
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -39,7 +65,10 @@ export default function Register() {
       setJustRegistered(true);
       navigate("/ChoosePet", { replace: true });
     } catch (err) {
-      setError(err.message);
+      const message = friendlyErrorMessages[err.code] || "Something went wrong. Please try again.";
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -87,15 +116,22 @@ export default function Register() {
               />
               <button 
                 type="submit" 
+                disabled={isSubmitting}
                 className="mt-7 bg-[#AD7B5C] shadow-[0_5px_10px_rgba(0,0,0,0.7)] cursor-pointer text-white 
-                p-1 pt-2 text-5xl font-dongle rounded-3xl font-bold hover:bg-[#b6917d] transition"
+                p-1 pt-2 text-5xl font-dongle rounded-3xl font-bold hover:bg-[#b6917d] transition disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 Create New Account
               </button>
 
               <p className="text-center text-3xl font-dongle font-bold text-[#c6ac99]">
                 Already Have an Account?{" "}
-                <button className="cursor-pointer underline" onClick={() => navigate("/login")}>Log in</button>
+                <button
+                  type="button"
+                  className="cursor-pointer underline"
+                  onClick={() => navigate("/login")}
+                >
+                  Log in
+                </button>
               </p>
             </form>
           </div>
@@ -120,6 +156,27 @@ export default function Register() {
 
 
       </div>
+
+      {error && (
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black/50 z-[100]"
+          role="alertdialog"
+          aria-live="assertive"
+          aria-modal="true"
+        >
+          <div className="bg-[#ebd3c3] border-4 border-[#c7a68e] rounded-3xl px-10 py-8 text-center shadow-2xl max-w-md">
+            <p className="text-4xl font-dongle font-bold text-[#8F674D]">{error}</p>
+            <button
+              type="button"
+              onClick={() => setError("")}
+              className="mt-6 bg-[#AD7B5C] text-white text-4xl font-dongle font-bold px-8 py-2 rounded-3xl hover:bg-[#b6917d] transition"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
