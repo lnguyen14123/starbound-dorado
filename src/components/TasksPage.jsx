@@ -102,7 +102,7 @@ const handleFinishTasks = async () => {
 
   const uid = localStorage.getItem("uid");
 
-  // 🎯 Calculate reward
+  // Calculate reward
   let totalReward = 0;
   let completedTasks = tasks.filter((t) => checkedTasks.has(t.task_id));
 
@@ -110,48 +110,36 @@ const handleFinishTasks = async () => {
     const base = difficultyValues[task.difficulty] || 5;
     totalReward += base;
   });
-
-  // Optional: bonus for doing multiple tasks at once
   const streakBonus = completedTasks.length * 2;
   totalReward += streakBonus;
 
+  // 1️⃣ Optimistically update UI immediately
+  setTasks((prev) => prev.filter((task) => !checkedTasks.has(task.task_id)));
+  setCheckedTasks(new Set());
+  setCurrency(prev => prev + totalReward);
+  window.dispatchEvent(new CustomEvent("taskCompleted"));
+
+  // 2️⃣ Fire network requests asynchronously (don’t await UI updates)
   try {
-    // ⛏️ 1. Remove tasks
-    const response = await fetch(`/api/tasks/delete`, {
+    // Delete tasks
+    fetch(`/api/tasks/delete`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        uid,
-        taskIds: Array.from(checkedTasks),
-      }),
+      body: JSON.stringify({ uid, taskIds: Array.from(checkedTasks) }),
+    }).then(res => {
+      if (!res.ok) console.error("Failed to delete tasks");
     });
 
-    if (!response.ok) throw new Error("Failed to delete tasks");
-
-    // 💰 2. Award currency
-    const rewardResponse = await fetch(`/api/user/reward`, {
+    // Award currency
+    fetch(`/api/user/reward`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        uid,
-        amount: totalReward,
-      }),
+      body: JSON.stringify({ uid, amount: totalReward }),
+    }).then(res => {
+      if (!res.ok) console.error("Failed to reward user");
     });
 
-    if (!rewardResponse.ok) throw new Error("Failed to reward user");
-
-    const data = await rewardResponse.json();
-    setCurrency(prev => prev + Number(data.change));
-
-
-    // ✨ 3. Update UI locally
-    setTasks((prev) => prev.filter((task) => !checkedTasks.has(task.task_id)));
-    setCheckedTasks(new Set());
-
-    // Dispatch event to refresh XP and level
-    window.dispatchEvent(new CustomEvent("taskCompleted"));
-
-    console.log("Awarded:", totalReward);
+    console.log("Awarded (optimistic):", totalReward);
   } catch (error) {
     console.error("Error finishing tasks:", error);
   }

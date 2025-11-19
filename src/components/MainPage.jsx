@@ -1,5 +1,7 @@
 // MainPage.jsx
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Floor from "./Floor";
@@ -25,6 +27,8 @@ import WallsIcon from "../assets/walls/brick_wall.svg";
 import PetInventory from "../assets/icons/petInventory.svg";
 import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
 
+import LoadingScreen from "./LoadingScreen";
+
 
 //import GrayCat1 from "../assets/gray_cat1.png";
 //import YellowDog1 from "../assets/yellow_dog1.png";
@@ -49,6 +53,13 @@ export default function MainPage() {
   const [level, setLevel] = useState(1);
   const { currency, setCurrency } = useCurrency();
   const { theme = "light", toggleTheme = () => {} } = useTheme() || {};
+
+  const location = useLocation();
+  const [isLoading, setIsLoading] = useState(location.state?.showLoading || true);
+
+  // Remove your old useEffect with the 1200ms timeout
+  // and replace it with:
+
 
   const mainBackgroundClass =
     theme === "dark"
@@ -138,6 +149,15 @@ export default function MainPage() {
 
     return () => window.removeEventListener("openPanel", handleOpenPanel);
   }, []);
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setIsLoading(false);
+  }, 1200); // 1.2s loading screen
+    
+  return () => clearTimeout(timer);
+}, []);
+
 
 useEffect(() => {
   async function fetchCurrency() {
@@ -364,9 +384,14 @@ useEffect(() => {
   );
 
   return (
+    
     <div
       className={`grid grid-cols-[80px_1fr] h-screen w-screen relative overflow-hidden ${mainBackgroundClass}`}
     >
+      {isLoading && (
+        <LoadingScreen onFinish={() => setIsLoading(false)} />
+      )}
+
       <Sidebar
         onSettingsClick={() => openPanel("settings")}
         onStoreClick={() => openPanel("store")}
