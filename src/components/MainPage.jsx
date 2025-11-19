@@ -1,5 +1,5 @@
 // MainPage.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 
 import { useNavigate } from "react-router-dom";
@@ -53,6 +53,7 @@ export default function MainPage() {
   const [level, setLevel] = useState(1);
   const { currency, setCurrency } = useCurrency();
   const { theme = "light", toggleTheme = () => {} } = useTheme() || {};
+  const latestBadgeCountRef = useRef(0);
 
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(location.state?.showLoading || true);
@@ -218,32 +219,32 @@ useEffect(() => {
   }, []);
 
   // Fetch new badges count
-  const fetchNewBadgesCount = async () => {
+  const fetchNewBadgesCount = useCallback(async () => {
     try {
       const uid = localStorage.getItem("uid");
       if (!uid) return;
 
-      // Get current badge count
+      // Get the current badge count from the database
       const response = await fetch(`/api/badges/${uid}`);
       if (response.ok) {
         const data = await response.json();
         const acquiredBadges = (data.badges || []).filter(badge => badge.acquired);
         const currentCount = acquiredBadges.length;
-
-        // Get last viewed count from localStorage
+        latestBadgeCountRef.current = currentCount;
+      // Get the last viewed count from the database
         const lastViewedKey = `lastViewedBadgeCount_${uid}`;
         const lastViewedCount = parseInt(localStorage.getItem(lastViewedKey) || "0");
 
-        // Calculate new badges
+        // Calculate new badges count
         const newCount = Math.max(0, currentCount - lastViewedCount);
         setNewBadgesCount(newCount);
       }
     } catch (err) {
       console.error("Error fetching new badges count:", err);
     }
-  };
-// Fetch new badges count for notification badge
-  useEffect(() => {
+  }, []);
+// Fetch new badges count for notifications
+useEffect(() => {
     const uid = localStorage.getItem("uid");
     if (uid) {
       const lastViewedKey = `lastViewedBadgeCount_${uid}`;
@@ -258,7 +259,15 @@ useEffect(() => {
     fetchNewBadgesCount();
     const interval = setInterval(fetchNewBadgesCount, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchNewBadgesCount]);
+
+  useEffect(() => {
+    const handleBadgesUpdated = () => {
+      fetchNewBadgesCount();
+    };
+    window.addEventListener("badgesUpdated", handleBadgesUpdated);
+    return () => window.removeEventListener("badgesUpdated", handleBadgesUpdated);
+  }, [fetchNewBadgesCount]);
 
   // Fetch user streak
   const fetchStreak = async () => {
@@ -302,6 +311,7 @@ useEffect(() => {
     const handleTaskCompleted = () => {
       fetchStreak();
       fetchXP();
+      fetchNewBadgesCount();
     };
     window.addEventListener("taskCompleted", handleTaskCompleted);
     
@@ -309,7 +319,7 @@ useEffect(() => {
       clearInterval(interval);
       window.removeEventListener("taskCompleted", handleTaskCompleted);
     };
-  }, []);
+  }, [fetchNewBadgesCount]);
 
   function ProgressBar({ progress }) {
     const trackClass =
@@ -332,6 +342,7 @@ useEffect(() => {
             width: `calc(${progress}% + 4px)`,
             marginLeft: "-4px",
           }}
+          // style={{ width: 10 }}
         ></div>
       </div>
     );
@@ -383,6 +394,32 @@ useEffect(() => {
     </div>
   );
 
+  const markBadgesAsViewed = () => {
+    const uid = localStorage.getItem("uid");
+    if (!uid) return;
+    const lastViewedKey = `lastViewedBadgeCount_${uid}`;
+    localStorage.setItem(
+      lastViewedKey,
+      (latestBadgeCountRef.current || 0).toString()
+    );
+    setNewBadgesCount(0);
+  };
+
+  const handleFriendsClick = () => {
+    setPendingFriendRequests(0);
+    openPanel("friends");
+  };
+
+  const handleBadgesClick = () => {
+    markBadgesAsViewed();
+    openPanel("badges");
+  };
+
+  const handleBadgePanelViewed = async () => {
+    await fetchNewBadgesCount();
+    markBadgesAsViewed();
+  };
+
   return (
     
     <div
@@ -396,8 +433,8 @@ useEffect(() => {
         onSettingsClick={() => openPanel("settings")}
         onStoreClick={() => openPanel("store")}
         onTasksClick={() => openPanel("tasks")}
-        onFriendsClick={() => openPanel("friends")}
-        onBadgesClick={() => openPanel("badges")}
+        onFriendsClick={handleFriendsClick}
+        onBadgesClick={handleBadgesClick}
         pendingFriendRequests={pendingFriendRequests}
         newBadgesCount={newBadgesCount}
       />
@@ -491,23 +528,20 @@ useEffect(() => {
           : ""
       }
     >
-      {activePanel === "badges" && <BadgePage onClose={closePanel} onBadgesViewed={() => {
-        // Clear notification when badges page is opened
-        const uid = localStorage.getItem("uid");
-        if (uid) {
-          fetchNewBadgesCount().then(() => {
-            // Update last viewed count after fetching current count
-            fetch(`/api/badges/${uid}`).then(res => res.json()).then(data => {
-              const acquiredBadges = (data.badges || []).filter(badge => badge.acquired);
-              localStorage.setItem(`lastViewedBadgeCount_${uid}`, acquiredBadges.length.toString());
-              setNewBadgesCount(0);
-            });
-          });
-        }
-      }} />}
+      {activePanel === "badges" && (
+        <BadgePage
+          onClose={closePanel}
+          onBadgesViewed={handleBadgePanelViewed}
+        />
+      )}
       {activePanel === "settings" && <SettingsPage onClose={closePanel} />}
       {activePanel === "tasks" && <TasksPage onClose={closePanel} />}
-      {activePanel === "friends" && <FriendsPage onClose={closePanel} />}
+      {activePanel === "friends" && (
+        <FriendsPage
+          onClose={closePanel}
+          onPendingRequestsChange={setPendingFriendRequests}
+        />
+      )}
     </SlidingPanel>
         )}
       
