@@ -107,8 +107,7 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        alert("Friend request sent!");
+        await response.json();
         setSearchQuery("");
         setSearchResults([]);
         setShowSearch(false);
@@ -139,7 +138,7 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
         // Refresh friends list and pending requests
         await fetchFriends(currentUid);
         await fetchPendingRequests(currentUid);
-        alert(`Friend request ${status}!`);
+        window.dispatchEvent(new CustomEvent("badgesUpdated"));
       } else {
         const error = await response.json();
         alert(error.error || `Failed to ${status} friend request`);

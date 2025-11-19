@@ -1,5 +1,5 @@
 // MainPage.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Floor from "./Floor";
@@ -19,9 +19,9 @@ import Inventory from "./Inventory";
 
 import HatIcon from "../assets/pets/clothing/hats/blue_cap.svg";
 import CollarIcon from "../assets/pets/clothing/collars/red_collar.svg";
-import FurnitureIcon from "../assets/furniture/dresser.png";
+import FurnitureIcon from "../assets/furniture/Dresser.png";
 import FloorIcon from "../assets/floors/floor_wooden.svg";
-import WallsIcon from "../assets/walls/brick_wall.svg";
+import WallsIcon from "../assets/walls/basic_wall.svg";
 import PetInventory from "../assets/icons/petInventory.svg";
 import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
 
@@ -35,7 +35,6 @@ import StreakFire from "../assets/icons/streak_fire.png";
 
 import { useCurrency } from "../context/CurrencyContext";
 import Wall from "./Wall";
-import { useTheme } from "../context/ThemeContext";
 
 export default function MainPage() {
   const navigate = useNavigate();
@@ -48,71 +47,7 @@ export default function MainPage() {
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
   const { currency, setCurrency } = useCurrency();
-  const { theme = "light", toggleTheme = () => {} } = useTheme() || {};
-
-  const mainBackgroundClass =
-    theme === "dark"
-      ? "bg-[#dbb9a0]"
-      : "bg-[#dbb9a0]";
-
-  const statsCardClass =
-    theme === "dark"
-      ? "bg-[#1f2a3f]/95 border border-[#3d4a68]"
-      : "bg-[#f2be9c] border-3 border-[#7d5c47]";
-
-  const statsTextClass =
-    theme === "dark" ? "text-[#f5eedf]" : "text-[#41521b]";
-
-  const dividerColorClass =
-    theme === "dark" ? "bg-[#353f55]" : "bg-[#7d5c47]";
-
-  const currencyBubbleClass =
-    theme === "dark"
-      ? "bg-[#35592d]/95 border border-[#5ca65f]"
-      : "bg-[#b1d47f] border-3 border-[#5a7435]";
-
-  const currencyTextClass =
-    theme === "dark" ? "text-[#ecffdf]" : "text-white";
-
-  const toggleButtonClasses =
-    theme === "dark"
-      ? "bg-white/10 text-white/90"
-      : "bg-white/70 text-[#5f4637]";
-
-  const streakIconClass =
-    theme === "dark"
-      ? "w-14 h-auto drop-shadow-[0_0_12px_rgba(255,140,0,0.6)]"
-      : "w-14 h-auto";
-
-  const streakIconStyle =
-    theme === "dark"
-      ? { filter: "brightness(1.1) saturate(1.2)" }
-      : undefined;
-
-  const inventoryButtonStyles = {
-    pet:
-      theme === "dark"
-        ? "bg-[#553344] border border-[#a86479] text-white/90"
-        : "bg-[#FFBAC5] border-[5px] border-[#FE8693]",
-    furniture:
-      theme === "dark"
-        ? "bg-[#524225] border border-[#c59a55] text-white/90"
-        : "bg-[#FCD68D] border-[5px] border-[#DAA94B]",
-  };
-
-  const storeButtonBaseClass =
-    "flex items-center justify-center rounded-lg shadow-md w-28 h-[10vh] transition-transform duration-500 ease-in-out cursor-pointer pl-8 hover:translate-x-3 border";
-
-  const storeButtonColors =
-    theme === "dark"
-      ? {
-          base: "bg-[#2f2a35]/95 border-[#4a4354] hover:bg-[#433c4d] text-white/90",
-          active: "bg-[#5d8c5f] border-[#78af81] text-white",
-        }
-      : {
-          base: "bg-[#E4CFBD] border-[#d6b9a6] hover:bg-[#d8bfa8]",
-          active: "bg-[#b1d47f] border-[#9bc060]",
-        };
+  const latestBadgeCountRef = useRef(0);
 
   const [storeCategory, setStoreCategory] = useState("Hats");
 
@@ -198,32 +133,32 @@ useEffect(() => {
   }, []);
 
   // Fetch new badges count
-  const fetchNewBadgesCount = async () => {
+  const fetchNewBadgesCount = useCallback(async () => {
     try {
       const uid = localStorage.getItem("uid");
       if (!uid) return;
 
-      // Get current badge count
+      // Get the current badge count from the database
       const response = await fetch(`/api/badges/${uid}`);
       if (response.ok) {
         const data = await response.json();
         const acquiredBadges = (data.badges || []).filter(badge => badge.acquired);
         const currentCount = acquiredBadges.length;
-
-        // Get last viewed count from localStorage
+        latestBadgeCountRef.current = currentCount;
+      // Get the last viewed count from the database
         const lastViewedKey = `lastViewedBadgeCount_${uid}`;
         const lastViewedCount = parseInt(localStorage.getItem(lastViewedKey) || "0");
 
-        // Calculate new badges
+        // Calculate new badges count
         const newCount = Math.max(0, currentCount - lastViewedCount);
         setNewBadgesCount(newCount);
       }
     } catch (err) {
       console.error("Error fetching new badges count:", err);
     }
-  };
-// Fetch new badges count for notification badge
-  useEffect(() => {
+  }, []);
+// Fetch new badges count for notifications
+useEffect(() => {
     const uid = localStorage.getItem("uid");
     if (uid) {
       const lastViewedKey = `lastViewedBadgeCount_${uid}`;
@@ -238,7 +173,15 @@ useEffect(() => {
     fetchNewBadgesCount();
     const interval = setInterval(fetchNewBadgesCount, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchNewBadgesCount]);
+
+  useEffect(() => {
+    const handleBadgesUpdated = () => {
+      fetchNewBadgesCount();
+    };
+    window.addEventListener("badgesUpdated", handleBadgesUpdated);
+    return () => window.removeEventListener("badgesUpdated", handleBadgesUpdated);
+  }, [fetchNewBadgesCount]);
 
   // Fetch user streak
   const fetchStreak = async () => {
@@ -282,6 +225,7 @@ useEffect(() => {
     const handleTaskCompleted = () => {
       fetchStreak();
       fetchXP();
+      fetchNewBadgesCount();
     };
     window.addEventListener("taskCompleted", handleTaskCompleted);
     
@@ -289,29 +233,21 @@ useEffect(() => {
       clearInterval(interval);
       window.removeEventListener("taskCompleted", handleTaskCompleted);
     };
-  }, []);
+  }, [fetchNewBadgesCount]);
 
   function ProgressBar({ progress }) {
-    const trackClass =
-      theme === "dark"
-        ? "bg-[#1b283d]/80 border border-[#3d4a68]"
-        : "bg-[#ECF0A4] border-4 border-[#86A445]";
-
-    const fillClass =
-      theme === "dark"
-        ? "bg-gradient-to-r from-[#a1d86d] via-[#7ccf73] to-[#4da35a]"
-        : "bg-gradient-to-r from-[#86A445] via-[#A2C93B] to-[#7ccf73]";
-
     return (
-      <div
-        className={`relative w-full h-[6vh] rounded-full overflow-hidden will-change-transform ${trackClass}`}
-      >
+<div className="relative w-full h-[6vh] bg-[#ECF0A4] border-4 border-[#86A445] rounded-full overflow-hidden will-change-transform">
         <div
-          className={`h-full rounded-full transition-all duration-500 ${fillClass}`}
+          className="
+            h-full bg-[#86A445] 
+            rounded-full transition-all duration-500
+          "
           style={{
             width: `calc(${progress}% + 4px)`,
             marginLeft: "-4px",
           }}
+          // style={{ width: 10 }}
         ></div>
       </div>
     );
@@ -363,16 +299,40 @@ useEffect(() => {
     </div>
   );
 
+  const markBadgesAsViewed = () => {
+    const uid = localStorage.getItem("uid");
+    if (!uid) return;
+    const lastViewedKey = `lastViewedBadgeCount_${uid}`;
+    localStorage.setItem(
+      lastViewedKey,
+      (latestBadgeCountRef.current || 0).toString()
+    );
+    setNewBadgesCount(0);
+  };
+
+  const handleFriendsClick = () => {
+    setPendingFriendRequests(0);
+    openPanel("friends");
+  };
+
+  const handleBadgesClick = () => {
+    markBadgesAsViewed();
+    openPanel("badges");
+  };
+
+  const handleBadgePanelViewed = async () => {
+    await fetchNewBadgesCount();
+    markBadgesAsViewed();
+  };
+
   return (
-    <div
-      className={`grid grid-cols-[80px_1fr] h-screen w-screen relative overflow-hidden ${mainBackgroundClass}`}
-    >
+    <div className="grid grid-cols-[80px_1fr] h-screen w-screen relative overflow-hidden">
       <Sidebar
         onSettingsClick={() => openPanel("settings")}
         onStoreClick={() => openPanel("store")}
         onTasksClick={() => openPanel("tasks")}
-        onFriendsClick={() => openPanel("friends")}
-        onBadgesClick={() => openPanel("badges")}
+        onFriendsClick={handleFriendsClick}
+        onBadgesClick={handleBadgesClick}
         pendingFriendRequests={pendingFriendRequests}
         newBadgesCount={newBadgesCount}
       />
@@ -381,39 +341,33 @@ useEffect(() => {
         <Wall className="-ml-20"></Wall>
         <Floor className="-ml-20" />
 
-        <div
-          className={`absolute top-3 left-[15vw] transform 
+        <div className="absolute top-3 left-[15vw] transform 
+                        bg-[#f2be9c] border-3 border-[#7d5c47] 
                         rounded-full shadow-lg z-30
-                        w-7/12 h-[10vh] flex items-center px-6 gap-8 ${statsCardClass}`}
-        >
+                        w-7/12 h-[10vh] flex items-center px-6 gap-8">
         
           {/* Streak Section */}
           <div className="flex items-center gap-3">
-            <img
-              src={StreakFire}
-              className={streakIconClass}
-              style={streakIconStyle}
-              alt="Streak flame"
-            />
-            <span className={`${statsTextClass} font-dongle text-6xl font-bold`}>
+            <img src={StreakFire} className="w-14 h-auto" />
+            <span className="text-[#41521b] font-dongle text-6xl font-bold">
               {streak > 0 ? `${streak}x` : '0x'}
             </span>
           </div>
 
           {/* Divider */}
-          <div className={`w-[3px] h-[65%] opacity-50 ${dividerColorClass}`}></div>
+          <div className="w-[3px] h-[65%] bg-[#7d5c47] opacity-50"></div>
 
           {/* Level Section */}
-          <span className={`${statsTextClass} font-dongle text-6xl font-bold`}>
+          <span className="text-[#41521b] font-dongle text-6xl font-bold">
             Lvl&nbsp;{level}
           </span>
 
           {/* Divider */}
-          <div className={`w-[3px] h-[65%] opacity-50 ${dividerColorClass}`}></div>
+          <div className="w-[3px] h-[65%] bg-[#7d5c47] opacity-50"></div>
 
           {/* XP + Bar Section */}
           <div className="flex items-center gap-3 grow">
-            <span className={`${statsTextClass} font-dongle text-6xl font-bold`}>
+            <span className="text-[#41521b] font-dongle text-6xl font-bold">
               XP
             </span>
 
@@ -423,21 +377,21 @@ useEffect(() => {
           </div>
 
           <div
-            className={`absolute top-[0vh] -right-[19vw] 
+            className="absolute top-[0vh] -right-[19vw] 
+                        bg-[#b1d47f] border-3 border-[#5a7435] 
                         rounded-full px-5 py-1 
-                        font-dongle text-6xl 
+                        text-white font-dongle text-6xl 
                         shadow-2xl z-30
                         w-[16vw] h-[10vh] font-bold
                         flex items-center justify-center gap-3
-                        [text-shadow:_2px_2px_0_#000,_-2px_2px_0_#000,_2px_-2px_0_#000,_-2px_-2px_0_#000]
-                        ${currencyBubbleClass} ${currencyTextClass}`}
+                        [text-shadow:_2px_2px_0_#000,_-2px_2px_0_#000,_2px_-2px_0_#000,_-2px_-2px_0_#000]"
           >
             <img
               src={Checkmark}
               className="w-12 h-auto drop-shadow-[2px_2px_2px_rgba(0,0,0,.3)]"
               alt="Checkmark"
             />
-<span className={`translate-y-[2px] ${currencyTextClass}`}>{currency}</span>
+<span className="translate-y-[2px]">{currency}</span>
           </div>
         </div>
 
@@ -466,23 +420,20 @@ useEffect(() => {
           : ""
       }
     >
-      {activePanel === "badges" && <BadgePage onClose={closePanel} onBadgesViewed={() => {
-        // Clear notification when badges page is opened
-        const uid = localStorage.getItem("uid");
-        if (uid) {
-          fetchNewBadgesCount().then(() => {
-            // Update last viewed count after fetching current count
-            fetch(`/api/badges/${uid}`).then(res => res.json()).then(data => {
-              const acquiredBadges = (data.badges || []).filter(badge => badge.acquired);
-              localStorage.setItem(`lastViewedBadgeCount_${uid}`, acquiredBadges.length.toString());
-              setNewBadgesCount(0);
-            });
-          });
-        }
-      }} />}
+      {activePanel === "badges" && (
+        <BadgePage
+          onClose={closePanel}
+          onBadgesViewed={handleBadgePanelViewed}
+        />
+      )}
       {activePanel === "settings" && <SettingsPage onClose={closePanel} />}
       {activePanel === "tasks" && <TasksPage onClose={closePanel} />}
-      {activePanel === "friends" && <FriendsPage onClose={closePanel} />}
+      {activePanel === "friends" && (
+        <FriendsPage
+          onClose={closePanel}
+          onPendingRequestsChange={setPendingFriendRequests}
+        />
+      )}
     </SlidingPanel>
         )}
       
@@ -508,9 +459,10 @@ useEffect(() => {
       <button
         key={cat.name}
         onClick={() => setStoreCategory(cat.name)}
-        className={`${storeButtonBaseClass} ${storeButtonColors.base} ${
-          storeCategory === cat.name ? storeButtonColors.active : ""
-        }`}
+        className={`flex items-center justify-center bg-[#E4CFBD] rounded-lg shadow-md
+          w-28 h-[10vh] transition-transform duration-500 ease-in-out
+          hover:bg-[#d8bfa8] cursor-pointer pl-8 hover:translate-x-3
+          ${storeCategory === cat.name ? "bg-[#b1d47f]" : ""}`}
       >
         <img src={cat.icon} alt={cat.name} className="w-2/3 object-contain pointer-events-none" />
       </button>
