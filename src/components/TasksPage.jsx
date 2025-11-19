@@ -5,14 +5,14 @@ import AddTaskModal from "./AddTaskForm.jsx";
 
 
 import { useCurrency } from "../context/CurrencyContext.jsx";
-import { useContext } from "react";
+import { useTheme } from "../context/ThemeContext";
 
 export default function TaskPage({ onClose }) {
   const [openId, setOpenId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [checkedTasks, setCheckedTasks] = useState(new Set()); // ✅ store checked task IDs
-
+  const { theme = "light" } = useTheme() || {};
 
 const difficultyValues = {
   Low: 5,
@@ -21,6 +21,54 @@ const difficultyValues = {
 };
 
   const { setCurrency } = useCurrency()
+
+  const boardClasses =
+    theme === "dark"
+      ? "bg-[#1f2434]/95 border border-[#353a52] text-[#f5ede1]"
+      : "bg-[#f4e1d2] border-2 border-[#926B51] text-[#4b3b2f]";
+
+  const priorityClasses = {
+    Low:
+      theme === "dark"
+        ? "bg-[#3f5d31] text-[#d7f2b6]"
+        : "bg-[#d2ee80] text-[#48855c]",
+    Medium:
+      theme === "dark"
+        ? "bg-[#5c4b2e] text-[#f4cf88]"
+        : "bg-[#fcd68d] text-[#e5a01c]",
+    High:
+      theme === "dark"
+        ? "bg-[#632f3c] text-[#ff9fb1]"
+        : "bg-[#ffbac4] text-[#f5526b]",
+  };
+
+  const dividerClass = theme === "dark" ? "bg-[#3a425a]" : "bg-[#6b4b33]";
+
+  const taskRowClass =
+    theme === "dark"
+      ? "bg-[#283247]/90 text-[#f5ede1]"
+      : "bg-[#e4c8b2]";
+
+  const dueDateClasses =
+    theme === "dark"
+      ? "bg-[#323d55] text-[#d8e5ff]"
+      : "bg-[#dcdcdc] text-[#4b3b2f]";
+
+  const checkboxAccent =
+    theme === "dark" ? "accent-[#6daf4f]" : "accent-[#e4c8b2]";
+
+  const emptyStateClass =
+    theme === "dark" ? "text-[#c8cfdc]" : "text-[#6b4b33]";
+
+  const addButtonClasses =
+    theme === "dark"
+      ? "bg-[#5c3a2c] hover:bg-[#7a4d39]"
+      : "bg-[#AD7B5C] hover:bg-[#8e634a]";
+
+  const finishButtonActive =
+    theme === "dark"
+      ? "bg-[#4c6d3d] hover:bg-[#678b59]"
+      : "bg-[#b1d47f] hover:bg-[#7a9456]";
 
 
   useEffect(() => {
@@ -114,16 +162,16 @@ const handleFinishTasks = async () => {
     <div className="flex h-screen">
       <div className="flex h-[96vh] w-133">
         <div className="flex flex-col">
-          <div className=" h-[75vh] w-133 max-w-4xl p-8 bg-[#f4e1d2] rounded-2xl border-2 border-[#926B51]">
+          <div className={`h-[75vh] w-133 max-w-4xl p-8 rounded-2xl ${boardClasses}`}>
             {/* Priority labels */}
             <div className="flex gap-4">
-              <div className="h-[4vh] w-[6vw] text-2xl bg-[#d2ee80] rounded-2xl flex items-center justify-center pt-1 text-[#48855c]">
+              <div className={`h-[4vh] w-[6vw] text-2xl rounded-2xl flex items-center justify-center pt-1 ${priorityClasses.Low}`}>
                 Low
               </div>
-              <div className="h-[4vh] w-[6vw] text-2xl bg-[#fcd68d] rounded-2xl flex items-center justify-center pt-1 text-[#e5a01c]">
+              <div className={`h-[4vh] w-[6vw] text-2xl rounded-2xl flex items-center justify-center pt-1 ${priorityClasses.Medium}`}>
                 Medium
               </div>
-              <div className="h-[4vh] w-[6vw] text-2xl bg-[#ffbac4] rounded-2xl flex items-center justify-center pt-1 text-[#f5526b]">
+              <div className={`h-[4vh] w-[6vw] text-2xl rounded-2xl flex items-center justify-center pt-1 ${priorityClasses.High}`}>
                 High
               </div>
             </div>
@@ -135,25 +183,24 @@ const handleFinishTasks = async () => {
             <div className="py-[4vh] flex flex-col gap-8 overflow-y-auto max-h-[60vh]">
 
               {tasks.length === 0 ? (
-                <div className="w-full text-center text-3xl text-[#6b4b33] opacity-70 mt-[10vh]">
+                <div className={`w-full text-center text-3xl ${emptyStateClass} opacity-70 mt-[10vh]`}>
                   Add a task item!
                 </div>
               ) : (
                 tasks.map((task, index) => (
                 <div
                   key={task.task_id || index}
-                  className="relative flex items-center justify-between py-3 pl-[2vw] bg-[#e4c8b2] rounded-sm shadow-md overflow-visible"
+                  className={`relative flex items-center justify-between py-3 pl-[2vw] rounded-sm shadow-md overflow-visible ${taskRowClass}`}
                 >
                   {/* Stick-out priority tag */}
                   <div
                     className={`absolute -top-4 right-[0.4vw] px-4 py-1 rounded-4xl text-lg font-bold w-[5vw] h-[4vh] 
-                    flex items-center justify-center text-center
-                    ${
+                    flex items-center justify-center text-center ${
                       task.priority === "Low"
-                        ? "bg-[#d2ee80] text-[#48855c]"
+                        ? priorityClasses.Low
                         : task.priority === "Medium"
-                        ? "bg-[#fcd68d] text-[#e5a01c]"
-                        : "bg-[#ffbac4] text-[#f5526b]"
+                        ? priorityClasses.Medium
+                        : priorityClasses.High
                     }`}
                   >
                     {task.priority}
@@ -165,9 +212,9 @@ const handleFinishTasks = async () => {
                       type="checkbox"
                       checked={checkedTasks.has(task.task_id)}
                       onChange={() => handleCheck(task.task_id)}
-                      className="w-5 h-5 accent-[#e4c8b2] cursor-pointer flex-shrink-0"
+                      className={`w-5 h-5 cursor-pointer flex-shrink-0 ${checkboxAccent}`}
                     />
-                    <div className="h-8 w-[2px] bg-[#6b4b33] rounded-full opacity-70 flex-shrink-0"></div>
+                    <div className={`h-8 w-[2px] rounded-full opacity-70 flex-shrink-0 ${dividerClass}`}></div>
                     <span className="text-2xl font-semibold truncate">
                       {task.title}
                     </span>
@@ -175,8 +222,7 @@ const handleFinishTasks = async () => {
 
                   {task.due_date && (
                     <div
-                      className="absolute left-1/2 -translate-x-1/2 -bottom-4 px-3 pt-1 bg-[#dcdcdc] 
-                        rounded-full text-lg font-semibold text-[#4b3b2f] shadow-md"
+                      className={`absolute left-1/2 -translate-x-1/2 -bottom-4 px-3 pt-1 rounded-full text-lg font-semibold shadow-md ${dueDateClasses}`}
                     >
                       {new Date(task.due_date).toLocaleDateString("en-US", {
                         year: "numeric",
@@ -188,7 +234,7 @@ const handleFinishTasks = async () => {
 
                   {/* Right side: dropdown */}
                   <div className="absolute right-[2.3vw] top-[50%] -translate-y-1/2 flex items-center gap-[2vw]">
-                    <div className="h-8 w-[2px] bg-[#6b4b33] rounded-full opacity-70 translate-x-[-4px]"></div>
+                    <div className={`h-8 w-[2px] rounded-full opacity-70 translate-x-[-4px] ${dividerClass}`}></div>
                     <button
                       onClick={() =>
                         setOpenId(openId === index ? null : index)
@@ -213,9 +259,8 @@ const handleFinishTasks = async () => {
           <div className="ml-[.5vw] mt-4 flex gap-7">
             <button
               onClick={() => setShowModal(true)}
-              className="w-60 h-[7vh] bg-[#AD7B5C] text-white font-bold rounded-2xl cursor-pointer 
-                         shadow-[0_7px_4px_rgba(0,0,0,0.3)] hover:bg-[#8e634a] 
-                         flex items-center justify-center text-4xl pt-1"
+              className={`w-60 h-[7vh] text-white font-bold rounded-2xl cursor-pointer 
+                         shadow-[0_7px_4px_rgba(0,0,0,0.3)] flex items-center justify-center text-4xl pt-1 ${addButtonClasses}`}
             >
               + Add Task
             </button>
@@ -233,7 +278,7 @@ const handleFinishTasks = async () => {
                           ${
                             checkedTasks.size === 0
                               ? "bg-gray-400 cursor-not-allowed opacity-50"
-                              : "bg-[#b1d47f] hover:bg-[#7a9456] cursor-pointer active:scale-95"
+                              : `${finishButtonActive} cursor-pointer active:scale-95`
                           }`}
             >
               ✓ Finish Tasks
@@ -257,3 +302,4 @@ const handleFinishTasks = async () => {
     </div>
   );
 }
+

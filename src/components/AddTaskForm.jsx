@@ -1,4 +1,5 @@
-import React, { useState, useRef} from "react";
+import React, { useState, useRef } from "react";
+import { useTheme } from "../context/ThemeContext";
 
 export default function AddTaskForm({ onClose, onSave }) {
   const today = new Date().toISOString().split("T")[0];
@@ -7,6 +8,27 @@ export default function AddTaskForm({ onClose, onSave }) {
   const [date, setDate] = useState(today);
   const [priority, setPriority] = useState("Medium");
   const [difficulty, setDifficulty] = useState("Easy");
+  const { theme = "light" } = useTheme() || {};
+
+  const containerClasses =
+    theme === "dark"
+      ? "bg-[#1f2434]/95 border border-[#353a52] text-[#f5ede1]"
+      : "bg-[#e8c4a7] border-3 border-[#AD7B5C]";
+
+  const inputClasses =
+    theme === "dark"
+      ? "border-4 border-[#353a52] bg-[#1a2030]/50 text-[#f5ede1] placeholder:text-[#99a4c0] focus:ring-[#6daf4f]"
+      : "border-5 border-[#AD7B5C] text-[#4b3b2f] focus:ring-[#AD7B5C]";
+
+  const buttonPrimary =
+    theme === "dark"
+      ? "bg-[#4c6d3d] hover:bg-[#678b59]"
+      : "bg-[#AD7B5C] hover:bg-[#8e634a]";
+
+  const buttonSecondary =
+    theme === "dark"
+      ? "bg-[#3a2a35] hover:bg-[#513a4b]"
+      : "bg-[#AD7B5C] hover:bg-gray-400";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +62,7 @@ export default function AddTaskForm({ onClose, onSave }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
       <div
-        className="
+        className={`
           bg-[#f4d9c3] 
           p-8 
           rounded-3xl 
@@ -52,7 +74,8 @@ export default function AddTaskForm({ onClose, onSave }) {
           flex-col
           border-4 
           border-[#B08463]
-        "
+          ${containerClasses}
+        `}
       >
         <h2 className="text-3xl font-bold text-center text-[#5a3b2c] mb-4">
           Add New Task
