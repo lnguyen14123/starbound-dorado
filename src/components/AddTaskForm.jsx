@@ -60,7 +60,7 @@ export default function AddTaskForm({ onClose, onSave }) {
           shadow-[0_8px_20px_rgba(0,0,0,0.2)]
           w-[80%]
           max-w-xl
-          h-[75vh]
+          max-h-[90vh]   // ✅ responsive height
           flex 
           flex-col
           border-4 
@@ -72,7 +72,10 @@ export default function AddTaskForm({ onClose, onSave }) {
           Add New Task
         </h2>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5 text-xl flex-grow overflow-y-auto pr-1">
+<form 
+  onSubmit={handleSubmit} 
+  className="flex flex-col gap-5 text-xl overflow-y-auto"
+>
 
           {/* Task Name */}
           <div className="flex flex-col gap-1">
@@ -86,7 +89,7 @@ export default function AddTaskForm({ onClose, onSave }) {
               className={fieldClasses}
             />
           </div>
-
+          
 {/* Date */}
 <div className="flex flex-col gap-1">
   <label className="font-semibold text-[var(--color-task-label)]">Due Date</label>

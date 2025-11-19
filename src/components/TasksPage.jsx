@@ -3,7 +3,6 @@ import "../index.css";
 import toggleTab from "../assets/ui/toggle_tab.svg";
 import AddTaskModal from "./AddTaskForm.jsx";
 
-
 import { useCurrency } from "../context/CurrencyContext.jsx";
 import { useTheme } from "../context/ThemeContext";
 
@@ -19,9 +18,9 @@ export default function TaskPage({ onClose }) {
   const { theme = "light" } = useTheme() || {};
 
 const difficultyValues = {
-  Low: 5,
-  Medium: 7,
-  High: 10,
+  Easy: 5,
+  Moderate: 7,
+  Hard: 10,
 };
 
   const { setCurrency } = useCurrency()
@@ -114,7 +113,7 @@ const handleFinishTasks = async () => {
   let completedTasks = tasks.filter((t) => checkedTasks.has(t.task_id));
 
   completedTasks.forEach((task) => {
-    const base = difficultyValues[task.priority] || 5;
+    const base = difficultyValues[task.difficulty] || 5;
     totalReward += base;
   });
 
