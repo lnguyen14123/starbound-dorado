@@ -1,5 +1,5 @@
 // MainPage.jsx
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 import { useNavigate } from "react-router-dom";

@@ -44,59 +44,57 @@ const DEFAULT_HAT_VARIANTS = {
 const HAT_POSITION_PRESETS = {
   hat_party: {
     base: { ...DEFAULT_HAT_BASE, height: "22vh" },
-    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 19, xVh: -13 },
+    ...DEFAULT_HAT_VARIANTS,
     dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 17},
   },
   crown: {
     base: { ...DEFAULT_HAT_BASE, height: "14vh" },
     ...DEFAULT_HAT_VARIANTS,
-    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 19},
   },
   crown_purple: {
     base: { ...DEFAULT_HAT_BASE, height: "14vh" },
     ...DEFAULT_HAT_VARIANTS,
-    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 19},
   },
   cap_blue: {
     base: { ...DEFAULT_HAT_BASE, height: "20vh" },
-    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 19, xVh: -13 },
+    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 22},
     dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 22},
   },
   hat_top: {
     base: { ...DEFAULT_HAT_BASE, height: "24vh" },
-    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 19, xVh: -13 },
+    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 21, xVh: -12.5 },
     dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 21},
   },
   hat_conductor: {
     base: DEFAULT_HAT_BASE,
-    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 19, xVh: -13 },
+    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 22},
     dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 22},
   },
   hat_tennis: {
     base: { ...DEFAULT_HAT_BASE, height: "20vh" },
-    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 19, xVh: -13 },
+    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 23},
     dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 23},
   },
   beanie_red: {
     base: { ...DEFAULT_HAT_BASE, height: "20vh" },
-    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 19, xVh: -13 },
+    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 19},
     dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 19},
   },
   hat_cowboy: {
     base: { ...DEFAULT_HAT_BASE, height: "22vh" },
-    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 19, xVh: -13 },
+    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 20},
     dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 20},
   },
   hat_bucket: {
     base: { ...DEFAULT_HAT_BASE, height: "22vh" },
-    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 19, xVh: -13 },
-    dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 21, xVh: 6.5},
+    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 20},
+    dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 21},
   },
 };
 
 const DEFAULT_COLLAR_BASE = { height: "8vh", xRem: -4.45 };
 const DEFAULT_COLLAR_VARIANTS = {
-  cat: { yVh: -17, xVh: -10.5 },
+  cat: { yVh: -14.5, xVh: -11 },
   dog: { yVh: -14, xVh: 7 },
 };
 
@@ -104,26 +102,23 @@ const COLLAR_POSITION_PRESETS = {
   collar_red: {
     base: DEFAULT_COLLAR_BASE,
     ...DEFAULT_COLLAR_VARIANTS,
-    cat: { ...DEFAULT_COLLAR_VARIANTS.cat, yVh: -14, xVh: 7},
   },
   collar_blue: {
     base: DEFAULT_COLLAR_BASE,
     ... DEFAULT_COLLAR_VARIANTS,
-    cat: { ...DEFAULT_COLLAR_VARIANTS.cat, yVh: -14, xVh: 7},
   },
   bowtie: {
     base: DEFAULT_COLLAR_BASE,
     ... DEFAULT_COLLAR_VARIANTS,
-    cat: { ...DEFAULT_COLLAR_VARIANTS.cat, yVh: -14, xVh: 7},
   },
   collar_leather: {
     base: {DEFAULT_COLLAR_BASE, height: "10vh"},
-    cat: { ...DEFAULT_COLLAR_VARIANTS.cat, yVh: -14, xVh: 7},
+    cat: { ...DEFAULT_COLLAR_VARIANTS.cat, yVh: -17, xVh: -11},
     dog: { ...DEFAULT_COLLAR_VARIANTS.dog, yVh: -16, xVh: 7},
   },
   collar_spiky: {
     base: {DEFAULT_COLLAR_BASE, height: "11vh"},
-    cat: { ...DEFAULT_COLLAR_VARIANTS.cat, yVh: -14, xVh: 7},
+    cat: { ...DEFAULT_COLLAR_VARIANTS.cat, yVh: -14.5, xVh: -11},
     dog: { ...DEFAULT_COLLAR_VARIANTS.dog, yVh: -14, xVh: 7},
   },
 };
