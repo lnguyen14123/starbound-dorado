@@ -30,6 +30,10 @@ const TitleScreen = ({ show, onDismiss }) => {
 
   const accentColor = theme === "dark" ? "#f1d7bb" : "#a07a5f";
   const bodyColor = theme === "dark" ? "#f5ede1" : "#5f4637";
+  const toggleButtonClasses =
+    theme === "dark"
+      ? "bg-white/10 text-white/90 border border-white/20"
+      : "bg-white/70 text-[#5f4637] border border-transparent";
 
   return (
     <div
@@ -53,10 +57,9 @@ const TitleScreen = ({ show, onDismiss }) => {
             event.stopPropagation();
             toggleTheme();
           }}
-          className="absolute top-4 right-4 flex items-center gap-2 rounded-full
-                     bg-white/70 dark:bg-white/10 backdrop-blur-md
-                     px-5 py-2 shadow-md text-base font-dongle text-[#5f4637] dark:text-white/90 cursor-pointer
-                     hover:-translate-y-0.5 transition"
+          className={`absolute top-4 right-4 flex items-center gap-2 rounded-full
+                     backdrop-blur-md px-5 py-2 shadow-md text-base font-dongle cursor-pointer
+                     hover:-translate-y-0.5 transition ${toggleButtonClasses}`}
         >
           <span aria-hidden="true" className="text-lg font-semibold tracking-wide">
             {theme === "dark" ? "SUN" : "MOON"}
