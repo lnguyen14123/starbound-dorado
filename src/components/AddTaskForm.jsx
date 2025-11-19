@@ -47,7 +47,7 @@ export default function AddTaskForm({ onClose, onSave }) {
           shadow-[0_8px_20px_rgba(0,0,0,0.2)]
           w-[80%]
           max-w-xl
-          h-[75vh]
+          max-h-[90vh]   // ✅ responsive height
           flex 
           flex-col
           border-4 
@@ -58,7 +58,10 @@ export default function AddTaskForm({ onClose, onSave }) {
           Add New Task
         </h2>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5 text-xl flex-grow overflow-y-auto pr-1">
+<form 
+  onSubmit={handleSubmit} 
+  className="flex flex-col gap-5 text-xl overflow-y-auto"
+>
 
           {/* Task Name */}
           <div className="flex flex-col gap-1">
@@ -72,7 +75,7 @@ export default function AddTaskForm({ onClose, onSave }) {
               className="border-3 border-[#B08463] rounded-xl px-4 py-2 bg-white focus:ring-2 focus:ring-[#B08463] outline-none"
             />
           </div>
-
+          
 {/* Date */}
 <div className="flex flex-col gap-1">
   <label className="font-semibold text-[#5a3b2c]">Due Date</label>
@@ -86,6 +89,7 @@ export default function AddTaskForm({ onClose, onSave }) {
       type="date"
       value={date}
       onChange={(e) => setDate(e.target.value)}
+      min={today} // ✅ prevents selecting past dates
       className="w-full bg-transparent outline-none cursor-pointer"
     />
   </div>
