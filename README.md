@@ -149,8 +149,8 @@ The frontend dev server typically runs on `http://localhost:5173`. The API serve
 
 ## Deployment
 
-* **Frontend**: build with `npm run build`, then host the static assets (Netlify, Vercel, Cloudflare Pages, etc.).
-* **Backend**: deploy the Express server (Railway, Fly.io, Render, Heroku, or your own infra). Set `DATABASE_URL` and any required secrets.
+* **Frontend**: build with `npm run build`, then host the static assets.
+* **Backend**: deploy the Express server. Set `DATABASE_URL` and any required secrets.
 * **Database**: provision PostgreSQL on **Neon** and allow network access from the backend environment.
 
 ---
