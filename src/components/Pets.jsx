@@ -287,8 +287,8 @@ useEffect(() => {
     setHappiness((prev) => Math.min(100, prev + 5));
     setIsHappy(true);
     setIsJumping(true);
-    setTimeout(() => setIsJumping(false), 600);
-    setTimeout(() => setIsHappy(false), 1000);
+    setTimeout(() => setIsJumping(false), 300);
+    setTimeout(() => setIsHappy(false), 500);
   };
 
   // 🐱 Pet image selection (you might already have a helper)

@@ -30,6 +30,7 @@ import WallDark from "../assets/walls/dark_wall.svg";
 import WallBrick from "../assets/walls/brick_wall.svg";
 
 import { useCurrency } from "../context/CurrencyContext";
+import { useTheme } from "../context/ThemeContext";
 
 export default function StorePage({ onClose, panelVisible, selectedCategory }) {
   const storeItems = [
@@ -227,6 +228,7 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
   ];
 
   const { currency, setCurrency } = useCurrency();
+  const { theme = "light" } = useTheme() || {};
 
   const [showPopup, setShowPopup] = useState(false);
   const [isFading, setIsFading] = useState(false);
@@ -331,14 +333,44 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
     (item) => item.category === selectedCategory
   );
 
+  const panelClass =
+    theme === "dark"
+      ? "bg-[#1f2434]/95 border border-[#353a52] text-[#f5ede1]"
+      : "bg-[#F1E2D4]";
+
+  const cardClass =
+    theme === "dark"
+      ? "bg-[#2b3347]/90 text-[#f5ede1]"
+      : "bg-[#E4CFBD]";
+
+  const buyButtonClass =
+    theme === "dark"
+      ? "bg-[#4c6d3d] hover:bg-[#678b59] text-[#ecffdf]"
+      : "bg-[#b6e5b6] hover:bg-[#a8d8a8] text-[#2d5016]";
+
+  const popupClass =
+    theme === "dark"
+      ? "bg-[#1f2434] text-[#f5ede1]"
+      : "bg-white text-[#4b3b2f]";
+
+  const popupButtonPrimary =
+    theme === "dark"
+      ? "bg-[#4c6d3d] hover:bg-[#678b59] text-[#ecffdf]"
+      : "bg-[#b6e5b6] hover:bg-[#a8d8a8] text-[#2d5016]";
+
+  const popupButtonSecondary =
+    theme === "dark"
+      ? "bg-[#3a2d2d] hover:bg-[#4f3c3c] text-[#f5ede1]"
+      : "bg-[#e4cfbd] hover:bg-[#d3bfae] text-[#4b3b2f]";
+
   return (
     <div className="w-125 h-[78vh] mt-[1vh] items-center justify-center relative flex">
-      <div className="w-full h-full bg-[#F1E2D4] rounded-2xl p-3 overflow-hidden flex flex-col relative">
+      <div className={`w-full h-full rounded-2xl p-3 overflow-hidden flex flex-col relative ${panelClass}`}>
         <div className="grid grid-cols-2 gap-3 w-full p-1 overflow-y-auto overflow-x-hidden min-h-0 content-start items-start">
           {filteredItems.map((item) => (
             <div
               key={item.id}
-              className="bg-[#E4CFBD] rounded-2xl w-full aspect-[4/3] shadow-md hover:shadow-lg transition-shadow duration-300 relative flex flex-col justify-end items-center"
+              className={`rounded-2xl w-full aspect-[4/3] shadow-md hover:shadow-lg transition-shadow duration-300 relative flex flex-col justify-end items-center ${cardClass}`}
             >
               <img
                 src={item.image}
@@ -347,10 +379,10 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
               />
               <button
                 onClick={() => handleBuy(item)}
-                className="absolute bottom-2 left-5 right-5 bg-[#b6e5b6] hover:bg-[#a8d8a8] rounded-lg px-3 py-1.5 flex items-center justify-center gap-2 shadow-md transition-colors duration-200 cursor-pointer"
+                className={`absolute bottom-2 left-5 right-5 rounded-lg px-3 py-1.5 flex items-center justify-center gap-2 shadow-md transition-colors duration-200 cursor-pointer ${buyButtonClass}`}
               >
                 <img src={Checkmark} alt="Buy" className="w-5 h-5" />
-                <span className="text-[#2d5016] font-semibold text-2xl">
+                <span className="font-semibold text-2xl">
                   {item.price}
                 </span>
               </button>
@@ -368,7 +400,7 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
           onClick={closePopup}
         >
           <div
-            className={`bg-white rounded-2xl p-5 shadow-xl min-w-[250px] text-center transform transition-all duration-300 ${
+            className={`${popupClass} rounded-2xl p-5 shadow-xl min-w-[250px] text-center transform transition-all duration-300 ${
               isFading ? "opacity-0 scale-95" : "opacity-100 scale-100"
             }`}
             onClick={(e) => e.stopPropagation()}
@@ -380,18 +412,18 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
             >
               {popupContent.title}
             </h1>
-            <p className="text-gray-700 mb-4">{popupContent.message}</p>
+            <p className="mb-4">{popupContent.message}</p>
 
             {popupContent.showYesNo ? (
               <div className="flex justify-around mt-3">
                 <button
-                  className="bg-[#b6e5b6] hover:bg-[#a8d8a8] px-4 py-2 rounded-lg font-semibold cursor-pointer"
+                  className={`${popupButtonPrimary} px-4 py-2 rounded-lg font-semibold cursor-pointer`}
                   onClick={popupContent.onConfirm}
                 >
                   Yes
                 </button>
                 <button
-                  className="bg-[#e4cfbd] hover:bg-[#d3bfae] px-4 py-2 rounded-lg font-semibold cursor-pointer"
+                  className={`${popupButtonSecondary} px-4 py-2 rounded-lg font-semibold cursor-pointer`}
                   onClick={closePopup}
                 >
                   No
@@ -399,7 +431,7 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
               </div>
             ) : (
               <button
-                className="bg-[#b6e5b6] hover:bg-[#a8d8a8] px-4 py-2 rounded-lg font-semibold cursor-pointer"
+                className={`${popupButtonPrimary} px-4 py-2 rounded-lg font-semibold cursor-pointer`}
                 onClick={closePopup}
               >
                 OK

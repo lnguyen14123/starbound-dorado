@@ -90,8 +90,8 @@ function BadgePage({ onClose, onBadgesViewed }) {
   if (loading) {
     return (
       <div className="w-133 h-[calc(100vh-170px)] mt-[1vh] p-1 overflow-y-auto will-change-transform">
-        <div className="w-full bg-[#F1E2D4] rounded-2xl p-3 flex items-center justify-center">
-          <span className="text-[#4b3b2f] font-dongle text-2xl">Loading badges...</span>
+        <div className="w-full bg-[var(--color-surface-raised)] rounded-2xl p-3 flex items-center justify-center">
+          <span className="text-[var(--color-text)] font-dongle text-2xl">Loading badges...</span>
         </div>
       </div>
     );
@@ -100,7 +100,7 @@ function BadgePage({ onClose, onBadgesViewed }) {
   
   return (
     <div className="w-133 h-[calc(100vh-170px)] mt-[1vh] p-1 overflow-y-auto will-change-transform">
-      <div className="w-full bg-[#F1E2D4] rounded-2xl p-3">
+      <div className="w-full bg-[var(--color-surface-raised)] rounded-2xl p-3">
         <div className="grid grid-cols-3 gap-4 w-full p-1">
           {badges.map((badge) => {
             const isLocked = !badge.acquired;
@@ -109,7 +109,7 @@ function BadgePage({ onClose, onBadgesViewed }) {
             return (
               <div
                 key={badge.badge_id}
-                className={`bg-[#E4CFBD] rounded-2xl w-full aspect-square shadow-md 
+                className={`bg-[var(--color-card)] rounded-2xl w-full aspect-square shadow-md 
                   flex items-center justify-center transition duration-300 
                   ${isLocked ? "opacity-50 grayscale-[40%] cursor-not-allowed" : "hover:shadow-xl hover:scale-105 cursor-pointer"}`}
                 title={badge.display_name || badge.badge_id}
@@ -121,7 +121,7 @@ function BadgePage({ onClose, onBadgesViewed }) {
                     className={`w-3/4 h-3/4 object-contain ${isLocked ? "grayscale-[40%]" : ""}`}
                   />
                 ) : (
-                  <span className="text-[#4b3b2f] font-dongle text-sm text-center px-2">
+                  <span className="text-[var(--color-text)] font-dongle text-sm text-center px-2">
                     {badge.display_name || badge.badge_id}
                   </span>
                 )}

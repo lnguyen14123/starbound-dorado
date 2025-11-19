@@ -1,4 +1,4 @@
-import React, { useState, useRef} from "react";
+import React, { useState, useRef } from "react";
 
 export default function AddTaskForm({ onClose, onSave }) {
   const today = new Date().toISOString().split("T")[0];
@@ -7,6 +7,14 @@ export default function AddTaskForm({ onClose, onSave }) {
   const [date, setDate] = useState(today);
   const [priority, setPriority] = useState("Medium");
   const [difficulty, setDifficulty] = useState("Easy");
+
+  const fieldClasses =
+    "border-3 rounded-xl px-4 py-2 bg-[var(--color-task-input-bg)] " +
+    "text-[var(--color-task-input-text)] border-[var(--color-task-input-border)] " +
+    "focus:ring-2 focus:ring-[var(--color-task-input-focus)] outline-none placeholder:text-[var(--color-task-input-placeholder)]";
+
+  const buttonBase =
+    "font-semibold text-2xl px-7 py-4 rounded-xl shadow-md transition cursor-pointer";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,14 +42,14 @@ export default function AddTaskForm({ onClose, onSave }) {
     }
   };
 
-    const dateRef = useRef(null);
+  const dateRef = useRef(null);
 
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
       <div
-        className="
-          bg-[#f4d9c3] 
+        className={`
+          bg-[var(--color-task-surface)] 
           p-8 
           rounded-3xl 
           shadow-[0_8px_20px_rgba(0,0,0,0.2)]
@@ -51,10 +59,11 @@ export default function AddTaskForm({ onClose, onSave }) {
           flex 
           flex-col
           border-4 
-          border-[#B08463]
-        "
+          border-[var(--color-task-border)]
+          text-[var(--color-task-text)]
+        `}
       >
-        <h2 className="text-3xl font-bold text-center text-[#5a3b2c] mb-4">
+        <h2 className="text-3xl font-bold text-center text-[var(--color-task-heading)] mb-4">
           Add New Task
         </h2>
 
@@ -65,23 +74,23 @@ export default function AddTaskForm({ onClose, onSave }) {
 
           {/* Task Name */}
           <div className="flex flex-col gap-1">
-            <label className="font-semibold text-[#5a3b2c]">Task Name</label>
+            <label className="font-semibold text-[var(--color-task-label)]">Task Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
               placeholder="Ex: Study for exam"
-              className="border-3 border-[#B08463] rounded-xl px-4 py-2 bg-white focus:ring-2 focus:ring-[#B08463] outline-none"
+              className={fieldClasses}
             />
           </div>
           
 {/* Date */}
 <div className="flex flex-col gap-1">
-  <label className="font-semibold text-[#5a3b2c]">Due Date</label>
+  <label className="font-semibold text-[var(--color-task-label)]">Due Date</label>
 
   <div
-    className="border-3 border-[#B08463] rounded-xl px-4 py-2 bg-white cursor-pointer select-none"
+    className={`${fieldClasses} cursor-pointer select-none`}
     onClick={() => dateRef.current?.showPicker()}
   >
     <input
@@ -89,8 +98,7 @@ export default function AddTaskForm({ onClose, onSave }) {
       type="date"
       value={date}
       onChange={(e) => setDate(e.target.value)}
-      min={today} // ✅ prevents selecting past dates
-      className="w-full bg-transparent outline-none cursor-pointer"
+      className="w-full bg-transparent outline-none cursor-pointer text-[var(--color-task-input-text)]"
     />
   </div>
 </div>
@@ -99,11 +107,11 @@ export default function AddTaskForm({ onClose, onSave }) {
           <div className="grid grid-cols-2 gap-4">
 
             <div className="flex flex-col gap-1">
-              <label className="font-semibold text-[#5a3b2c]">Priority</label>
+              <label className="font-semibold text-[var(--color-task-label)]">Priority</label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
-                className="border-3 border-[#B08463] rounded-xl px-3 py-2 bg-white focus:ring-2 focus:ring-[#B08463] outline-none cursor-pointer"
+                className={`${fieldClasses} cursor-pointer`}
               >
                 <option>Low</option>
                 <option>Medium</option>
@@ -112,11 +120,11 @@ export default function AddTaskForm({ onClose, onSave }) {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="font-semibold text-[#5a3b2c]">Difficulty</label>
+              <label className="font-semibold text-[var(--color-task-label)]">Difficulty</label>
               <select
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value)}
-                className="border-3 border-[#B08463] rounded-xl px-3 py-2 bg-white focus:ring-2 focus:ring-[#B08463] outline-none cursor-pointer"
+                className={`${fieldClasses} cursor-pointer`}
               >
                 <option>Easy</option>
                 <option>Moderate</option>
@@ -131,16 +139,14 @@ export default function AddTaskForm({ onClose, onSave }) {
   <button
     type="button"
     onClick={onClose}
-    className="bg-[#B08463] text-white font-semibold text-2xl px-7 py-4 rounded-xl shadow-md 
-               hover:bg-[#8e684c] transition cursor-pointer"
+    className={`${buttonBase} bg-[var(--color-task-secondary-bg)] text-[var(--color-task-secondary-text)] hover:bg-[var(--color-task-secondary-hover)]`}
   >
     Cancel
   </button>
 
   <button
     type="submit"
-    className="bg-[#B08463] text-white font-semibold text-2xl px-7 py-4 rounded-xl shadow-md 
-               hover:bg-[#9c7152] transition cursor-pointer"
+    className={`${buttonBase} bg-[var(--color-task-primary-bg)] text-[var(--color-task-primary-text)] hover:bg-[var(--color-task-primary-hover)]`}
   >
     Save Task
   </button>

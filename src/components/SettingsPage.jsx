@@ -14,17 +14,30 @@ import eyeIc from "../assets/icons/Eye.svg";
 {/* General Settings Item */}
 function AccordionItem({ id, title, icon, openId, setOpenId, children }) {
   const isOpen = openId === id;
+  const { theme = "light" } = useTheme() || {};
+  const handleToggle = () => setOpenId(isOpen ? null : id);
+  const panelClasses =
+    theme === "dark"
+      ? "bg-[#1f2434]/90 border border-[#353a52] text-[#f5ede1]"
+      : "bg-[#ead4c3] border-[3px] border-[#e3cfbf] text-[#4b3b2f]";
 
   return (
-    <div className="panel-card">
-
-      {/* Make the entire header clickable */}
-      <div
-        className="flex justify-between items-center cursor-pointer"
-        onClick={() => setOpenId(isOpen ? null : id)}
+    <div className={`border-[3px] rounded-[1.5rem] px-8 py-[6px] font-bold mt-4 ${panelClasses}`}>
+      <button
+        type="button"
+        onClick={handleToggle}
+        aria-expanded={isOpen}
+        aria-controls={`sect-${id}`}
+        className="flex justify-between items-center w-full text-left cursor-pointer focus:outline-none"
       >
         <div className="p-1 flex items-center gap-3 text-4xl font-semibold">
-          {icon && <img src={icon} alt="" className="w-8" />}
+          {icon && (
+            <img
+              src={icon}
+              alt=""
+              className={`w-8 ${theme === "dark" ? "brightness-[1.2] saturate-[0.3]" : ""}`}
+            />
+          )}
           {title}
         </div>
 
@@ -32,11 +45,11 @@ function AccordionItem({ id, title, icon, openId, setOpenId, children }) {
         <div
           className={`transition-transform duration-200 ${
             isOpen ? "rotate-0" : "rotate-180"
-          }`}
+          } ${theme === "dark" ? "brightness-[1.8] saturate-[0.3]" : ""}`}
         >
           <img src={toggleTab} alt="toggle selection" className="w-8 h-8" />
         </div>
-      </div>
+      </button>
 
       {/* Content section */}
       <div
@@ -53,6 +66,11 @@ function AccordionItem({ id, title, icon, openId, setOpenId, children }) {
 export default function SettingsPage({ onClose }) {
   const { theme, toggleTheme, setTheme } = useTheme();
   const [openId, setOpenId] = useState(null);
+  const pageTextClass = theme === "dark" ? "text-[#f5ede1]" : "text-[#4b3b2f]";
+  const signOutButtonClasses =
+    theme === "dark"
+      ? "bg-[#2f4d2f] hover:bg-[#467346] border border-[#6daf4f] text-white text-opacity-50"
+      : "bg-[#d1ee80] hover:bg-[#b9d66b] border-3 border-[#a2c93b] text-white";
 
   const handleSignOut = async () => {
     try {
@@ -120,7 +138,14 @@ export default function SettingsPage({ onClose }) {
       content: (
         <div className="flex items-center justify-between text-3xl">
           <span>Dark mode</span>
-          <button onClick={toggleTheme} className="…">
+          <button
+            onClick={toggleTheme}
+            className={`px-6 py-2 rounded-full font-semibold transition cursor-pointer ${
+              theme === "dark"
+                ? "bg-[#2f4d2f] text-[#ecffdf] hover:bg-[#467346] border border-[#6daf4f]"
+                : "bg-[#d1ee80] text-[#41521b] hover:bg-[#b9d66b] border border-[#a2c93b]"
+            }`}
+          >
             {theme === "dark" ? "On" : "Off"}
           </button>
         </div>
@@ -129,7 +154,7 @@ export default function SettingsPage({ onClose }) {
   ];
 
   return (
-    <div className="">
+    <div className={pageTextClass}>
       <div>
         {sections.map(({ id, title, icon, content }) => (
         <AccordionItem
@@ -147,8 +172,7 @@ export default function SettingsPage({ onClose }) {
       
       <button
           onClick={handleSignOut}
-          className="absolute bottom-20 w-110 bg-[#d1ee80] hover:bg-[#b9d66b] border-3 border-[#a2c93b]
-                    text-4xl font-bold text-white rounded-2xl drop-shadow-[3px_3px_3px_rgba(0,0,0,0.3)] py-2 transition cursor-pointer"
+          className={`absolute bottom-20 w-110 text-4xl font-bold rounded-2xl drop-shadow-[3px_3px_3px_rgba(0,0,0,0.3)] py-2 transition cursor-pointer ${signOutButtonClasses}`}
         >
           Sign Out
         </button>

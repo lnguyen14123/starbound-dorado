@@ -16,7 +16,7 @@ function Layout({ children }) {
 
   return (
 
-<div className="relative h-screen w-screen overflow-hidden bg-[#dbb9a0]">
+<div className="relative h-screen w-screen overflow-hidden app-shell transition-colors duration-300">
   {/* Background images */}
         
       
