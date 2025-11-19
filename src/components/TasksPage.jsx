@@ -12,6 +12,10 @@ export default function TaskPage({ onClose }) {
   const [showModal, setShowModal] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [checkedTasks, setCheckedTasks] = useState(new Set()); // ✅ store checked task IDs
+  const [priorityFilters, setPriorityFilters] = useState(
+    () => new Set(["Low", "Medium", "High"])
+  );
+  const [isFinishing, setIsFinishing] = useState(false);
   const { theme = "light" } = useTheme() || {};
 
 const difficultyValues = {
@@ -41,6 +45,7 @@ const difficultyValues = {
         ? "bg-[#632f3c] text-[#ff9fb1]"
         : "bg-[#ffbac4] text-[#f5526b]",
   };
+  const priorityOptions = ["Low", "Medium", "High"];
 
   const dividerClass = theme === "dark" ? "bg-[#3a425a]" : "bg-[#6b4b33]";
 
@@ -99,7 +104,8 @@ const difficultyValues = {
   };
 
 const handleFinishTasks = async () => {
-  if (checkedTasks.size === 0) return;
+  if (checkedTasks.size === 0 || isFinishing) return;
+  setIsFinishing(true);
 
   const uid = localStorage.getItem("uid");
 
@@ -155,8 +161,29 @@ const handleFinishTasks = async () => {
     console.log("Awarded:", totalReward);
   } catch (error) {
     console.error("Error finishing tasks:", error);
+  } finally {
+    setIsFinishing(false);
   }
 };
+
+  const togglePriorityFilter = (priority) => {
+    setPriorityFilters((prev) => {
+      const updated = new Set(prev);
+      if (updated.has(priority)) {
+        if (updated.size === 1) {
+          return updated;
+        }
+        updated.delete(priority);
+      } else {
+        updated.add(priority);
+      }
+      return updated;
+    });
+  };
+
+  const filteredTasks = tasks.filter((task) =>
+    priorityFilters.has(task.priority)
+  );
 
   return (
     <div className="flex h-screen">
@@ -165,15 +192,21 @@ const handleFinishTasks = async () => {
           <div className={`h-[75vh] w-133 max-w-4xl p-8 rounded-2xl ${boardClasses}`}>
             {/* Priority labels */}
             <div className="flex gap-4">
-              <div className={`h-[4vh] w-[6vw] text-2xl rounded-2xl flex items-center justify-center pt-1 ${priorityClasses.Low}`}>
-                Low
-              </div>
-              <div className={`h-[4vh] w-[6vw] text-2xl rounded-2xl flex items-center justify-center pt-1 ${priorityClasses.Medium}`}>
-                Medium
-              </div>
-              <div className={`h-[4vh] w-[6vw] text-2xl rounded-2xl flex items-center justify-center pt-1 ${priorityClasses.High}`}>
-                High
-              </div>
+              {priorityOptions.map((priority) => {
+                const isActive = priorityFilters.has(priority);
+                return (
+                  <button
+                    key={priority}
+                    type="button"
+                    onClick={() => togglePriorityFilter(priority)}
+                    className={`h-[4vh] w-[6vw] text-2xl rounded-2xl flex items-center justify-center pt-1 border-2 border-transparent cursor-pointer transition ${priorityClasses[priority]} ${
+                      isActive ? "" : "opacity-40 border-dashed border-current"
+                    }`}
+                  >
+                    {priority}
+                  </button>
+                );
+              })}
             </div>
 
             <div className="w-full h-[2px] bg-[#926B51] opacity-60 my-4 rounded-full"></div>
@@ -186,8 +219,12 @@ const handleFinishTasks = async () => {
                 <div className={`w-full text-center text-3xl ${emptyStateClass} opacity-70 mt-[10vh]`}>
                   Add a task item!
                 </div>
+              ) : filteredTasks.length === 0 ? (
+                <div className={`w-full text-center text-3xl ${emptyStateClass} opacity-70 mt-[10vh]`}>
+                  No tasks match the selected priorities.
+                </div>
               ) : (
-                tasks.map((task, index) => (
+                filteredTasks.map((task, index) => (
                 <div
                   key={task.task_id || index}
                   className={`relative flex items-center justify-between py-3 pl-[2vw] rounded-sm shadow-md overflow-visible ${taskRowClass}`}
@@ -271,17 +308,17 @@ const handleFinishTasks = async () => {
                 console.log("Finish button clicked, checked tasks:", checkedTasks.size);
                 handleFinishTasks();
               }}
-              disabled={checkedTasks.size === 0} // 👈 disable if no tasks checked
+              disabled={checkedTasks.size === 0 || isFinishing}
               className={`w-60 h-[7vh] text-white font-bold rounded-2xl 
                           shadow-[0_7px_4px_rgba(0,0,0,0.3)] flex items-center justify-center text-4xl pt-2
                           transition-all duration-200
                           ${
-                            checkedTasks.size === 0
+                            checkedTasks.size === 0 || isFinishing
                               ? "bg-gray-400 cursor-not-allowed opacity-50"
                               : `${finishButtonActive} cursor-pointer active:scale-95`
                           }`}
             >
-              ✓ Finish Tasks
+              {isFinishing ? "Finishing..." : "Finish Tasks"}
             </button>
           </div>
         </div>

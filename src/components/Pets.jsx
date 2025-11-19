@@ -309,7 +309,7 @@ useEffect(() => {
   };
 
   const getMotionClasses = () => {
-    let classes = "transition-transform duration-700";
+    let classes = "transition-transform duration-250";
     if (isJumping) {
       classes += " -translate-y-5";
     } else if (isBlinking) {

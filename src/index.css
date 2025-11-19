@@ -90,6 +90,12 @@
   --color-equip-inactive-bg: #f2d2b1;
   --color-equip-inactive-text: #7d4b29;
   --color-equip-inactive-hover: #edc49b;
+  --color-loading-bg: rgba(0, 0, 0, 0.35);
+  --color-loading-surface: #f6e9da;
+  --color-loading-text: #5a3b2c;
+
+  --cursor-default: url("/cursors/cursor-default.svg") 12 12, auto;
+  --cursor-pointer: url("/cursors/cursor-pointer.svg") 12 12, pointer;
 }
 
 :root[data-theme="dark"] {
@@ -158,6 +164,9 @@
   --color-equip-inactive-bg: #2a3445;
   --color-equip-inactive-text: #f5d7ba;
   --color-equip-inactive-hover: #354057;
+  --color-loading-bg: rgba(0, 0, 0, 0.65);
+  --color-loading-surface: #151a28;
+  --color-loading-text: #f4ebdd;
 }
 
 a {
@@ -178,6 +187,14 @@ body {
   
   background-color: var(--color-bg);
   color: var(--color-text);
+  cursor: var(--cursor-default);
+}
+
+button,
+a,
+[role="button"],
+.cursor-pointer {
+  cursor: var(--cursor-pointer);
 }
 
 html,

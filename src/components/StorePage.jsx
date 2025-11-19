@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Checkmark from "../assets/icons/checkmark.png";
 
 import BlueCollar from "../assets/pets/clothing/collars/blue_collar.svg";
@@ -237,6 +237,7 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
     message: "",
     isError: false,
   });
+  const [ownedItems, setOwnedItems] = useState(() => new Set());
 
   const timeoutRef = useRef(null);
   const FADE_MS = 300;
@@ -250,6 +251,31 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
+
+  const refreshOwnedItems = useCallback(async () => {
+    const uid = localStorage.getItem("uid");
+    if (!uid) return;
+
+    try {
+      const res = await fetch(`/api/inventory/${uid}`);
+      if (!res.ok) throw new Error("Failed to load inventory");
+      const data = await res.json();
+      setOwnedItems(new Set((data.items || []).map((item) => item.item_id)));
+    } catch (err) {
+      console.error("Failed to refresh owned items", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshOwnedItems();
+  }, [refreshOwnedItems]);
+
+  useEffect(() => {
+    const handleRefresh = () => refreshOwnedItems();
+    window.addEventListener("inventoryRefresh", handleRefresh);
+    return () =>
+      window.removeEventListener("inventoryRefresh", handleRefresh);
+  }, [refreshOwnedItems]);
 
   function openPopup(content) {
     if (timeoutRef.current) {
@@ -298,6 +324,11 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
       const data = await res.json();
       // Update local state
       window.dispatchEvent(new Event("inventoryRefresh"));
+      setOwnedItems((prev) => {
+        const updated = new Set(prev);
+        updated.add(item.db_name);
+        return updated;
+      });
       setCurrency((prev) => prev - item.price);
       closePopup();
       console.log("Purchase successful", data);
@@ -329,9 +360,9 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
     });
   }
 
-  const filteredItems = storeItems.filter(
-    (item) => item.category === selectedCategory
-  );
+  const filteredItems = storeItems
+    .filter((item) => item.category === selectedCategory)
+    .filter((item) => !ownedItems.has(item.db_name));
 
   const panelClass =
     theme === "dark"
