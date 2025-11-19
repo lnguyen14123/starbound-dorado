@@ -32,20 +32,8 @@ Node.js, Express
 
 NeonDB + PostgreSQL
 
-# Taskigotchi
-
-An interactive pet that helps you complete your day‑to‑day tasks. Create a to‑do list, finish items to earn points, and spend those points on fun cosmetics like hats, collars, wallpapers, floors, and furniture for your pet.
 
 > Repo: `lnguyen14123/starbound-dorado`
-
----
-
-## Tech stack
-
-**Languages**
-
-* JavaScript (frontend and backend)
-* HTML & CSS (markup/styling)
 
 **Frameworks & libraries**
 
