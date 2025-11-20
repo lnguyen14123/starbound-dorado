@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "../index.css";
 import toggleTab from "../assets/ui/toggle_tab.svg";
 import AddTaskModal from "./AddTaskForm.jsx";
 
 import { useCurrency } from "../context/CurrencyContext.jsx";
 import { useTheme } from "../context/ThemeContext";
+import { useSoundSettings } from "../context/SoundContext";
+import finishTaskSfx from "../assets/sounds/finish-task.mp3";
 
 export default function TaskPage({ onClose }) {
   const [openId, setOpenId] = useState(null);
@@ -16,6 +18,8 @@ export default function TaskPage({ onClose }) {
   );
   const [isFinishing, setIsFinishing] = useState(false);
   const { theme = "light" } = useTheme() || {};
+  const finishSoundRef = useRef(null);
+  const { masterVolume, sfxVolume } = useSoundSettings();
 
 const difficultyValues = {
   Easy: 5,
@@ -74,6 +78,23 @@ const difficultyValues = {
       ? "bg-[#4c6d3d] hover:bg-[#678b59]"
       : "bg-[#b1d47f] hover:bg-[#7a9456]";
 
+  useEffect(() => {
+    finishSoundRef.current = new Audio(finishTaskSfx);
+    return () => finishSoundRef.current?.pause();
+  }, []);
+
+  useEffect(() => {
+    if (finishSoundRef.current) {
+      finishSoundRef.current.volume =
+        0.4 * (masterVolume ?? 1) * (sfxVolume ?? 1);
+    }
+  }, [masterVolume, sfxVolume]);
+
+  const playFinishSound = () => {
+    if (!finishSoundRef.current) return;
+    finishSoundRef.current.currentTime = 0;
+    finishSoundRef.current.play();
+  };
 
   useEffect(() => {
     async function fetchTasks() {
@@ -104,6 +125,7 @@ const difficultyValues = {
 
 const handleFinishTasks = async () => {
   if (checkedTasks.size === 0 || isFinishing) return;
+  playFinishSound();
   setIsFinishing(true);
 
   const uid = localStorage.getItem("uid");

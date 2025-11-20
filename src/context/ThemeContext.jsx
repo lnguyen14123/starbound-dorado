@@ -4,8 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 const ThemeContext = createContext({ theme: "light", toggleTheme: () => {} });
 
 export function ThemeProvider({ children }) {
-  const system = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || system);
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
 
   useEffect(() => {
     const root = document.documentElement;

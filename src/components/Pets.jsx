@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import GrayCatOpen from "../assets/pets/graycat/graycat_normal.svg";
 import GrayCatBlink from "../assets/pets/graycat/graycat_blink.svg";
@@ -7,7 +7,12 @@ import YellowDogOpen from "../assets/pets/yellowdog/yellowdog_normal.svg";
 import YellowDogBlink from "../assets/pets/yellowdog/yellowdog_blink.svg";
 import YellowDogHappy from "../assets/pets/yellowdog/yellowdog_happy.svg";
 
+// Sounds
+import meowSfx from "../assets/sounds/cat-meow.mp3";
+import barkSfx from "../assets/sounds/dog-bark.mp3";
+
 import { useEquipped } from "../context/EquippedContext";
+import { useSoundSettings } from "../context/SoundContext";
 
 // Collars
 import RedCollar from "../assets/pets/clothing/collars/red_collar.svg";
@@ -201,6 +206,7 @@ const Pets = ({ petType }) => {
   const [equippedItems, setEquippedItems] = useState(null);
 
   const { equipped } = useEquipped();
+  const { masterVolume, petVolume } = useSoundSettings();
 
   const resolvedItems = {
     collar: equipped.pet.collar_item,
@@ -211,6 +217,37 @@ const Pets = ({ petType }) => {
   const horizontalShiftDelta =
     (PET_HORIZONTAL_SHIFT_REM[petVariant] ?? BASE_PET_SHIFT_REM) -
     BASE_PET_SHIFT_REM;
+
+  const catSoundRef = useRef(null);
+  const dogSoundRef = useRef(null);
+
+  useEffect(() => {
+    catSoundRef.current = new Audio(meowSfx);
+    dogSoundRef.current = new Audio(barkSfx);
+    return () => {
+      catSoundRef.current?.pause();
+      dogSoundRef.current?.pause();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (catSoundRef.current) {
+      catSoundRef.current.volume =
+        0.35 * (masterVolume ?? 1) * (petVolume ?? 1);
+    }
+    if (dogSoundRef.current) {
+      dogSoundRef.current.volume =
+        0.35 * (masterVolume ?? 1) * (petVolume ?? 1);
+    }
+  }, [masterVolume, petVolume]);
+
+  const playPetSound = () => {
+    const soundRef =
+      petVariant === "cat" ? catSoundRef.current : dogSoundRef.current;
+    if (!soundRef) return;
+    soundRef.currentTime = 0;
+    soundRef.play();
+  };
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -294,11 +331,12 @@ useEffect(() => {
   // 🐶 Click behavior
   const handleClick = () => {
     if (isHappy || isJumping) return;
+    playPetSound();
     setHappiness((prev) => Math.min(100, prev + 5));
     setIsHappy(true);
     setIsJumping(true);
-    setTimeout(() => setIsJumping(false), 600);
-    setTimeout(() => setIsHappy(false), 1000);
+    setTimeout(() => setIsJumping(false), 300);
+    setTimeout(() => setIsHappy(false), 500);
   };
 
   // 🐱 Pet image selection (you might already have a helper)

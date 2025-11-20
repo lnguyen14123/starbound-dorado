@@ -31,6 +31,8 @@ import WallBrick from "../assets/walls/brick_wall.svg";
 
 import { useCurrency } from "../context/CurrencyContext";
 import { useTheme } from "../context/ThemeContext";
+import { useSoundSettings } from "../context/SoundContext";
+import purchaseSfx from "../assets/sounds/store-purchase.mp3";
 
 export default function StorePage({ onClose, panelVisible, selectedCategory }) {
   const storeItems = [
@@ -229,6 +231,7 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
 
   const { currency, setCurrency } = useCurrency();
   const { theme = "light" } = useTheme() || {};
+  const { masterVolume, sfxVolume } = useSoundSettings();
 
   const [showPopup, setShowPopup] = useState(false);
   const [isFading, setIsFading] = useState(false);
@@ -238,6 +241,7 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
     isError: false,
   });
   const [ownedItems, setOwnedItems] = useState(() => new Set());
+  const purchaseSoundRef = useRef(null);
 
   const timeoutRef = useRef(null);
   const FADE_MS = 300;
@@ -280,6 +284,24 @@ useEffect(() => {
     return () =>
       window.removeEventListener("inventoryRefresh", handleRefresh);
   }, [refreshOwnedItems]);
+
+  useEffect(() => {
+    purchaseSoundRef.current = new Audio(purchaseSfx);
+    return () => purchaseSoundRef.current?.pause();
+  }, []);
+
+  useEffect(() => {
+    if (purchaseSoundRef.current) {
+      purchaseSoundRef.current.volume =
+        0.5 * (masterVolume ?? 1) * (sfxVolume ?? 1);
+    }
+  }, [masterVolume, sfxVolume]);
+
+  const playPurchaseSound = () => {
+    if (!purchaseSoundRef.current) return;
+    purchaseSoundRef.current.currentTime = 0;
+    purchaseSoundRef.current.play();
+  };
 
   function openPopup(content) {
     if (timeoutRef.current) {
@@ -334,6 +356,7 @@ useEffect(() => {
         return updated;
       });
       setCurrency((prev) => prev - item.price);
+      playPurchaseSound();
       closePopup();
       console.log("Purchase successful", data);
     } catch (err) {

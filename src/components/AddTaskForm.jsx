@@ -1,4 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import popSfx from "../assets/sounds/minimal-ui-pop.mp3";
+import { useSoundSettings } from "../context/SoundContext";
 
 export default function AddTaskForm({ onClose, onSave }) {
   const today = new Date().toISOString().split("T")[0];
@@ -17,9 +19,31 @@ export default function AddTaskForm({ onClose, onSave }) {
   const buttonBase =
     "font-semibold text-2xl px-7 py-4 rounded-xl shadow-md transition cursor-pointer";
 
+  const popSoundRef = useRef(null);
+  const { masterVolume, sfxVolume } = useSoundSettings();
+
+  useEffect(() => {
+    popSoundRef.current = new Audio(popSfx);
+    return () => popSoundRef.current?.pause();
+  }, []);
+
+  useEffect(() => {
+    if (popSoundRef.current) {
+      popSoundRef.current.volume =
+        0.4 * (masterVolume ?? 1) * (sfxVolume ?? 1);
+    }
+  }, [masterVolume, sfxVolume]);
+
+  const playPop = () => {
+    if (!popSoundRef.current) return;
+    popSoundRef.current.currentTime = 0;
+    popSoundRef.current.play();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSaving) return;
+    playPop();
     setIsSaving(true);
     const uid = localStorage.getItem("uid");
     const taskData = { uid, name, date, priority, difficulty };
