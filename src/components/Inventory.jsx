@@ -1,10 +1,13 @@
-﻿import React, { useCallback, useEffect, useMemo, useState } from "react";
+﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "../index.css";
 import FurnitureIcon from '../assets/icons/furnitureInventory.svg';
 import PetIcon from '../assets/icons/petInventory.svg';
 
 import { useEquipped } from "../context/EquippedContext";
+import { useSoundSettings } from "../context/SoundContext";
 
+// Sounds
+import pageSfx from "../assets/sounds/pageturn.mp3";
 
 const assetImports = import.meta.glob("../assets/**/*", {
   eager: true,
@@ -100,6 +103,28 @@ export default function Inventory() {
   const [lastSynced, setLastSynced] = useState(null);
 
   const { equipped, setEquipped } = useEquipped();
+  const { masterVolume, sfxVolume } = useSoundSettings();
+  const pageSoundRef = useRef(null);
+
+  useEffect(() => {
+      pageSoundRef.current = new Audio(pageSfx);
+      return () => {
+        pageSoundRef.current?.pause();
+      };
+    }, []);
+
+  useEffect(() => {
+    if (pageSoundRef.current) {
+      pageSoundRef.current.volume =
+        1.0 * (masterVolume ?? 1) * (sfxVolume ?? 1);
+    }
+  }, [masterVolume, sfxVolume]);
+
+  const playPage = () => {
+    if (!pageSoundRef.current) return;
+      pageSoundRef.current.currentTime = 0;
+      pageSoundRef.current.play();
+    };
   
   const groupedItems = useMemo(() => {
     const groups = Object.keys(CATEGORY_CONFIG).reduce((acc, key) => {
@@ -318,6 +343,7 @@ const fetchInventory = useCallback(
     className="h-[12vh] bg-[var(--color-inventory-pet)] border-5 border-[var(--color-inventory-pet-border)] pr-10 pl-2 transition-transform duration-200 hover:-translate-x-2
                flex items-center justify-center rounded-l-2xl shadow-lg cursor-pointer"
     onClick={() => {
+      playPage();
       setActiveGroup("pet");
       setOpen(true);
     }}
@@ -335,6 +361,7 @@ const fetchInventory = useCallback(
     className="h-[12vh] bg-[var(--color-inventory-room)] border-5 border-[var(--color-inventory-room-border)] pr-10 pl-2 transition-transform duration-200 hover:-translate-x-2
                flex items-center justify-center rounded-l-2xl shadow-lg cursor-pointer"
     onClick={() => {
+      playPage();
       setActiveGroup("room");
       setOpen(true);
     }}

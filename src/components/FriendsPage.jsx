@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "../index.css";
 import user_icon from "../assets/icons/User.svg"
 import Checkmark from "../assets/icons/checkmark.png";
 import StreakFire from "../assets/icons/streak_fire.png";
 import achievements from "../assets/icons/achievements.svg"
 import { auth } from "../firebase";
+import friendRequestSfx from "../assets/sounds/friend-request.mp3";
+import newNotifSfx from "../assets/sounds/new-notif.mp3";
+import { useSoundSettings } from "../context/SoundContext";
 
 export default function FriendsPage({ onClose, onPendingRequestsChange }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -14,6 +17,10 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
   const [showSearch, setShowSearch] = useState(false);
   const [currentUid, setCurrentUid] = useState(null);
   const [friendBadgeCounts, setFriendBadgeCounts] = useState({});
+  const sendSoundRef = useRef(null);
+  const newNotifSoundRef = useRef(null);
+  const prevPendingCountRef = useRef(null);
+  const { masterVolume, sfxVolume } = useSoundSettings();
   useEffect(() => {
     const uid = localStorage.getItem("uid");
     setCurrentUid(uid);
@@ -22,6 +29,39 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
       fetchPendingRequests(uid);
     }
   }, []);
+
+  useEffect(() => {
+    sendSoundRef.current = new Audio(friendRequestSfx);
+    return () => sendSoundRef.current?.pause();
+  }, []);
+
+  useEffect(() => {
+    newNotifSoundRef.current = new Audio(newNotifSfx);
+    return () => newNotifSoundRef.current?.pause();
+  }, []);
+
+  useEffect(() => {
+    if (sendSoundRef.current) {
+      sendSoundRef.current.volume =
+        0.6 * (masterVolume ?? 1) * (sfxVolume ?? 1);
+    }
+    if (newNotifSoundRef.current) {
+      newNotifSoundRef.current.volume =
+        0.6 * (masterVolume ?? 1) * (sfxVolume ?? 1);
+    }
+  }, [masterVolume, sfxVolume]);
+
+  const playSendSound = () => {
+    if (!sendSoundRef.current) return;
+    sendSoundRef.current.currentTime = 0;
+    sendSoundRef.current.play();
+  };
+
+  const playNewNotifSound = () => {
+    if (!newNotifSoundRef.current) return;
+    newNotifSoundRef.current.currentTime = 0;
+    newNotifSoundRef.current.play();
+  };
 
   const fetchFriends = async (uid) => {
     try {
@@ -60,6 +100,11 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
       const data = await response.json();
       const requests = data.requests || [];
       setPendingRequests(requests);
+      const prevCount = prevPendingCountRef.current;
+      if (prevCount !== null && requests.length > prevCount) {
+        playNewNotifSound();
+      }
+      prevPendingCountRef.current = requests.length;
       // Update the notification badge count
       if (onPendingRequestsChange) {
         onPendingRequestsChange(requests.length);
@@ -108,6 +153,7 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
 
       if (response.ok) {
         await response.json();
+        playSendSound();
         setSearchQuery("");
         setSearchResults([]);
         setShowSearch(false);

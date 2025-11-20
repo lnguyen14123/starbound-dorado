@@ -27,11 +27,12 @@ import WallsIcon from "../assets/walls/brick_wall.svg";
 import PetInventory from "../assets/icons/petInventory.svg";
 import FurnitureInventory from "../assets/icons/furnitureInventory.svg";
 
+// Sounds
+import pageSfx from "../assets/sounds/pageturn.mp3";
+import levelUpSfx from "../assets/sounds/level-up.mp3";
+
 import LoadingScreen from "./LoadingScreen";
 
-
-//import GrayCat1 from "../assets/gray_cat1.png";
-//import YellowDog1 from "../assets/yellow_dog1.png";
 import Pets from "./Pets";
 
 import Checkmark from "../assets/icons/checkmark.png";
@@ -40,6 +41,7 @@ import StreakFire from "../assets/icons/streak_fire.png";
 import { useCurrency } from "../context/CurrencyContext";
 import Wall from "./Wall";
 import { useTheme } from "../context/ThemeContext";
+import { useSoundSettings } from "../context/SoundContext";
 
 export default function MainPage() {
   const navigate = useNavigate();
@@ -53,14 +55,17 @@ export default function MainPage() {
   const [level, setLevel] = useState(1);
   const { currency, setCurrency } = useCurrency();
   const { theme = "light", toggleTheme = () => {} } = useTheme() || {};
+  const { masterVolume, sfxVolume } = useSoundSettings();
   const latestBadgeCountRef = useRef(0);
+
+  const pageSoundRef = useRef(null);
+  const levelUpSoundRef = useRef(null);
 
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(location.state?.showLoading || true);
 
   // Remove your old useEffect with the 1200ms timeout
   // and replace it with:
-
 
   const mainBackgroundClass =
     theme === "dark"
@@ -128,7 +133,40 @@ export default function MainPage() {
 
   const [storeCategory, setStoreCategory] = useState("Hats");
 
+  useEffect(() => {
+    pageSoundRef.current = new Audio(pageSfx);
+    levelUpSoundRef.current = new Audio(levelUpSfx);
+    return () => {
+      pageSoundRef.current?.pause();
+      levelUpSoundRef.current?.pause();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (pageSoundRef.current) {
+      pageSoundRef.current.volume =
+        1.0 * (masterVolume ?? 1) * (sfxVolume ?? 1);
+    }
+    if (levelUpSoundRef.current) {
+      levelUpSoundRef.current.volume =
+        0.6 * (masterVolume ?? 1) * (sfxVolume ?? 1);
+    }
+  }, [masterVolume, sfxVolume]);
+
+  const playPage = () => {
+    if (!pageSoundRef.current) return;
+      pageSoundRef.current.currentTime = 0;
+      pageSoundRef.current.play();
+    };
+
+  const playLevelUp = () => {
+    if (!levelUpSoundRef.current) return;
+    levelUpSoundRef.current.currentTime = 0;
+    levelUpSoundRef.current.play();
+  };
+
   const openPanel = (panelName) => {
+    playPage();
     setActivePanel(panelName);
     // Give it one tick to mount before sliding in
     requestAnimationFrame(() => setPanelVisible(true));
@@ -369,7 +407,7 @@ useEffect(() => {
             hover:-translate-x-1
             flex items-center justify-between rounded-sm
           "
-          onClick={() => navigate("/customize?mode=pet")}
+          onClick={() => { playClick(); navigate("/customize?mode=pet"); }}
         >
           <img src={PetInventory} alt="Pet Inventory" className="w-10" />
         </button>
@@ -386,7 +424,7 @@ useEffect(() => {
             hover:-translate-x-1 
             flex items-center justify-between rounded-sm
           "
-          onClick={() => navigate("/customize?mode=furniture")}
+          onClick={() => { playClick(); navigate("/customize?mode=furniture"); }}
         >
           <img src={FurnitureInventory} alt="Furniture Inventory" className="w-10" />
         </button>

@@ -23,6 +23,7 @@ import CustomizePage from "./components/CustomizePage";
 import { CurrencyProvider } from "./context/CurrencyContext";
 import { EquippedProvider } from "./context/EquippedContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { SoundProvider } from "./context/SoundContext";
 
 import LoadingScreen from "./components/LoadingScreen";
 
@@ -57,6 +58,7 @@ function App() {
   }
 
   return (
+    <SoundProvider>
     <ThemeProvider>
     <EquippedProvider>
     <CurrencyProvider>
@@ -118,6 +120,7 @@ function App() {
       </CurrencyProvider>
       </EquippedProvider>
       </ThemeProvider>
+      </SoundProvider>
   );
 }
 
