@@ -924,7 +924,8 @@ router.post("/friends/request", async (req, res) => {
     // Check if there's already a friend request between these users
     const existingRequest = await pool.query(
       `SELECT request_id, status FROM friend_requests 
-       WHERE sender_uid = $1 AND receiver_uid = $2`,
+       WHERE sender_uid = $1 AND receiver_uid = $2 
+       AND status IN ('pending', 'accepted')`,
       [senderUid, receiverUid]
     );
 
@@ -934,8 +935,6 @@ router.post("/friends/request", async (req, res) => {
         return res.status(400).json({ error: "Friend request already sent" });
       } else if (request.status === 'accepted') {
         return res.status(400).json({ error: "You are already friends with this user" });
-      } else {
-        return res.status(400).json({ error: "Friend request was previously declined" });
       }
     }
 
