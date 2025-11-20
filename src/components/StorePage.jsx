@@ -252,23 +252,27 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
     };
   }, []);
 
-  const refreshOwnedItems = useCallback(async () => {
-    const uid = localStorage.getItem("uid");
-    if (!uid) return;
+const [loadingItems, setLoadingItems] = useState(true);
 
-    try {
-      const res = await fetch(`/api/inventory/${uid}`);
-      if (!res.ok) throw new Error("Failed to load inventory");
-      const data = await res.json();
-      setOwnedItems(new Set((data.items || []).map((item) => item.item_id)));
-    } catch (err) {
-      console.error("Failed to refresh owned items", err);
-    }
-  }, []);
+const refreshOwnedItems = useCallback(async () => {
+  const uid = localStorage.getItem("uid");
+  if (!uid) return;
 
-  useEffect(() => {
-    refreshOwnedItems();
-  }, [refreshOwnedItems]);
+  try {
+    const res = await fetch(`/api/inventory/${uid}`);
+    if (!res.ok) throw new Error("Failed to load inventory");
+    const data = await res.json();
+    setOwnedItems(new Set((data.items || []).map((item) => item.item_id)));
+  } catch (err) {
+    console.error("Failed to refresh owned items", err);
+  } finally {
+    setLoadingItems(false);
+  }
+}, []);
+
+useEffect(() => {
+  refreshOwnedItems();
+}, [refreshOwnedItems]);
 
   useEffect(() => {
     const handleRefresh = () => refreshOwnedItems();
@@ -398,7 +402,7 @@ export default function StorePage({ onClose, panelVisible, selectedCategory }) {
     <div className="w-125 h-[78vh] mt-[1vh] items-center justify-center relative flex">
       <div className={`w-full h-full rounded-2xl p-3 overflow-hidden flex flex-col relative ${panelClass}`}>
         <div className="grid grid-cols-2 gap-3 w-full p-1 overflow-y-auto overflow-x-hidden min-h-0 content-start items-start">
-          {filteredItems.map((item) => (
+          {!loadingItems && filteredItems.map((item) => (
             <div
               key={item.id}
               className={`rounded-2xl w-full aspect-[4/3] shadow-md hover:shadow-lg transition-shadow duration-300 relative flex flex-col justify-end items-center ${cardClass}`}
