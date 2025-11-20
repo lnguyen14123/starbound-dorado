@@ -7,6 +7,7 @@ export default function AddTaskForm({ onClose, onSave }) {
   const [date, setDate] = useState(today);
   const [priority, setPriority] = useState("Medium");
   const [difficulty, setDifficulty] = useState("Easy");
+  const [isSaving, setIsSaving] = useState(false);
 
   const fieldClasses =
     "border-3 rounded-xl px-4 py-2 bg-[var(--color-task-input-bg)] " +
@@ -18,6 +19,8 @@ export default function AddTaskForm({ onClose, onSave }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSaving) return;
+    setIsSaving(true);
     const uid = localStorage.getItem("uid");
     const taskData = { uid, name, date, priority, difficulty };
 
@@ -39,6 +42,8 @@ export default function AddTaskForm({ onClose, onSave }) {
     } catch (err) {
       console.error("Error saving task:", err);
       alert(`Could not save task: ${err.message}. Try again!`);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -147,9 +152,12 @@ export default function AddTaskForm({ onClose, onSave }) {
 
   <button
     type="submit"
-    className={`${buttonBase} bg-[var(--color-task-primary-bg)] text-[var(--color-task-primary-text)] hover:bg-[var(--color-task-primary-hover)]`}
+    disabled={isSaving}
+    className={`${buttonBase} bg-[var(--color-task-primary-bg)] text-[var(--color-task-primary-text)] hover:bg-[var(--color-task-primary-hover)] ${
+      isSaving ? "opacity-60 cursor-not-allowed" : ""
+    }`}
   >
-    Save Task
+    {isSaving ? "Saving..." : "Save Task"}
   </button>
 </div>
         </form>

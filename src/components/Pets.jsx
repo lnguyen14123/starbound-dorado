@@ -43,51 +43,59 @@ const DEFAULT_HAT_VARIANTS = {
 
 const HAT_POSITION_PRESETS = {
   hat_party: {
-    base: DEFAULT_HAT_BASE,
+    base: { ...DEFAULT_HAT_BASE, height: "22vh" },
     ...DEFAULT_HAT_VARIANTS,
+    dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 17},
   },
   crown: {
-    base: DEFAULT_HAT_BASE,
+    base: { ...DEFAULT_HAT_BASE, height: "14vh" },
     ...DEFAULT_HAT_VARIANTS,
   },
   crown_purple: {
-    base: DEFAULT_HAT_BASE,
+    base: { ...DEFAULT_HAT_BASE, height: "14vh" },
     ...DEFAULT_HAT_VARIANTS,
   },
   cap_blue: {
-    base: DEFAULT_HAT_BASE,
-    ...DEFAULT_HAT_VARIANTS,
+    base: { ...DEFAULT_HAT_BASE, height: "20vh" },
+    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 22},
+    dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 22},
   },
   hat_top: {
-    base: DEFAULT_HAT_BASE,
-    ...DEFAULT_HAT_VARIANTS,
+    base: { ...DEFAULT_HAT_BASE, height: "24vh" },
+    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 21, xVh: -12.5 },
+    dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 21},
   },
   hat_conductor: {
     base: DEFAULT_HAT_BASE,
-    ...DEFAULT_HAT_VARIANTS,
+    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 22},
+    dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 22},
   },
   hat_tennis: {
-    base: DEFAULT_HAT_BASE,
-    ...DEFAULT_HAT_VARIANTS,
+    base: { ...DEFAULT_HAT_BASE, height: "20vh" },
+    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 23},
+    dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 23},
   },
   beanie_red: {
-    base: DEFAULT_HAT_BASE,
-    ...DEFAULT_HAT_VARIANTS,
+    base: { ...DEFAULT_HAT_BASE, height: "20vh" },
+    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 19},
+    dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 19},
   },
   hat_cowboy: {
-    base: DEFAULT_HAT_BASE,
-    ...DEFAULT_HAT_VARIANTS,
+    base: { ...DEFAULT_HAT_BASE, height: "22vh" },
+    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 20},
+    dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 20},
   },
   hat_bucket: {
-    base: DEFAULT_HAT_BASE,
-    ...DEFAULT_HAT_VARIANTS,
+    base: { ...DEFAULT_HAT_BASE, height: "22vh" },
+    cat: { ...DEFAULT_HAT_VARIANTS.cat, yVh: 20},
+    dog: { ...DEFAULT_HAT_VARIANTS.dog, yVh: 21},
   },
 };
 
-const DEFAULT_COLLAR_BASE = { height: "10vh", xRem: -4.45 };
+const DEFAULT_COLLAR_BASE = { height: "8vh", xRem: -4.45 };
 const DEFAULT_COLLAR_VARIANTS = {
-  cat: { yVh: -17, xVh: -10.5 },
-  dog: { yVh: -16, xVh: 7.5 },
+  cat: { yVh: -14.5, xVh: -11 },
+  dog: { yVh: -14, xVh: 7 },
 };
 
 const COLLAR_POSITION_PRESETS = {
@@ -97,19 +105,21 @@ const COLLAR_POSITION_PRESETS = {
   },
   collar_blue: {
     base: DEFAULT_COLLAR_BASE,
-    ...DEFAULT_COLLAR_VARIANTS,
+    ... DEFAULT_COLLAR_VARIANTS,
   },
   bowtie: {
     base: DEFAULT_COLLAR_BASE,
-    ...DEFAULT_COLLAR_VARIANTS,
+    ... DEFAULT_COLLAR_VARIANTS,
   },
   collar_leather: {
-    base: DEFAULT_COLLAR_BASE,
-    ...DEFAULT_COLLAR_VARIANTS,
+    base: {DEFAULT_COLLAR_BASE, height: "10vh"},
+    cat: { ...DEFAULT_COLLAR_VARIANTS.cat, yVh: -17, xVh: -11},
+    dog: { ...DEFAULT_COLLAR_VARIANTS.dog, yVh: -16, xVh: 7},
   },
   collar_spiky: {
-    base: DEFAULT_COLLAR_BASE,
-    ...DEFAULT_COLLAR_VARIANTS,
+    base: {DEFAULT_COLLAR_BASE, height: "11vh"},
+    cat: { ...DEFAULT_COLLAR_VARIANTS.cat, yVh: -14.5, xVh: -11},
+    dog: { ...DEFAULT_COLLAR_VARIANTS.dog, yVh: -14, xVh: 7},
   },
 };
 
@@ -287,8 +297,8 @@ useEffect(() => {
     setHappiness((prev) => Math.min(100, prev + 5));
     setIsHappy(true);
     setIsJumping(true);
-    setTimeout(() => setIsJumping(false), 300);
-    setTimeout(() => setIsHappy(false), 500);
+    setTimeout(() => setIsJumping(false), 600);
+    setTimeout(() => setIsHappy(false), 1000);
   };
 
   // 🐱 Pet image selection (you might already have a helper)
@@ -311,7 +321,7 @@ useEffect(() => {
   const getMotionClasses = () => {
     let classes = "transition-transform duration-700";
     if (isJumping) {
-      classes += " -translate-y-5";
+      classes += " -translate-y-8";
     } else if (isBlinking) {
       classes += " -translate-y-1";
     }

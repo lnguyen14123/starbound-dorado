@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from "react";
 
-import Award1 from "../assets/badges/Award1.png";
-import Award2 from "../assets/badges/Award2.png";
-import Award3 from "../assets/badges/Award3.png";
+import Pets1 from "../assets/badges/Pets1.png";
+import Pets2 from "../assets/badges/Pets2.png";
+import Pets3 from "../assets/badges/Pets3.png";
+import Exp1 from "../assets/badges/Exp1.png";
+import Exp2 from "../assets/badges/Exp2.png";
+import Exp3 from "../assets/badges/Exp3.png";
 import Calendar1 from "../assets/badges/Calendar1.png";
 import Calendar2 from "../assets/badges/Calendar2.png";
 import Calendar3 from "../assets/badges/Calendar3.png";
-import Compass1 from "../assets/badges/Compass1.png";
-import Compass2 from "../assets/badges/Compass2.png";
-import Compass3 from "../assets/badges/Compass3.png";
 import Pen1 from "../assets/badges/Pen1.png";
 import Pen2 from "../assets/badges/Pen2.png";
 import Pen3 from "../assets/badges/Pen3.png";
 
 const badgeImageMap = {
-  "Award1.png": Award1,
-  "Award2.png": Award2,
-  "Award3.png": Award3,
+  "Pets1.png": Pets1,
+  "Pets2.png": Pets2,
+  "Pets3.png": Pets3,
+  "Exp1.png": Exp1,
+  "Exp2.png": Exp2,
+  "Exp3.png": Exp3,
   "Calendar1.png": Calendar1,
   "Calendar2.png": Calendar2,
   "Calendar3.png": Calendar3,
-  "Compass1.png": Compass1,
-  "Compass2.png": Compass2,
-  "Compass3.png": Compass3,
   "Pen1.png": Pen1,
   "Pen2.png": Pen2,
   "Pen3.png": Pen3,

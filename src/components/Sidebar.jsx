@@ -6,7 +6,7 @@ import TaskbookL from '../assets/ui/L_TaskBook.png';
 import BookCover from "../assets/ui/book_cover.png";
 import Checkmark from "../assets/icons/checkmark.png";
 import ShoppingCart from "../assets/icons/shopping_cart.png";
-import Friends from "../assets/icons/friends.png";
+import Friends from "../assets/icons/friends.svg";
 import Badges from "../assets/icons/badges.png";
 import SettingsIcon from "../assets/icons/settings.png";
 import { useTheme } from "../context/ThemeContext";
@@ -58,7 +58,7 @@ function Sidebar({
       textExtraClass: "pt-1 text-right",
       lightClass: "bg-[#ffbac5] border-3 border-[#ff8395]",
       darkClass: "bg-[#3e2530]/95 border border-[#c47389] text-white",
-      iconClass: "w-25",
+      iconClass: "w-22",
       notificationCount: pendingFriendRequests,
     },
     {

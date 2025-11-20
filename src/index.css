@@ -90,6 +90,12 @@
   --color-equip-inactive-bg: #f2d2b1;
   --color-equip-inactive-text: #7d4b29;
   --color-equip-inactive-hover: #edc49b;
+  --color-loading-bg: rgba(0, 0, 0, 0.35);
+  --color-loading-surface: #f6e9da;
+  --color-loading-text: #5a3b2c;
+
+  --cursor-default: url("/cursors/cursor-default.svg") 12 12, auto;
+  --cursor-pointer: url("/cursors/cursor-pointer.svg") 12 12, pointer;
   --scrollbar-track: #ead4c3;
   --scrollbar-thumb: #c28554;
   --scrollbar-thumb-hover: #a56b3e;
@@ -161,6 +167,9 @@
   --color-equip-inactive-bg: #2a3445;
   --color-equip-inactive-text: #f5d7ba;
   --color-equip-inactive-hover: #354057;
+  --color-loading-bg: rgba(0, 0, 0, 0.65);
+  --color-loading-surface: #151a28;
+  --color-loading-text: #f4ebdd;
   --scrollbar-track: #1f2434;
   --scrollbar-thumb: #4c6d3d;
   --scrollbar-thumb-hover: #6b8e57;
@@ -180,6 +189,7 @@
 *::-webkit-scrollbar-track {
   background: var(--scrollbar-track);
   border-radius: 999px;
+  cursor: var(--cursor-default);
 }
 
 *::-webkit-scrollbar-thumb {
@@ -187,10 +197,12 @@
   border-radius: 999px;
   border: 2px solid var(--scrollbar-track);
   box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.15);
+  cursor: var(--cursor-pointer);
 }
 
 *::-webkit-scrollbar-thumb:hover {
   background-color: var(--scrollbar-thumb-hover);
+  cursor: var(--cursor-pointer);
 }
 
 a {
@@ -211,6 +223,14 @@ body {
   
   background-color: var(--color-bg);
   color: var(--color-text);
+  cursor: var(--cursor-default);
+}
+
+button,
+a,
+[role="button"],
+.cursor-pointer {
+  cursor: var(--cursor-pointer);
 }
 
 html,
