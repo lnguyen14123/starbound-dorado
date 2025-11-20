@@ -39,14 +39,15 @@ export default function Login() {
       }
       
       // Navigate to home page after successful login
-      navigate("/");
+      // After successful login
+      navigate("/", { state: { showLoading: true } });
     } catch (err) {
       setError(err.message);
     }
   };
   return (
 
-<div className="w-screen h-screen flex items-center justify-center relative">
+<div className="w-screen h-screen flex items-center justify-center relative z-30">
   {/* Notebook wrapper to control centering */}
   <div className="relative w-auto">
     {/* Notebook itself */}
@@ -94,21 +95,6 @@ export default function Login() {
 
       </div>
     </Notebook>
-
-    {/* Side buttons, glued to the Notebook */}
-    <div className="absolute top-20 right-78 flex flex-col gap-4 z-0">
-      <button className="text-right cursor-pointer bg-[#ffbac4] text-4xl font-dongle 
-      font-bold text-white pl-6 border-[#fe8693] border-3 pr-3 py-1 rounded-r-sm shadow-md hover:bg-[#fe8693] transition"
-      onClick={() => navigate("/login")}>
-        Login
-      </button>
-
-      <button className="text-right cursor-pointer bg-[#ffbac4] text-4xl -translate-x-4 
-      font-bold font-dongle text-white pl-10 pr-3 py-1 border-[#fe8693] border-3 rounded-r-sm shadow-md hover:bg-[#fe8693] transition"
-      onClick={() => navigate("/register")}>
-        Sign Up
-      </button>
-    </div>
   </div>
 </div>
   );

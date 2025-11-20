@@ -500,8 +500,6 @@ router.post("/tasks/delete", async (req, res) => {
     const getTasksQuery = `SELECT task_id, priority, difficulty FROM tasks WHERE user_id = $1 AND task_id IN (${placeholders})`;
     const tasksResult = await client.query(getTasksQuery, [uid, ...taskIds]);
     
-    console.log(`[Task Completion] Found ${tasksResult.rows.length} tasks to complete for user ${uid}`);
-    
     // Calculate total XP earned and create a map of task_id to task data
     let totalXP = 0;
     const taskMap = new Map();
@@ -509,14 +507,13 @@ router.post("/tasks/delete", async (req, res) => {
       const xp = calculateXP(task.priority, task.difficulty);
       totalXP += xp;
       taskMap.set(task.task_id, task);
-      console.log(`[Task Completion] Task ${task.task_id}: ${task.priority}/${task.difficulty} = ${xp} XP`);
+
     });
 
     // Delete the tasks
     const deleteQuery = `DELETE FROM tasks WHERE user_id = $1 AND task_id IN (${placeholders})`;
-    const deleteResult = await client.query(deleteQuery, [uid, ...taskIds]);
-    console.log(`[Task Completion] Deleted ${deleteResult.rowCount} tasks`);
-    
+    const deleteResult = await client.query(deleteQuery, [uid, ...taskIds]);    
+
     // Update user XP using user_xp_totals and user_xp_events tables
     if (totalXP > 0) {
       try {
@@ -552,6 +549,15 @@ router.post("/tasks/delete", async (req, res) => {
           );
         }
         
+        // Check and award level badges if level increased
+        if (newLevel > currentLevel) {
+          try {
+            await checkAndAwardMilestoneBadges(uid, "level_reached", newLevel);
+          } catch (badgeErr) {
+            console.error("Error awarding level badges:", badgeErr);
+          }
+        }
+        
         // Record XP events for each task completed
         for (const taskId of taskIds) {
           const task = taskMap.get(taskId);
@@ -575,7 +581,7 @@ router.post("/tasks/delete", async (req, res) => {
           }
         }
         
-        console.log(`[Task Completion] Updated XP: ${currentTotalXP} -> ${newTotalXP}, Level: ${currentLevel} -> ${newLevel}`);
+
       } catch (xpErr) {
         if (xpErr.code === '42P01') {
           console.warn("user_xp_totals or user_xp_events table doesn't exist yet. XP tracking skipped.");
@@ -608,6 +614,22 @@ router.post("/tasks/delete", async (req, res) => {
            last_updated = NOW()`,
         [uid, taskIds.length]
       );
+      
+      // Get updated task count for badges 
+      const statsResult = await client.query(
+        `SELECT lifetime_tasks_completed FROM user_task_stats WHERE uid = $1`,
+        [uid]
+      );
+      const totalTasksCompleted = statsResult.rows.length > 0 
+        ? (statsResult.rows[0].lifetime_tasks_completed || 0) 
+        : taskIds.length;
+      
+      // Check and award task completion badges
+      try {
+        await checkAndAwardMilestoneBadges(uid, "tasks_completed", totalTasksCompleted);
+      } catch (badgeErr) {
+        console.error("Error awarding task completion badges:", badgeErr);
+      }
     } catch (statsErr) {
       if (statsErr.code === '42P01') {
         console.warn("task_completions or user_task_stats table doesn't exist yet. Stats tracking skipped.");
@@ -629,6 +651,13 @@ router.post("/tasks/delete", async (req, res) => {
          VALUES ($1, 1, 1, $2, $2, NOW())`,
         [uid, today]
       );
+      
+      // Check and award streak badges for first streak
+      try {
+        await checkAndAwardMilestoneBadges(uid, "streak_days", 1);
+      } catch (badgeErr) {
+        console.error("Error awarding streak badges:", badgeErr);
+      }
     } else {
       const streak = streakResult.rows[0];
       const lastCompletedDate = streak.last_completed_date 
@@ -645,28 +674,22 @@ router.post("/tasks/delete", async (req, res) => {
       let newStreakDays = 1;
       let newStreakStartDate = today;
 
-      console.log(`[Task Completion] uid: ${uid}, current streak: ${streak.streak_days}, daysDiff: ${daysDiff}, lastCompleted: ${lastCompletedDate}, today: ${today}`);
-      
       if (lastCompletedDate && daysDiff === 1) {
         // Consecutive day - increment streak
         newStreakDays = streak.streak_days + 1;
         newStreakStartDate = streak.streak_start_date || today;
-        console.log(`[Task Completion] Consecutive day - incrementing streak to ${newStreakDays}`);
       } else if (lastCompletedDate && daysDiff === 0) {
         // Same day - keep current streak 
         newStreakDays = streak.streak_days;
         newStreakStartDate = streak.streak_start_date || today;
-        console.log(`[Task Completion] Same day - keeping streak at ${newStreakDays}`);
       } else if (lastCompletedDate && daysDiff > 1) {
         // If streak is broken - start new streak
         newStreakDays = 1;
         newStreakStartDate = today;
-        console.log(`[Task Completion] Streak broken (${daysDiff} day gap) - resetting to 1`);
       } else {
         // First completion - start new streak
         newStreakDays = 1;
         newStreakStartDate = today;
-        console.log(`[Task Completion] First completion - starting streak at 1`);
       }
 
       // Update longest streak if current streak is longer
@@ -682,6 +705,13 @@ router.post("/tasks/delete", async (req, res) => {
          WHERE uid = $5`,
         [newStreakDays, newLongestStreak, newStreakStartDate, today, uid]
       );
+      
+      // Check and award streak badges
+      try {
+        await checkAndAwardMilestoneBadges(uid, "streak_days", newStreakDays);
+      } catch (badgeErr) {
+        console.error("Error awarding streak badges:", badgeErr);
+      }
     }
 
     await client.query("COMMIT");
@@ -744,19 +774,13 @@ router.get("/tasks/streak", async (req, res) => {
       const lastDate = new Date(lastCompletedDate);
       const daysDiff = Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
       
-      console.log(`[Streak API] uid: ${uid}, streak_days: ${streakData.streak_days}, daysDiff: ${daysDiff}, lastCompleted: ${lastCompletedDate}, today: ${today}`);
-      
       // Streak is valid if last completion was today or yesterday (daysDiff <= 1)
       if (daysDiff <= 1) {
         currentStreak = streakData.streak_days || 0;
-        console.log(`[Streak API] Streak is valid: ${currentStreak}`);
       } else {
         // Streak broken (more than 1 day ago) - reset to 0
         currentStreak = 0;
-        console.log(`[Streak API] Streak broken (${daysDiff} days ago)`);
       }
-    } else {
-      console.log(`[Streak API] uid: ${uid}, no last_completed_date`);
     }
 
     res.json({ 
@@ -1112,6 +1136,27 @@ router.put("/friends/requests/:requestId", async (req, res) => {
            VALUES ($1, $2)`,
           [user1, user2]
         );
+        
+        // Get friend count for both users and award badges
+        try {
+          const friendCountResult1 = await pool.query(
+            `SELECT COUNT(*) as count FROM friendships 
+             WHERE user1_uid = $1 OR user2_uid = $1`,
+            [user1]
+          );
+          const friendCount1 = parseInt(friendCountResult1.rows[0]?.count || 0);
+          await checkAndAwardMilestoneBadges(user1, "friends_added", friendCount1);
+          
+          const friendCountResult2 = await pool.query(
+            `SELECT COUNT(*) as count FROM friendships 
+             WHERE user1_uid = $1 OR user2_uid = $1`,
+            [user2]
+          );
+          const friendCount2 = parseInt(friendCountResult2.rows[0]?.count || 0);
+          await checkAndAwardMilestoneBadges(user2, "friends_added", friendCount2);
+        } catch (badgeErr) {
+          console.error("Error awarding friend badges:", badgeErr);
+        }
       }
     }
 
@@ -1347,5 +1392,228 @@ router.post('/inventory/add', async (req, res) => {
 
 
 
+
+//  Routing for Badges System
+async function awardBadge(uid, badgeId) {
+  try {
+    await pool.query(
+      `INSERT INTO user_badges (uid, badge_id)
+       VALUES ($1, $2)
+       ON CONFLICT (uid, badge_id) DO NOTHING`,
+      [uid, badgeId]
+    );
+    return true;
+  } catch (err) {
+    console.error("Error awarding badge:", err);
+    return false;
+  }
+}
+
+// Helper function to check and award milestone badges
+async function checkAndAwardMilestoneBadges(uid, milestoneType, currentValue) {
+  const milestones = {
+    tasks_completed: [1, 5, 10],
+    friends_added: [1, 5, 10],
+    level_reached: [5, 10, 20],
+    streak_days: [1, 5, 10]
+  };
+
+  const badgeMapping = {
+    tasks_completed: {
+      1: "badge_task_1",
+      5: "badge_task_5",
+      10: "badge_task_10"
+    },
+    friends_added: {
+      1: "badge_friend_1",
+      5: "badge_friend_5",
+      10: "badge_friend_10"
+    },
+    level_reached: {
+      5: "badge_level_5",
+      10: "badge_level_10",
+      20: "badge_level_20"
+    },
+    streak_days: {
+      1: "badge_streak_1",
+      5: "badge_streak_5",
+      10: "badge_streak_10"
+    }
+  };
+
+  const relevantMilestones = milestones[milestoneType] || [];
+  const relevantMapping = badgeMapping[milestoneType] || {};
+
+  for (const milestone of relevantMilestones) {
+    if (currentValue >= milestone) {
+      const badgeId = relevantMapping[milestone];
+      if (badgeId) {
+        await awardBadge(uid, badgeId);
+      }
+    }
+  }
+}
+
+// Get all available badges for the badges page
+router.get("/badges/catalog", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT badge_id, display_name, asset_path, milestone_type, milestone_value, created_at 
+       FROM badges
+       ORDER BY milestone_type, milestone_value`
+    );
+    res.json({ badges: result.rows });
+  } catch (err) {
+    if (err.code === "42P01") {
+      return res.json({ badges: [] });
+    }
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+// Get the user's badges
+router.get("/badges/:uid", async (req, res) => {
+  const { uid } = req.params;
+
+  if (!uid) {
+    return res.status(400).json({ error: "Missing uid" });
+  }
+
+  try {
+    // Get all badges in the database
+    const result = await pool.query(
+      `SELECT 
+         b.badge_id,
+         b.display_name,
+         b.asset_path,
+         b.milestone_type,
+         b.milestone_value,
+         ub.acquired_at,
+         CASE WHEN ub.uid IS NOT NULL THEN true ELSE false END AS acquired
+       FROM badges b
+       LEFT JOIN user_badges ub ON b.badge_id = ub.badge_id AND ub.uid = $1
+       ORDER BY b.milestone_type, b.milestone_value`,
+      [uid]
+    );
+
+    const badges = result.rows.map((badge) => ({
+      ...badge,
+      acquired: badge.acquired === true || badge.acquired === "t",
+    }));
+
+    res.json({ badges });
+  } catch (err) {
+    if (err.code === "42P01") {
+      return res.json({ badges: [] });
+    }
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+// Award a badge to the user
+router.post("/badges/award", async (req, res) => {
+  const { uid, badgeId } = req.body;
+
+  if (!uid || !badgeId) {
+    return res.status(400).json({ error: "Missing uid or badgeId" });
+  }
+
+  try {
+    const awarded = await awardBadge(uid, badgeId);
+    if (awarded) {
+      res.json({ success: true, message: "Badge awarded" });
+    } else {
+      res.status(500).json({ error: "Failed to award badge" });
+    }
+  } catch (err) {
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+router.get("/user/stats/:uid", async (req, res) => {
+  const { uid } = req.params;
+
+  if (!uid) {
+    return res.status(400).json({ error: "Missing uid" });
+  }
+
+  try {
+    // Get tasks completed
+    let tasksCompleted = 0;
+    try {
+      const tasksResult = await pool.query(
+        `SELECT lifetime_tasks_completed FROM user_task_stats WHERE uid = $1`,
+        [uid]
+      );
+      tasksCompleted = tasksResult.rows.length > 0 
+        ? (tasksResult.rows[0].lifetime_tasks_completed || 0) 
+        : 0;
+    } catch (err) {
+
+    }
+
+    // Get friends count
+    let friendsCount = 0;
+    try {
+      const friendsResult = await pool.query(
+        `SELECT COUNT(*) as count FROM friendships 
+         WHERE user1_uid = $1 OR user2_uid = $1`,
+        [uid]
+      );
+      friendsCount = parseInt(friendsResult.rows[0]?.count || 0);
+    } catch (err) {
+    }
+
+    // Get usrs current levels  
+    let level = 1;
+    try {
+      const levelResult = await pool.query(
+        `SELECT level FROM user_xp_totals WHERE uid = $1`,
+        [uid]
+      );
+      level = levelResult.rows.length > 0 
+        ? (levelResult.rows[0].level || 1) 
+        : 1;
+    } catch (err) {
+    }
+
+    // Get user's current streak
+    let streak = 0;
+    try {
+      const streakResult = await pool.query(
+        `SELECT streak_days, last_completed_date FROM user_streaks WHERE uid = $1`,
+        [uid]
+      );
+      if (streakResult.rows.length > 0) {
+        const streakData = streakResult.rows[0];
+        const today = new Date().toISOString().split('T')[0];
+        const lastCompletedDate = streakData.last_completed_date 
+          ? new Date(streakData.last_completed_date).toISOString().split('T')[0]
+          : null;
+        
+        if (lastCompletedDate) {
+          const todayDate = new Date(today);
+          const lastDate = new Date(lastCompletedDate);
+          const daysDiff = Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+          // Streak is valid if last completion was today or yesterday
+          if (daysDiff <= 1) {
+            streak = streakData.streak_days || 0;
+          }
+        }
+      }
+    } catch (err) {
+    }
+
+    res.json({
+      tasksCompleted,
+      friendsCount,
+      level,
+      streak
+    });
+  } catch (err) {
+    console.error("Error fetching user stats:", err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
 
 export default router;

@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
-import TaskbookL from "../assets/L_TaskBook.png";
+import TaskbookL from '../assets/ui/L_TaskBook.png';
 import "../index.css";
+import { useTheme } from "../context/ThemeContext";
 
 export default function SlidingPanel({
   show,
@@ -11,6 +12,7 @@ export default function SlidingPanel({
   dimBackground = true,
 }) {
   const isTasksPage = title === "Tasks";
+  const { theme = "light" } = useTheme() || {};
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -36,11 +38,17 @@ export default function SlidingPanel({
         <div className="relative h-full w-full flex items-center justify-center">
           <img
             src={TaskbookL}
-            className="absolute inset-0 w-full h-[97vh] object-fill z-0 pointer-events-none"
+            className={`absolute inset-0 w-full h-[97vh] object-fill z-0 pointer-events-none ${
+              theme === "dark" ? "brightness-[0.35] contrast-[1.1]" : ""
+            }`}
             alt=""
           />
 
-          <div className="relative h-full flex flex-col pl-22 py-6 text-[#4b3b2f] z-10">
+          <div
+            className={`relative h-full flex flex-col pl-22 py-6 z-10 ${
+              theme === "dark" ? "text-[#f5ede1]" : "text-[#4b3b2f]"
+            }`}
+          >
             {!isTasksPage && (
               
               <div className="flex justify-center items-center rounded-md px-4 py-2">
@@ -49,7 +57,9 @@ export default function SlidingPanel({
                 </h2>
 
                 <button
-                  className="mr-3 ml-10 mt-5 text-5xl font-dongle hover:text-[#886b52] transition cursor-pointer"
+                  className={`mr-3 ml-10 mt-5 text-5xl font-dongle transition cursor-pointer ${
+                    theme === "dark" ? "hover:text-[#c9d4ff]" : "hover:text-[#886b52]"
+                  }`}
                   onClick={onClose}
                 >
                   ✕
@@ -58,9 +68,9 @@ export default function SlidingPanel({
             )}
 
             <div
-              className={`p-8 font-dongle text-5xl text-[#4b3b2f] ${
-                !isTasksPage ? "-mt-8" : ""
-              }`}
+              className={`p-8 font-dongle text-5xl ${
+                theme === "dark" ? "text-[#f5ede1]" : "text-[#4b3b2f]"
+              } ${!isTasksPage ? "-mt-8" : ""}`}
             >
               {children}
             </div>

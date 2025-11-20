@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase"; // make sure this points to your Firebase config
 
-import GrayCat1 from "../assets/gray_cat1.png"
-import YellowDog1 from "../assets/yellow_dog1.png"
+import GrayCat1 from "../assets/ui/gray_cat1.png"
+import YellowDog1 from "../assets/ui/yellow_dog1.png"
 import Dresser1 from "../assets/items/dresser_1.png"
 import Window1 from "../assets/items/window_1.png"
 import PottedPlant1 from "../assets/items/pottedplant_1.png"
@@ -16,38 +16,40 @@ function ChoosePet({ tabs, currentTab, onTabClick, setIsNewUser}) {
     const navigate = useNavigate();
     const [saving, setSaving] = useState(false);
 
-    const handleChoosePet = async (petType) => {
-      setSaving(true); // start loading
+const handleChoosePet = async (petType) => {
+  setSaving(true);
 
-      try {
-        const uid = localStorage.getItem("uid");
+  try {
+    const uid = localStorage.getItem("uid");
+    if (!uid) {
+      console.error("No UID found in localStorage");
+      setSaving(false);
+      return;
+    }
 
-        if (!uid) {
-          console.error("No UID found in localStorage");
-          return;
-        }
-    
-        const res = await fetch("/api/choosePet", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            uid: uid,
-            petType: petType
-          }),
-        });
+    const res = await fetch("/api/choosePet", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid, petType }),
+    });
 
-        localStorage.setItem("petType", petType);
-        localStorage.setItem("isNewUser", "false");
-        setIsNewUser(false);
-        navigate('/', {replace:true})
+    if (!res.ok) throw new Error("Failed to choose pet");
 
-      } catch (err) {      
-        console.log(err.message);
-      }finally {
-        setSaving(false); // stop loading
-      }
-    
-    };
+    // Update localStorage and context
+    localStorage.setItem("petType", petType);
+    localStorage.setItem("isNewUser", "false");
+    setIsNewUser(false);
+
+    // Give React a tick to process state before navigating
+    navigate("/", { state: { showLoading: true } });
+
+  } catch (err) {
+    console.error(err.message);
+    alert("Failed to choose pet. Try again.");
+  } finally {
+    setSaving(false);
+  }
+};
   
   return (
 

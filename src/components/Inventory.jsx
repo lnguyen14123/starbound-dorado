@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+﻿import React, { useCallback, useEffect, useMemo, useState } from "react";
 import "../index.css";
 import FurnitureIcon from '../assets/icons/furnitureInventory.svg';
 import PetIcon from '../assets/icons/petInventory.svg';
@@ -88,8 +88,6 @@ const formatDate = (value) => {
   }
 };
 
-
-
 export default function Inventory() {
   const [userId] = useState(getInitialUid);
   const [open, setOpen] = useState(false);
@@ -138,34 +136,66 @@ const setEquippedState = useCallback((nextEquipped) => {
     room: { ...DEFAULT_EQUIPPED.room, ...(nextEquipped?.room || {}) },
   });
 }, [setEquipped]);
+const fetchInventory = useCallback(
+  async ({ silent = false } = {}) => {
+    if (!userId) {
+      setError("Missing UID. Sign in to manage your closet.");
+      return;
+    }
 
-  const fetchInventory = useCallback(
-    async ({ silent = false } = {}) => {
-      if (!userId) {
-        setError("Missing UID. Sign in to manage your closet.");
-        return;
-      }
+    if (!silent) setLoading(true);
 
-      if (!silent) setLoading(true);
+    try {
+      const response = await fetch(`/api/inventory/${userId}`);
+      if (!response.ok) throw new Error("Unable to load inventory right now.");
 
-      try {
-        const response = await fetch(`/api/inventory/${userId}`);
-        if (!response.ok) {
-          throw new Error("Unable to load inventory right now.");
-        }
-        const data = await response.json();
-        setItems(data.items || []);
-        setEquippedState(data.equipped);
-        setError("");
-        setLastSynced(new Date());
-      } catch (err) {
-        setError(err.message || "Unable to load inventory.");
-      } finally {
-        if (!silent) setLoading(false);
-      }
-    },
-    [setEquippedState, userId]
-  );
+      const data = await response.json();
+
+      // ✅ Merge new items instead of overwriting
+      setItems((prev) => {
+        const existingIds = new Set(prev.map(i => i.item_id));
+        const merged = [
+          ...prev,
+          ...(data.items || []).filter(i => !existingIds.has(i.item_id))
+        ];
+        return merged;
+      });
+
+      setEquippedState(data.equipped);
+      setError("");
+      setLastSynced(new Date());
+    } catch (err) {
+      setError(err.message || "Unable to load inventory.");
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  },
+  [setEquippedState, userId]
+);
+  
+  useEffect(() => {
+  const handleRefresh = () => fetchInventory({ silent: true });
+  window.addEventListener("inventoryRefresh", handleRefresh);
+  return () => window.removeEventListener("inventoryRefresh", handleRefresh);
+}, [fetchInventory]);
+
+
+  useEffect(() => {
+  const handleInventoryUpdate = (event) => {
+    const newItem = event.detail?.item;
+    if (newItem) {
+      setItems((prev) => [...prev, {
+        ...newItem,
+        item_id: newItem.db_name, // or however your backend IDs it
+        acquired_at: new Date().toISOString(),
+      }]);
+    }
+  };
+
+  window.addEventListener("inventoryUpdated", handleInventoryUpdate);
+  return () => window.removeEventListener("inventoryUpdated", handleInventoryUpdate);
+}, []);
+
 
   useEffect(() => {
     if (!userId) {
@@ -285,7 +315,7 @@ const setEquippedState = useCallback((nextEquipped) => {
   {/* PET ITEMS BUTTON */}
   <button
     type="button"
-    className="h-[12vh] bg-[#FFBAC5] border-5 border-[#FE8693] pr-10 pl-2 transition-transform duration-200 hover:-translate-x-2
+    className="h-[12vh] bg-[var(--color-inventory-pet)] border-5 border-[var(--color-inventory-pet-border)] pr-10 pl-2 transition-transform duration-200 hover:-translate-x-2
                flex items-center justify-center rounded-l-2xl shadow-lg cursor-pointer"
     onClick={() => {
       setActiveGroup("pet");
@@ -302,7 +332,7 @@ const setEquippedState = useCallback((nextEquipped) => {
   {/* FURNITURE BUTTON */}
   <button
     type="button"
-    className="h-[12vh] bg-[#FCD68D] border-5 border-[#DAA94B] pr-10 pl-2 transition-transform duration-200 hover:-translate-x-2
+    className="h-[12vh] bg-[var(--color-inventory-room)] border-5 border-[var(--color-inventory-room-border)] pr-10 pl-2 transition-transform duration-200 hover:-translate-x-2
                flex items-center justify-center rounded-l-2xl shadow-lg cursor-pointer"
     onClick={() => {
       setActiveGroup("room");
@@ -324,17 +354,17 @@ const setEquippedState = useCallback((nextEquipped) => {
         }`}
         style={{ width: "", left: "0px" }}
       >
-        <div className="h-full w-full bg-[#f9ecd7] border-r-4 border-[#b0885f] shadow-2xl flex flex-col">
-          <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b-2 border-[#d4b18c]">
+        <div className="h-full w-full bg-[var(--color-surface)] border-r-4 border-[var(--color-border-strong)] shadow-2xl flex flex-col">
+          <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b-2 border-[var(--color-border-soft)]">
             <div>
-              <p className="text-[#9c6b3c] font-dongle text-3xl">Inventory</p>
-              <h2 className="text-[#4b3b2f] font-dongle text-6xl leading-none font-bold">
+              <p className="text-[var(--color-muted)] font-dongle text-3xl">Inventory</p>
+              <h2 className="text-[var(--color-text)] font-dongle text-6xl leading-none font-bold">
                 {activeGroupMeta.label}
               </h2>
             </div>
             <button
               type="button"
-              className="text-3xl font-dongle text-[#a0613a] hover:text-[#80472a] transition-colors cursor-pointer"
+              className="text-3xl font-dongle text-[var(--color-button-primary)] hover:text-[var(--color-button-primary-hover)] transition-colors cursor-pointer"
               onClick={() => setOpen(false)}
             >
               ✕
@@ -346,10 +376,10 @@ const setEquippedState = useCallback((nextEquipped) => {
               <button
                 key={key}
                 type="button"
-                className={`flex-1 font-dongle text-3xl border-2 border-[#c9965e] rounded-full py-1 transition-colors  cursor-pointer ${
+                className={`flex-1 font-dongle text-3xl border-2 border-[var(--color-border-soft)] rounded-full py-1 transition-colors  cursor-pointer ${
                   activeGroup === key
-                    ? "bg-[#c28554] text-white"
-                    : "text-[#9c6b3c] bg-white hover:bg-[#f0d4b7]"
+                    ? "bg-[var(--color-tab-active-bg)] text-[var(--color-tab-active-text)]"
+                    : "text-[var(--color-muted)] bg-[var(--color-tab-inactive-bg)] hover:bg-[var(--color-tab-hover-bg)]"
                 }`}
                 onClick={() => setActiveGroup(key)}
               >
@@ -358,9 +388,9 @@ const setEquippedState = useCallback((nextEquipped) => {
             ))}
           </div>
 
-          <div className="px-6 text-[#6d4c38] font-dongle text-3xl">
+          <div className="px-6 text-[var(--color-text)] font-dongle text-3xl">
             <p>{activeGroupMeta.description}</p>
-            <div className="flex justify-between text-[#a27c5b] text-2xl mt-2">
+            <div className="flex justify-between text-[var(--color-muted)] text-2xl mt-2">
               <span>
                 Last synced:{" "}
                 {lastSynced
@@ -368,20 +398,20 @@ const setEquippedState = useCallback((nextEquipped) => {
                       hour: "2-digit",
                       minute: "2-digit",
                     })
-                  : "—"}
+                  : "â€”"}
               </span>
               {loading ? <span>Refreshing...</span> : null}
             </div>
           </div>
 
           {error && (
-            <div className="mx-6 my-3 bg-[#fbe3e3] text-[#b84040] border border-[#f3b1b1] rounded-lg px-4 py-2 text-3xl font-dongle">
+            <div className="mx-6 my-3 bg-[var(--color-alert-error-bg)] text-[var(--color-alert-error-text)] border border-[var(--color-alert-error-border)] rounded-lg px-4 py-2 text-3xl font-dongle">
               {error}
             </div>
           )}
 
           {statusMessage && !error && (
-            <div className="mx-6 my-3 bg-[#e6f5d0] text-[#557136] border border-[#b7d28a] rounded-lg px-4 py-2 text-3xl font-dongle">
+            <div className="mx-6 my-3 bg-[var(--color-alert-info-bg)] text-[var(--color-alert-info-text)] border border-[var(--color-alert-info-border)] rounded-lg px-4 py-2 text-3xl font-dongle">
               {statusMessage}
             </div>
           )}
@@ -394,14 +424,14 @@ const setEquippedState = useCallback((nextEquipped) => {
               return (
                 <div
                   key={categoryKey}
-                  className="bg-white/80 rounded-3xl border border-[#e3c8ac] p-4 shadow-inner"
+                  className="bg-[var(--color-card-raised)] rounded-3xl border border-[var(--color-border-soft)] p-4 shadow-inner"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div>
-                      <p className="text-[#c08a57] font-dongle text-3xl">
+                      <p className="text-[var(--color-muted)] font-dongle text-3xl">
                         {CATEGORY_CONFIG[categoryKey].label}
                       </p>
-                      <p className="text-[#4b3b2f] font-dongle text-4xl font-bold">
+                      <p className="text-[var(--color-text)] font-dongle text-4xl font-bold">
                         {equippedItem
                           ? equippedItem.display_name
                           : "None equipped"}
@@ -410,7 +440,7 @@ const setEquippedState = useCallback((nextEquipped) => {
                     {equippedItem && (
                       <button
                         type="button"
-                        className="text-2xl font-dongle text-[#a15a35] underline decoration-dotted hover:text-[#7d3f1d] cursor-pointer"
+                        className="text-2xl font-dongle text-[var(--color-button-primary)] underline decoration-dotted hover:text-[var(--color-button-primary-hover)] cursor-pointer"
                         onClick={() => handleUnequip(categoryKey)}
                         disabled={
                           pendingSlot === CATEGORY_CONFIG[categoryKey].slot
@@ -422,7 +452,7 @@ const setEquippedState = useCallback((nextEquipped) => {
                   </div>
 
                   {categoryItems.length === 0 ? (
-                    <p className="text-[#9e846e] font-dongle text-3xl">
+                    <p className="text-[var(--color-muted)] font-dongle text-3xl">
                       You have not unlocked any items in this category yet.
                     </p>
                   ) : (
@@ -438,30 +468,30 @@ const setEquippedState = useCallback((nextEquipped) => {
                         return (
                           <div
                             key={item.item_id}
-                            className={`rounded-2xl border p-3 flex flex-col gap-2 bg-[#fffdfa] ${
+                            className={`rounded-2xl border p-3 flex flex-col gap-2 bg-[var(--color-card-alt)] ${
                               equippedCurrent
-                                ? "border-[#7fb069] shadow-[0_0_15px_rgba(127,176,105,0.35)]"
-                                : "border-[#e1c4a5]"
+                                ? "border-[var(--color-equip-border-active)] shadow-[0_0_15px_var(--color-equip-shadow)]"
+                                : "border-[var(--color-border-soft)]"
                             }`}
                           >
                             {hasImage ? (
-                              <img
-                                src={resolvedImage}
-                                alt={item.display_name}
-                                className="h-24 object-contain rounded-xl w-full bg-[#f5e7d6]"
-                                loading="lazy"
-                              />
+<img
+  src={resolvedImage}
+  alt={item.display_name}
+  className="h-24 max-w-40 object-contain rounded-xl mx-auto bg-[var(--color-card-image-bg)]"
+  loading="lazy"
+/>
                             ) : (
-                              <div className="h-24 rounded-xl bg-[#f5e7d6] flex items-center justify-center text-[#a47b5f] font-dongle text-3xl">
+                              <div className="h-24 rounded-xl bg-[var(--color-card-image-bg)] flex items-center justify-center text-[var(--color-card-empty-text)] font-dongle text-3xl">
                                 No preview
                               </div>
                             )}
 
                             <div className="flex flex-col">
-                              <span className="font-dongle text-4xl text-[#4b3b2f] leading-none">
+                              <span className="font-dongle text-4xl text-[var(--color-text)] leading-none">
                                 {item.display_name}
                               </span>
-                              <span className="text-[#b08a6f] text-2xl font-dongle">
+                              <span className="text-[var(--color-muted)] text-2xl font-dongle">
                                 Added {formatDate(item.acquired_at)}
                               </span>
                             </div>
@@ -470,8 +500,8 @@ const setEquippedState = useCallback((nextEquipped) => {
                               type="button"
                               className={`font-dongle text-3xl rounded-2xl py-1 transition-colors cursor-pointer ${
                                 equippedCurrent
-                                  ? "bg-[#b1d47f] text-[#425b24]"
-                                  : "bg-[#f2d2b1] text-[#7d4b29] hover:bg-[#edc49b]"
+                                  ? "bg-[var(--color-equip-active-bg)] text-[var(--color-equip-active-text)]"
+                                  : "bg-[var(--color-equip-inactive-bg)] text-[var(--color-equip-inactive-text)] hover:bg-[var(--color-equip-inactive-hover)]"
                               }`}
                               onClick={() =>
                                 equippedCurrent
@@ -502,3 +532,4 @@ const setEquippedState = useCallback((nextEquipped) => {
     </>
   );
 }
+

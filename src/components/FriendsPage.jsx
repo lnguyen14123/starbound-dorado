@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "../index.css";
 import user_icon from "../assets/icons/User.svg"
-import Checkmark from "../assets/checkmark.png";
-import StreakFire from "../assets/streak_fire.png";
+import Checkmark from "../assets/icons/checkmark.png";
+import StreakFire from "../assets/icons/streak_fire.png";
 import achievements from "../assets/icons/achievements.svg"
 import { auth } from "../firebase";
 
@@ -13,7 +13,7 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [showSearch, setShowSearch] = useState(false);
   const [currentUid, setCurrentUid] = useState(null);
-
+  const [friendBadgeCounts, setFriendBadgeCounts] = useState({});
   useEffect(() => {
     const uid = localStorage.getItem("uid");
     setCurrentUid(uid);
@@ -27,7 +27,28 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
     try {
       const response = await fetch(`/api/friends/${uid}`);
       const data = await response.json();
-      setFriends(data.friends || []);
+      const friendsList = data.friends || [];
+      setFriends(friendsList);
+      
+      // Fetch badge counts for each friend
+      const badgeCountsMap = {};
+      for (const friend of friendsList) {
+        try {
+          const badgesResponse = await fetch(`/api/badges/${friend.friend_uid}`);
+          if (badgesResponse.ok) {
+            const badgesData = await badgesResponse.json();
+            // Count only acquired badges
+            const acquiredCount = (badgesData.badges || []).filter(badge => badge.acquired).length;
+            badgeCountsMap[friend.friend_uid] = acquiredCount;
+          } else {
+            badgeCountsMap[friend.friend_uid] = 0;
+          }
+        } catch (err) {
+          console.error(`Error fetching badges for friend ${friend.friend_uid}:`, err);
+          badgeCountsMap[friend.friend_uid] = 0;
+        }
+      }
+      setFriendBadgeCounts(badgeCountsMap);
     } catch (err) {
       console.error("Error fetching friends:", err);
     }
@@ -86,8 +107,7 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        alert("Friend request sent!");
+        await response.json();
         setSearchQuery("");
         setSearchResults([]);
         setShowSearch(false);
@@ -118,7 +138,7 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
         // Refresh friends list and pending requests
         await fetchFriends(currentUid);
         await fetchPendingRequests(currentUid);
-        alert(`Friend request ${status}!`);
+        window.dispatchEvent(new CustomEvent("badgesUpdated"));
       } else {
         const error = await response.json();
         alert(error.error || `Failed to ${status} friend request`);
@@ -132,37 +152,37 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
   return (
     <div className="flex h-full w-full">
       <div className="flex flex-col w-full">
-        <div className=" mt-[1vh] h-[calc(100vh-270px)] w-133 max-w-4xl p-8 bg-[#f4e1d2] rounded-2xl border-2 border-[#926B51] overflow-y-auto">
+        <div className=" mt-[1vh] h-[calc(100vh-270px)] w-133 max-w-4xl p-8 bg-[var(--color-surface-raised)] rounded-2xl border-2 border-[var(--color-border-strong)] overflow-y-auto">
           {/* Pending Friend Requests Section */}
           {pendingRequests.length > 0 && (
             <div className="mb-6">
-              <h2 className="text-5xl font-dongle font-bold text-[#4b3b2f] mb-4">
+              <h2 className="text-5xl font-dongle font-bold text-[var(--color-text)] mb-4">
                 Friend Requests
               </h2>
               <div className="space-y-3">
                 {pendingRequests.map((request) => (
                   <div
                     key={request.request_id}
-                    className="bg-[#E4CFBD] rounded-xl p-4 flex justify-between items-center"
+                    className="bg-[var(--color-card)] rounded-xl p-4 flex justify-between items-center"
                   >
                     <div>
-                      <p className="text-4xl font-dongle text-[#4b3b2f] font-semibold">
+                      <p className="text-4xl font-dongle text-[var(--color-text)] font-semibold">
                         {request.username}
                       </p>
-                      <p className="text-3xl font-dongle text-[#4b3b2f] opacity-70">
+                      <p className="text-3xl font-dongle text-[var(--color-muted)] opacity-90">
                         {request.email}
                       </p>
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleRequestResponse(request.request_id, "accepted")}
-                        className="px-4 py-2 bg-[#d2ee80] text-[#48855c] rounded-lg text-3xl font-dongle font-bold hover:bg-[#b9d66b] transition"
+                        className="px-4 py-2 bg-[var(--color-success-bg)] text-[var(--color-success-text)] rounded-lg text-3xl font-dongle font-bold hover:bg-[var(--color-success-hover)] transition"
                       >
                         Accept
                       </button>
                       <button
                         onClick={() => handleRequestResponse(request.request_id, "declined")}
-                        className="px-4 py-2 bg-[#ffbac4] text-[#f5526b] rounded-lg text-3xl font-dongle font-bold hover:bg-[#ff9ba8] transition"
+                        className="px-4 py-2 bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] rounded-lg text-3xl font-dongle font-bold hover:bg-[var(--color-danger-hover)] transition"
                       >
                         Decline
                       </button>
@@ -176,7 +196,7 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
           {/* Search Section */}
           {showSearch && (
             <div className="mb-6">
-              <h2 className="text-5xl font-dongle font-bold text-[#4b3b2f] mb-4">
+              <h2 className="text-5xl font-dongle font-bold text-[var(--color-text)] mb-4">
                 Search Users
               </h2>
               <input
@@ -184,24 +204,24 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
                 placeholder="Search by username..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="w-full px-4 py-3 rounded-xl bg-white border-2 border-[#926B51] text-4xl font-dongle text-[#4b3b2f] mb-4 focus:outline-none focus:ring-2 focus:ring-[#926B51]"
+                className="w-full px-4 py-3 rounded-xl bg-[var(--color-input-bg)] border-2 border-[var(--color-border-strong)] text-4xl font-dongle text-[var(--color-text)] mb-4 focus:outline-none focus:ring-2 focus:ring-[var(--color-input-ring)]"
               />
               {searchResults.length > 0 && (
                 <div className="space-y-2">
                   {searchResults.map((user) => (
                     <div
                       key={user.uid}
-                      className="bg-[#E4CFBD] rounded-xl p-4 flex justify-between items-center"
+                      className="bg-[var(--color-card)] rounded-xl p-4 flex justify-between items-center"
                     >
                       <div>
-                        <p className="text-4xl font-dongle text-[#4b3b2f] font-semibold">
+                        <p className="text-4xl font-dongle text-[var(--color-text)] font-semibold">
                           {user.username}
                         </p>
                         
                       </div>
                       <button
                         onClick={() => sendFriendRequest(user.uid)}
-                        className="px-4 py-2 bg-[#AD7B5C] text-white rounded-lg text-3xl font-dongle font-bold hover:bg-[#926B51] transition"
+                        className="px-4 py-2 bg-[var(--color-button-primary)] text-[var(--color-button-primary-text)] rounded-lg text-3xl font-dongle font-bold hover:bg-[var(--color-button-primary-hover)] transition"
                       >
                         Send Request
                       </button>
@@ -210,7 +230,7 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
                 </div>
               )}
               {searchQuery && searchResults.length === 0 && (
-                <p className="text-4xl font-dongle text-[#4b3b2f] text-center py-4">
+                <p className="text-4xl font-dongle text-[var(--color-text)] text-center py-4">
                   No users found
                 </p>
               )}
@@ -224,7 +244,7 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
                 {friends.map((friend) => (
                   <div
                     key={friend.friend_uid}
-                    className="bg-[#E4CFBD] rounded-xl p-4"
+                    className="bg-[var(--color-card)] rounded-xl p-4"
                   >
               
 
@@ -232,10 +252,10 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
                       <img src={user_icon} alt="User_icon" className="w-10"/>
       
                       <div>
-                        <p className="text-4xl font-dongle text-[#4b3b2f] font-semibold">
+                        <p className="text-4xl font-dongle text-[var(--color-text)] font-semibold">
                           {friend.username}
                         </p>
-                        <p className="text-3xl font-dongle text-[#4b3b2f] opacity-70">
+                        <p className="text-3xl font-dongle text-[var(--color-muted)] opacity-90">
                           {friend.email}
                         </p>
                       </div>
@@ -245,7 +265,7 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
 
                           <img src={Checkmark} alt="Checkmark" className="w-10" />
                           
-                          <p className="text-3xl font-dongle text-[#4b3b2f] font-semibold">
+                          <p className="text-3xl font-dongle text-[var(--color-text)] font-semibold">
                             {friend.lifetime_tasks_completed || 0}
                           </p>
 
@@ -255,13 +275,16 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
       
                           <img src={StreakFire} alt="StreakFire" className="w-10"/>
 
-                          <p className="text-3xl font-dongle text-[#4b3b2f]">
+                          <p className="text-3xl font-dongle text-[var(--color-text)]">
                             {friend.streak_days > 0 ? `${friend.streak_days}` : '0'}
                           </p>
 
                         </div>
                         <div className="flex items-center gap-2">
                           <img src={achievements} alt="trophies" className="w-10"/>
+                          <p className="text-3xl font-dongle text-[var(--color-text)] font-semibold">
+                            {friendBadgeCounts[friend.friend_uid] || 0}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -269,7 +292,7 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
                 ))}
               </div>
             ) : (
-              <div className="text-4xl font-dongle text-[#4b3b2f] text-center py-8">
+              <div className="text-4xl font-dongle text-[var(--color-text)] text-center py-8">
                 No friends yet
               </div>
             )}
@@ -279,7 +302,7 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
         {/* Add New Friend button at the bottom */}
         <button
           onClick={() => setShowSearch(!showSearch)}
-          className="mt-4 px-2 pt-1 w-130 h-17 bg-[#AD7B5C] text-white font-bold rounded-2xl cursor-pointer transition shadow-[0_7px_4px_rgba(0,0,0,0.3)] hover:bg-[#926B51] text-4xl font-dongle"
+          className="mt-4 px-2 pt-1 w-130 h-17 bg-[var(--color-button-primary)] text-[var(--color-button-primary-text)] font-bold rounded-2xl cursor-pointer transition shadow-[0_7px_4px_rgba(0,0,0,0.3)] hover:bg-[var(--color-button-primary-hover)] text-4xl font-dongle"
         >
           {showSearch ? "Hide Search" : "+ Add New Friend"}
         </button>
@@ -287,3 +310,7 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
     </div>
   );
 }
+
+
+
+

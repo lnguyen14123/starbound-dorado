@@ -1,20 +1,36 @@
 import React from "react";
-import Floor1 from '../assets/Floor1.png';
+import { useEquipped } from "../context/EquippedContext";
 
-function Floor({ className = "", tabs, currentTab, onTabClick }) {
+// Floor assets
+import FloorWooden from "../assets/floors/floor_wooden.svg";
+import FloorGray from "../assets/floors/floor_gray.svg";
+import TilesPink from "../assets/floors/tiles_pink.svg";
+import TilesBlack from "../assets/floors/tiles_black.svg";
+
+// Map your floor IDs to assets
+const FLOOR_ASSETS = {
+  floor_wood: FloorWooden,
+  floor_gray: FloorGray,
+  tiles_pink: TilesPink,
+  tiles_black: TilesBlack,
+};
+
+const Floor = ({ className = "" }) => {
+  const { equipped } = useEquipped();
+
+  // Get the currently equipped floor
+  const equippedFloorId = equipped.room.floor_item;
+  const FloorImage = FLOOR_ASSETS[equippedFloorId] || FloorWooden;
+
   return (
-
-
-    <div className="bg-transparent w-screen bg-black">
-
-      {/* Bottom banner image */}
-      <img
-        src={Floor1}
-        alt="Bottom Banner"
-        className={`absolute bottom-0 left-0 w-screen h-[30vh] z-0 -mb-10 scale-105 ${className}`}
-      />
+    <div className={`bg-transparent w-screen ${className}`}>
+<img
+  src={FloorImage}
+  alt="Equiped Floor"
+  className={`absolute bottom-0 left-0 w-full min-w-full object-cover h-[30vh] z-0 ${className}`}
+/>
     </div>
   );
-}
+};
 
 export default Floor;
