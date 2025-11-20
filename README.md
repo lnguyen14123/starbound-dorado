@@ -17,13 +17,29 @@ An interactive pet that helps you complete your day to day tasks!
 
 Taskigotchi is a web app that has you completing tasks like chores, homework, errands, studying and more! Set your to-do list and complete tasks to earn rewards for your pet. You can buy items like hats, collars, wallpapers, floors, and furniture for your pet! 
 
-<img src="/src/assets/readme/mainpage.png" width="500" />
+  <br />
+  <br />
+
+<div align="center">
+  <img src="/src/assets/readme/mainpage.png" width="800" />
+</div>
+
+  <br />
 
 
 ## Features
 
  - As you complete tasks earn badges and achievements to show your dedication!
  - Connect with friends and compete with streaks, points and outfits!
+ - Purchase items for your pet in an ever growing store!
+
+  <br />
+<div align="center">
+  <img src="/src/assets/readme/store.png" width="800" />
+</div>
+
+  <br />
+
 
 
 ## Technologies Used
