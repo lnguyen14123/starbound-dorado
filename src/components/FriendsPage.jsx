@@ -159,7 +159,23 @@ export default function FriendsPage({ onClose, onPendingRequestsChange }) {
         setShowSearch(false);
       } else {
         const error = await response.json();
-        alert(error.error || "Failed to send friend request");
+        const errorMessage = error.error || "";
+        
+        const silentErrors = [
+          "already sent",
+          "already exists",
+          "already friends",
+          "previously declined"
+        ];
+        
+        const shouldSilentlyIgnore = silentErrors.some(silentError => 
+          errorMessage.toLowerCase().includes(silentError.toLowerCase())
+        );
+        
+        // Only alert on actual errors (not found, database errors, etc.)
+        if (!shouldSilentlyIgnore) {
+          alert(errorMessage || "Failed to send friend request");
+        }
       }
     } catch (err) {
       console.error("Error sending friend request:", err);
