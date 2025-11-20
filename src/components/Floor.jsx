@@ -22,7 +22,7 @@ const Floor = ({ className = "" }) => {
     <div className={`bg-transparent w-screen ${className}`}>
 
       {/* Black separator line */}
-      <div className="absolute bottom-[30vh] left-0 w-full h-[.8vh] bg-black z-10"></div>
+      <div className="absolute bottom-[30vh] left-0 w-full h-[.8vh] bg-black z-1"></div>
 
       {/* Floor Image */}
       <img

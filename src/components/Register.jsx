@@ -169,7 +169,7 @@ export default function Register() {
             <button
               type="button"
               onClick={() => setError("")}
-              className="mt-6 bg-[#AD7B5C] text-white text-4xl font-dongle font-bold px-8 py-2 rounded-3xl hover:bg-[#b6917d] transition"
+              className="mt-6 bg-[#AD7B5C] text-white text-4xl font-dongle font-bold px-8 py-2 rounded-3xl hover:bg-[#b6917d] transition cursor-pointer"
             >
               Got it
             </button>
